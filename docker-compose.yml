@@ -1,0 +1,148 @@
+version: '3.8'
+
+services:
+  # Base de Datos PostgreSQL para servicio de Usuarios
+  users-db:
+    image: postgres:latest
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${USERS_DB}
+    ports:
+      - "5436:5432"
+    volumes:
+      - users-db-data:/var/lib/postgresql/data
+    networks:
+      - app-network
+
+  # Base de Datos PostgreSQL para servicio de Admins
+  admins-db:
+    image: postgres:latest
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${ADMINS_DB}
+    ports:
+      - "5434:5432"
+    volumes:
+      - admins-db-data:/var/lib/postgresql/data
+    networks:
+      - app-network
+
+  # Base de Datos PostgreSQL para servicio de Clientes
+  clients-db:
+    image: postgres:latest
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${CLIENTS_DB}
+    ports:
+      - "5435:5432"
+    volumes:
+      - clients-db-data:/var/lib/postgresql/data
+    networks:
+      - app-network
+
+  # Servicio de Usuario (Express)
+  users-service:
+    build: ./servicio_usuarios
+    volumes:
+      - ./servicio_usuarios:/app
+    env_file:
+      - .env
+    environment:
+      DATABASE_HOST: users-db
+      DATABASE_USER: ${POSTGRES_USER}
+      DATABASE_PASSWORD: ${POSTGRES_PASSWORD}
+      DATABASE_NAME: ${USERS_DB}
+      DATABASE_PORT: 5432
+    depends_on:
+      - users-db
+    networks:
+      - app-network
+
+  # Servicio de Admin (Express)
+  admins-service:
+    build: ./servicio_admin
+    volumes:
+      - ./servicio_admin:/app
+    env_file:
+      - .env
+    environment:
+      DATABASE_HOST: admins-db
+      DATABASE_USER: ${POSTGRES_USER}
+      DATABASE_PASSWORD: ${POSTGRES_PASSWORD}
+      DATABASE_NAME: ${ADMINS_DB}
+      DATABASE_PORT: 5432
+    depends_on:
+      - admins-db
+    networks:
+      - app-network
+
+  # Servicio de Clientes (Express)
+  clients-service:
+    build: ./servicio_clientes
+    volumes:
+      - ./servicio_clientes:/app
+    env_file:
+      - .env
+    environment:
+      DATABASE_HOST: clients-db
+      DATABASE_USER: ${POSTGRES_USER}
+      DATABASE_PASSWORD: ${POSTGRES_PASSWORD}
+      DATABASE_NAME: ${CLIENTS_DB}
+      DATABASE_PORT: 5432
+    depends_on:
+      - clients-db
+    networks:
+      - app-network
+
+  # Kafka de Bitnami
+  zookeeper:
+    image: bitnami/zookeeper:latest
+    environment:
+      - ALLOW_ANONYMOUS_LOGIN=yes
+    networks:
+      - app-network
+
+  kafka:
+    image: bitnami/kafka:latest
+    environment:
+      - KAFKA_BROKER_ID=1
+      - KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181
+      - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092
+      - ALLOW_PLAINTEXT_LISTENER=yes
+    depends_on:
+      - zookeeper
+    networks:
+      - app-network
+
+  # Servicio Frontend (React)
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000" # Exponer el puerto 3000 para el desarrollo en React
+    networks:
+      - app-network
+    environment:
+      REACT_APP_USERS_SERVICE_URL: ${REACT_APP_USERS_SERVICE_URL}
+      REACT_APP_ADMINS_SERVICE_URL: ${REACT_APP_ADMINS_SERVICE_URL}
+      REACT_APP_CLIENTS_SERVICE_URL: ${REACT_APP_CLIENTS_SERVICE_URL}
+    depends_on:
+      - users-service
+      - admins-service
+      - clients-service
+    volumes:
+      - ./frontend:/app # Montar el código de React para desarrollo
+      - /app/node_modules # Evitar conflictos de node_modules
+
+volumes:
+  users-db-data:
+  admins-db-data:
+  clients-db-data:
+
+networks:
+  app-network:
+    driver: bridge
