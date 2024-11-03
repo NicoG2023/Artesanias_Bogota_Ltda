@@ -48,6 +48,9 @@ services:
     build: ./servicio_usuarios
     volumes:
       - ./servicio_usuarios:/app
+      - /app/node_modules
+    ports:
+      - "3001:3000" # Exponer el puerto 3000 para el desarrollo en Express
     env_file:
       - .env
     environment:
@@ -66,6 +69,9 @@ services:
     build: ./servicio_admin
     volumes:
       - ./servicio_admin:/app
+      - /app/node_modules
+    ports:
+      - "3002:3000" # Exponer el puerto 3000 para el desarrollo en Express
     env_file:
       - .env
     environment:
@@ -84,6 +90,9 @@ services:
     build: ./servicio_clientes
     volumes:
       - ./servicio_clientes:/app
+      - /app/node_modules
+    ports:
+      - "3003:3000" # Exponer el puerto 3000 para el desarrollo en Express
     env_file:
       - .env
     environment:

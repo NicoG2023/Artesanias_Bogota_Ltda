@@ -1,20 +1,23 @@
-# Usa una imagen base de Node.js
-FROM node:18
+# Use the official Node.js Alpine image
+FROM node:alpine
 
-# Crea el directorio de trabajo en el contenedor
+# Set the working directory inside the container
 WORKDIR /app
 
-# Copia package.json y yarn.lock al contenedor
-COPY package*.json yarn.lock ./
+# Copy package.json and package-lock.json first
+COPY package*.json ./
 
-# Instala las dependencias y nodemon globalmente
-RUN npm install && npm install -g nodemon
+# Install all dependencies (including devDependencies)
+RUN npm install
 
-# Copia el código fuente de la aplicación
+# Install nodemon globally (opcional)
+RUN npm install -g nodemon
+
+# Copy the rest of the application code
 COPY . .
 
-# Expone el puerto (cambia el puerto si cada servicio usa uno diferente)
+# Expose the application's port
 EXPOSE 3000
 
-# Comando para iniciar el servicio
-CMD ["nodemon", "app.js"]
+# Command to start the application
+CMD ["npm", "start"]
