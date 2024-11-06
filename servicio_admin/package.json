@@ -4,6 +4,7 @@
   "main": "index.js",
   "license": "MIT",
   "dependencies": {
+    "@azure/storage-blob": "^12.25.0",
     "cors": "^2.8.5",
     "express": "^4.21.1",
     "pg": "^8.13.1",
