@@ -2,37 +2,42 @@ const Usuario = require("../models/Usuario");
 
 //Lectura de usuario
 //Leer todos los usarios
-const getAllUsuarios = async (req,res)=>{
+async function getAllUsuarios() {
     try {
-      const usuarios = await Usuario.findAll()
-      res.json(usuarios)
+      const usuarios = await Usuario.findAll();
+      return usuarios;
     } catch (error) {
-      res.json({message: error.message})
+      throw new Error("Error al obtener los usuarios: " + error.message);
     }
 }
   
-//Leer un usuario en particular
-const getUsuario =async (req,res)=>{
+//Leer un usuario por id
+async function getUsuarioById(id) {
     try {
-        const usuario = await Usuario.findOne({
-            where: {id:req.params.id}
-        })
-        res.json(usuario )
+      const usuario = await Usuario.findOne({
+        where: { id: id }
+      });
+      if (!usuario) {
+        throw new Error("Usuario no encontrado");
+      }
+      return usuario;
     } catch (error) {
-        res.json({message: error.message})
+      throw new Error("Error al obtener el usuario: " + error.message);
     }
 }
 
 //Eliminacion de usuario
-const deleteUsuario = async (req,res) =>{
+async function deleteUsuario(id) {
     try {
-        await Usuario.destroy({
-            where: {id:req.params.id}
-        })
-        res.json({"message": "Usuario eliminado correctamente"})
+      const usuario = await Usuario.findByPk(id);
+      if (!usuario) {
+        throw new Error("Usuario no encontrado");
+      }
+      await usuario.destroy();
+      return { message: "Usuario eliminado correctamente" };
     } catch (error) {
-        res.json({message: error.message})
+      throw new Error("Error al eliminar el usuario: " + error.message);
     }
 }
 
-module.exports = { getAllUsuarios, getUsuario, deleteUsuario };
+module.exports = { getAllUsuarios, getUsuarioById, deleteUsuario };
