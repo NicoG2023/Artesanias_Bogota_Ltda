@@ -87,4 +87,7 @@ function generarSKU(producto) {
   return `${categoria}${color}${talla}-${uniqueId}`;
 }
 
-module.exports = Producto;
+module.exports = {
+  Producto,
+  generarSKU,
+};
