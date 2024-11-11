@@ -46,7 +46,7 @@ services:
     build: ./servicio_usuarios
     volumes:
       - ./servicio_usuarios:/app
-      - users-node-modules:/app/node_modules
+      - /app/node_modules
     ports:
       - "3001:3000" # Exponer el puerto 3000 para el desarrollo en Express
     env_file:
@@ -61,13 +61,14 @@ services:
       - users-db
     networks:
       - app-network
+    restart: on-failure
 
   # Servicio de Admin (Express)
   admins-service:
     build: ./servicio_admin
     volumes:
       - ./servicio_admin:/app
-      - admins-node-modules:/app/node_modules
+      - /app/node_modules
     ports:
       - "3002:3000" # Exponer el puerto 3000 para el desarrollo en Express
     env_file:
@@ -82,13 +83,14 @@ services:
       - admins-db
     networks:
       - app-network
+    restart: on-failure
 
   # Servicio de Clientes (Express)
   clients-service:
     build: ./servicio_clientes
     volumes:
       - ./servicio_clientes:/app
-      - clients-node-modules:/app/node_modules
+      - /app/node_modules
     ports:
       - "3003:3000" # Exponer el puerto 3000 para el desarrollo en Express
     env_file:
@@ -103,6 +105,7 @@ services:
       - clients-db
     networks:
       - app-network
+    restart: on-failure
 
   # Kafka de Bitnami
   zookeeper:
@@ -143,15 +146,13 @@ services:
       - clients-service
     volumes:
       - ./frontend:/app # Montar el código de React para desarrollo
-      - /app/node_modules # Evitar conflictos de node_modules
+      - /app/node_modules
+    restart: on-failure
 
 volumes:
   users-db-data:
   admins-db-data:
   clients-db-data:
-  users-node-modules:
-  admins-node-modules:
-  clients-node-modules:
 
 networks:
   app-network:
