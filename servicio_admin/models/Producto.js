@@ -67,8 +67,23 @@ const Producto = sequelize.define(
     ],
     hooks: {
       beforeCreate: async (producto) => {
-        if (!producto.sku) {
+        if (
+          !producto.sku ||
+          producto.sku === null ||
+          producto.sku === undefined
+        ) {
           producto.sku = generarSKU(producto);
+          console.log("SKU generado:", producto.sku);
+        }
+      },
+      beforeUpdate: async (producto) => {
+        if (
+          !producto.sku ||
+          producto.sku === null ||
+          producto.sku === undefined
+        ) {
+          producto.sku = generarSKU(producto);
+          console.log("SKU generado:", producto.sku);
         }
       },
     },
@@ -84,6 +99,16 @@ function generarSKU(producto) {
     : "";
   const talla = producto.talla ? `-${producto.talla.toUpperCase()}` : "";
   const uniqueId = Date.now().toString().slice(-4);
+  console.log(
+    "Categoria: ",
+    categoria,
+    "color: ",
+    color,
+    "talla: ",
+    talla,
+    "uniqueId: ",
+    uniqueId
+  );
   return `${categoria}${color}${talla}-${uniqueId}`;
 }
 

@@ -23,7 +23,7 @@ sequelize
     return sequelize.sync();
   })
   .then(() => {
-    console.log("Sincronización de modelos completada");
+    console.log("Sincronización de modelos completada.");
   })
   .catch((err) => {
     console.error("No se pudo conectar a la base de datos:", err);

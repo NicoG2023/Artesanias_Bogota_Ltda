@@ -1,0 +1,7 @@
+{
+    "watch": ["./"],
+    "ext": "js,json",
+    "ignore": ["node_modules", "docker-compose.yml"],
+    "legacyWatch": true
+  }
+  

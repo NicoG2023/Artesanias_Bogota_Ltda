@@ -1,5 +1,5 @@
 # Dockerfile para el entorno de desarrollo en React
-FROM node:14
+FROM node:alpine
 
 # Crear directorio de trabajo
 WORKDIR /app

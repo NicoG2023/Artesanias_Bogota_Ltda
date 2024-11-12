@@ -1,23 +1,24 @@
-# Use the official Node.js Alpine image
+# Usar la imagen oficial de Node.js en Alpine Linux
 FROM node:alpine
 
-# Set the working directory inside the container
+# Establecer el directorio de trabajo
 WORKDIR /app
 
-# Copy package.json and package-lock.json first
+# Definir NODE_ENV y establecer `development` como valor predeterminado
+ARG NODE_ENV=development
+ENV NODE_ENV=${NODE_ENV}
+
+# Copiar package.json y package-lock.json
 COPY package*.json ./
 
-# Install all dependencies (including devDependencies)
+# Instalar todas las dependencias (incluyendo devDependencies en modo desarrollo)
 RUN npm install
 
-# Install nodemon globally (opcional)
-RUN npm install -g nodemon
-
-# Copy the rest of the application code
+# Copiar el resto del código de la aplicación
 COPY . .
 
-# Expose the application's port
+# Exponer el puerto de la aplicación
 EXPOSE 3000
 
-# Command to start the application
-CMD ["npm", "run", "serve"]
+# Comando para iniciar la aplicación con nodemon
+CMD ["npx", "nodemon", "--legacy-watch", "app.js"]

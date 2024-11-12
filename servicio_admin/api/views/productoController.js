@@ -1,14 +1,15 @@
-const { Producto, Categoria } = require('../../models');
-const productoSerializer = require('../serializers/productoSerializer');
-const { containerClient } = require('../../config/blob-storage');
-const multer = require('multer');
-const path = require('path');
-const { v4: uuidv4 } = require('uuid');
+const { Producto, Categoria } = require("../../models");
+const productoSerializer = require("../serializers/productoSerializer");
+const { containerClient } = require("../../config/blob-storage");
+const multer = require("multer");
+const path = require("path");
+const { v4: uuidv4 } = require("uuid");
+const { generarSKU } = require("../../models/Producto");
 
 //Vista para obtener productos con paginación y filtrado
 const obtenerProductos = async (req, res) => {
   try {
-    const { page = 1, search = '', categoria = null } = req.query;
+    const { page = 1, search = "", categoria = null } = req.query;
     const limit = 10;
     const offset = (page - 1) * limit;
 
@@ -21,7 +22,7 @@ const obtenerProductos = async (req, res) => {
     // Se realiza la búsqueda con paginación y las relaciones necesarias
     const { rows: productos, count: total } = await Producto.findAndCountAll({
       where,
-      includ: [{ model: Categoria, attributes: ['id', 'nombre'] }],
+      includ: [{ model: Categoria, attributes: ["id", "nombre"] }],
       limit,
       offset,
     });
@@ -37,7 +38,7 @@ const obtenerProductos = async (req, res) => {
       },
     });
   } catch (error) {
-    res.status(500).json({ error: 'Error al obtener los productos' });
+    res.status(500).json({ error: "Error al obtener los productos" });
   }
 };
 
@@ -48,25 +49,25 @@ const upload = multer({
   fileFilter: (req, file, cb) => {
     const ext = path.extname(file.originalname).toLowerCase();
     if (
-      ext === '.jpg' ||
-      ext === '.jpeg' ||
-      ext === '.png' ||
-      ext === '.webp'
+      ext === ".jpg" ||
+      ext === ".jpeg" ||
+      ext === ".png" ||
+      ext === ".webp"
     ) {
       cb(null, true);
     } else {
       cb(
-        new Error('Solo se permiten imágenes en formato JPG, JPEG, PNG o WEBP'),
+        new Error("Solo se permiten imágenes en formato JPG, JPEG, PNG o WEBP")
       );
     }
   },
-}).single('imagen'); //el campo en el formulario debe llamarse "imagen"
+}).single("imagen"); //el campo en el formulario debe llamarse "imagen"
 
-//Vista para crear un nuevo producto
+// Vista para crear un nuevo producto
 const agregarProducto = async (req, res) => {
   upload(req, res, async (err) => {
     if (err) {
-      console.error('Error en multer:', err.message);
+      console.error("Error en multer:", err.message);
       return res.status(400).json({ error: err.message });
     }
 
@@ -81,10 +82,23 @@ const agregarProducto = async (req, res) => {
     } = req.body;
 
     try {
-      let imagenUrl;
+      // Crear una instancia sin guardar para ejecutar las validaciones
+      const nuevoProducto = Producto.build({
+        nombre,
+        precio,
+        descripcion,
+        es_activo,
+        categoria_fk,
+        color,
+        talla,
+      });
 
+      // Ejecutar el hook beforeCreate manualmente
+      await Producto.runHooks("beforeCreate", nuevoProducto);
+
+      // Subida de la imagen a Azure Blob Storage solo si las validaciones pasan
+      let imagenUrl;
       if (req.file) {
-        // Subida de la imagen a Azure Blob Storage
         const blobName = `${uuidv4()}${path.extname(req.file.originalname)}`;
         const blockBlobClient = containerClient.getBlockBlobClient(blobName);
 
@@ -92,33 +106,23 @@ const agregarProducto = async (req, res) => {
           blobHTTPHeaders: { blobContentType: req.file.mimetype },
         });
 
-        imagenUrl = blockBlobClient.url; //URL de la imagen a guardar en la BD
+        imagenUrl = blockBlobClient.url;
       } else {
         imagenUrl =
-          'https://artesaniasbogota2024.blob.core.windows.net/imagenes-artesanias/default-product.webp'; //Imagen por defecto en caso de que no se agregue una.
+          "https://artesaniasbogota2024.blob.core.windows.net/imagenes-artesanias/default-product.webp";
       }
 
-      //Guardar el producto en la BD
-      const nuevoProducto = await Producto.create({
-        nombre,
-        precio,
-        descripcion,
-        imagen: imagenUrl,
-        es_activo,
-        categoria_fk,
-        color,
-        talla,
-      });
+      // Asignar la URL de la imagen y guardar en la base de datos
+      nuevoProducto.imagen = imagenUrl;
+      await nuevoProducto.save();
 
       res.status(201).json(productoSerializer(nuevoProducto));
     } catch (error) {
-      console.error('Error al agregar el producto:', error);
-      res
-        .status(500)
-        .json({
-          error: 'Error al agregar el producto',
-          details: error.message,
-        });
+      console.error("Error al agregar el producto:", error);
+      res.status(500).json({
+        error: "Error al agregar el producto",
+        details: error.message,
+      });
     }
   });
 };
@@ -127,7 +131,6 @@ const agregarProducto = async (req, res) => {
 const editarProducto = async (req, res) => {
   const { id } = req.params;
 
-  // Subida de imagen, si existe, y actualización de datos
   upload(req, res, async (err) => {
     if (err) {
       return res.status(400).json({ error: err.message });
@@ -144,15 +147,30 @@ const editarProducto = async (req, res) => {
     } = req.body;
 
     try {
-      // Buscar el producto
       const producto = await Producto.findByPk(id);
 
       if (!producto) {
-        return res.status(404).json({ error: 'Producto no encontrado' });
+        return res.status(404).json({ error: "Producto no encontrado" });
       }
 
-      // Subir una nueva imagen a Azure Blob Storage si se proporciona una
-      let imagenUrl = producto.imagen;
+      //Actualizar los datos del producto
+      producto.set({
+        nombre,
+        precio,
+        descripcion,
+        es_activo,
+        categoria_fk,
+        color,
+        talla,
+      });
+
+      // Generar el nuevo SKU
+      producto.sku = generarSKU(producto);
+
+      // Guardar el producto (validaciones incluidas)
+      await producto.save();
+
+      // Si hay una nueva imagen, subirla y actualizar el campo "imagen"
       if (req.file) {
         const blobName = `${uuidv4()}${path.extname(req.file.originalname)}`;
         const blockBlobClient = containerClient.getBlockBlobClient(blobName);
@@ -161,23 +179,16 @@ const editarProducto = async (req, res) => {
           blobHTTPHeaders: { blobContentType: req.file.mimetype },
         });
 
-        imagenUrl = blockBlobClient.url; //URL de la nueva imagen
+        //Actualizar la URL de la imagen en la BD
+        producto.imagen = blockBlobClient.url;
+        await producto.save();
       }
-
-      //Actualizar los datos del producto
-      await producto.update({
-        nombre,
-        precio,
-        descripcion,
-        imagen: imagenUrl,
-        es_activo,
-        categoria_fk,
-        color,
-        talla,
-      });
       res.status(200).json(productoSerializer(producto));
     } catch (error) {
-      res.status(500).json({ error: 'Error al editar el producto' });
+      console.error("Error al editar el producto:", error);
+      res
+        .status(500)
+        .json({ error: "Error al editar el producto", details: error.message });
     }
   });
 };
@@ -191,18 +202,18 @@ const desactivarProducto = async (req, res) => {
     const producto = await Producto.findByPk(id);
 
     if (!producto) {
-      return res.status(404).json({ error: 'Producto no encontrado' });
+      return res.status(404).json({ error: "Producto no encontrado" });
     }
 
     //Actualizar el campo "es_activo" a false
     await producto.update({ es_activo: false });
 
     res.status(200).json({
-      message: 'Producto desactivado exitosamente',
+      message: "Producto desactivado exitosamente",
       data: productoSerializer(producto),
     });
   } catch (error) {
-    res.status(500).json({ error: 'Error al desactivar el producto' });
+    res.status(500).json({ error: "Error al desactivar el producto" });
   }
 };
 
