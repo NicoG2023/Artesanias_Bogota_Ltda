@@ -35,4 +35,24 @@ const deleteUsuarioController = async (req, res) => {
     }
 };
 
-  module.exports = { getAllUsuariosController, getUsuarioController, deleteUsuarioController };
+const updateUsuarioController = async (req, res) => {
+  try {
+    // Extrae el ID del usuario de los parámetros de la solicitud
+    const { id } = req.params;
+    
+    // Extrae los datos actualizados del cuerpo de la solicitud
+    const updatedData = req.body;
+    
+    // Llama a la función updateUser para actualizar el usuario en la base de datos
+    const updatedUser = await updateUser(id, updatedData);
+    
+    // Si la actualización es exitosa, responde con el usuario actualizado y un estado 200
+    res.status(200).json(updatedUser);
+  } catch (error) {
+    // Si ocurre un error, lo registra en la consola y responde con un estado 400 y el mensaje de error
+    console.error(error);
+    res.status(400).json({ message: error.message });
+  }
+}
+
+module.exports = { getAllUsuariosController, getUsuarioController, deleteUsuarioController, updateUsuarioController };
