@@ -1,8 +1,11 @@
 const express = require("express");
 const app = express();
 const PORT = process.env.PORT || 3000;
+require('dotenv').config();
 const { sequelize } = require("./models");
 const cors = require("cors");
+const authRoutes = require('./routes/authRoutes');
+const protectedRoutes = require('./routes/ProtectedRoutes'); 
 
 // Configuración de CORS para permitir todas las solicitudes (solo para desarrollo, en producción CAMBIAR)
 app.use(cors());
@@ -14,6 +17,11 @@ app.use(express.json());
 app.get("/", (req, res) => {
   res.send("¡Servicio funcionando!");
 });
+
+app.use('/auth', authRoutes);
+
+// Rutas protegidas
+app.use('/api', protectedRoutes);
 
 // Sincronización y autenticación con la base de datos
 sequelize
