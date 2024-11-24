@@ -4,6 +4,8 @@ const PORT = process.env.PORT || 3000;
 require("dotenv").config();
 const { sequelize } = require("./models");
 const cors = require("cors");
+const swaggerUi = require("swagger-ui-express");
+const swaggerSpec = require("./config/swagger");
 const usuarioRoutes = require("./api/routes/usuarioRoutes"); //Importa rutas
 
 // Configuración de CORS para permitir todas las solicitudes (solo para desarrollo, en producción CAMBIAR)
@@ -17,6 +19,9 @@ app.use("/usuario", usuarioRoutes);
 app.get("/", (req, res) => {
   res.send("¡Servicio funcionando!");
 });
+
+// Ruta para la documentación de Swagger
+app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // Sincronización y autenticación con la base de datos
 sequelize

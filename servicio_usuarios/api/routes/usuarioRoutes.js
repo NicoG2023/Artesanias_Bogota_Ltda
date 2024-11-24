@@ -5,7 +5,7 @@ const {
   deleteUsuarioController,
   updateUsuarioController,
 } = require("../views/viewsController");
-const verifyToken = require("../../middleware/auth/verifyToken");
+const verifyToken = require("../../middleware/auth");
 const authorizeRoles = require("../../middleware/auth/authorizeRoles");
 const router = express.Router();
 
