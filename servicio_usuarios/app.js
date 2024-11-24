@@ -4,9 +4,7 @@ const PORT = process.env.PORT || 3000;
 require("dotenv").config();
 const { sequelize } = require("./models");
 const cors = require("cors");
-const usuarioRoutes = require("./api/routes"); //Importa rutas
-const authRoutes = require("./routes/authRoutes");
-const protectedRoutes = require("./routes/ProtectedRoutes");
+const usuarioRoutes = require("./api/routes/usuarioRoutes"); //Importa rutas
 
 // Configuración de CORS para permitir todas las solicitudes (solo para desarrollo, en producción CAMBIAR)
 app.use(cors());
@@ -15,16 +13,10 @@ app.use(cors());
 app.use(express.json());
 
 app.use("/usuario", usuarioRoutes);
-// Ruta de ejemplo
 
 app.get("/", (req, res) => {
   res.send("¡Servicio funcionando!");
 });
-
-app.use("/auth", authRoutes);
-
-// Rutas protegidas
-app.use("/api", protectedRoutes);
 
 // Sincronización y autenticación con la base de datos
 sequelize
