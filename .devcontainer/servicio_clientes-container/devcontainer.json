@@ -1,0 +1,35 @@
+{
+    "name": "Clients Service Dev Container",
+    "dockerComposeFile": ["../../docker-compose.yml"],
+    "service": "clients-service",
+    "workspaceFolder": "/app",
+    "customizations": {
+      "vscode": {
+        "extensions": [
+          "dbaeumer.vscode-eslint",
+          "esbenp.prettier-vscode"
+        ],
+        "settings": {
+          "editor.formatOnSave": true,
+          "editor.codeActionsOnSave": {
+            "source.fixAll": "always"
+          },
+          "eslint.validate": [
+            "javascript",
+            "javascriptreact",
+            "typescript",
+            "typescriptreact"
+          ],
+          "prettier.eslintIntegration": true,
+          "prettier.singleQuote": true,
+          "prettier.trailingComma": "all",
+          "terminal.integrated.shell.linux": "/bin/bash"
+        }
+      }
+    },
+    "shutdownAction": "none",
+    "forwardPorts": [3003],
+    "postCreateCommand": "npm install",
+    "remoteUser": "node"
+  }
+  

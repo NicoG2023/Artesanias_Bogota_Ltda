@@ -1,6 +1,6 @@
 const sequelize = require("../config/database");
 
-const Producto = require("./Producto");
+const { Producto } = require("./Producto");
 const Categoria = require("./Categoria");
 const Carrito = require("./Carrito");
 const REL_CarritoProducto = require("./REL_Carrito_Producto");

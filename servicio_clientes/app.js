@@ -19,7 +19,7 @@ app.get("/", (req, res) => {
 sequelize
   .authenticate()
   .then(() => {
-    console.log("Conexión establecida con la base de datos");
+    console.log("Conexión establecida con la base de datos.");
     return sequelize.sync();
   })
   .then(() => {
