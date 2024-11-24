@@ -3,6 +3,7 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 const { sequelize } = require("./models");
 const cors = require("cors");
+const usuarioRoutes = require("./api/routes") //Importa rutas
 
 // Configuración de CORS para permitir todas las solicitudes (solo para desarrollo, en producción CAMBIAR)
 app.use(cors());
@@ -10,7 +11,9 @@ app.use(cors());
 // Middleware básico
 app.use(express.json());
 
+app.use('/usuario', usuarioRoutes)
 // Ruta de ejemplo
+
 app.get("/", (req, res) => {
   res.send("¡Servicio funcionando!");
 });
