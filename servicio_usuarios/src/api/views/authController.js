@@ -36,9 +36,8 @@ const login = async (req, res) => {
   }
 };
 
-
 const register = async (req, res) => {
-  const {nombre, apellido, email, password} = req.body;
+  const { nombre, apellido, email, password } = req.body;
 
   try {
     const usuarioExistente = await Usuario.findOne({ where: { email } });
@@ -46,11 +45,49 @@ const register = async (req, res) => {
       return res.status(400).json({ message: "El email ya está registrado" });
     }
 
-    const newUsuario = await Usuario.create({ nombre, apellido, email, password });
-    res.status(201).json({ message: "Usuario registrado exitosamente", user: { id: newUsuario.id, nombre: newUsuario.nombre } });
+    const newUsuario = await Usuario.create({
+      nombre,
+      apellido,
+      email,
+      password,
+    });
+    res
+      .status(201)
+      .json({
+        message: "Usuario registrado exitosamente",
+        user: { id: newUsuario.id, nombre: newUsuario.nombre },
+      });
   } catch (error) {
-    res.status(500).json({ message: "Error al registrar usuario", error: error.message });
+    res
+      .status(500)
+      .json({ message: "Error al registrar usuario", error: error.message });
   }
-}
+};
 
-module.exports = {login, register};
+const getMe = async (req, res) => {
+  try {
+    const { userId } = req.user;
+
+    const usuario = await Usuario.findByPk(userId, {
+      attributes: [
+        "id",
+        "nombre",
+        "apellido",
+        "email",
+        "puntos_descuento",
+        "rol",
+      ],
+    });
+
+    if (!usuario) {
+      return res.status(404).json({ message: "Usuario no encontrado" });
+    }
+
+    res.status(200).json(usuario);
+  } catch (error) {
+    console.error("Error en getMe:", error);
+    res.status(500).json({ message: "Error al obtener datos del usuario" });
+  }
+};
+
+module.exports = { login, register, getMe };

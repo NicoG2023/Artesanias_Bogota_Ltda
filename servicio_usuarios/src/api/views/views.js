@@ -1,6 +1,6 @@
-const Usuario = require("../../models/Usuario");
+const Usuario = require("../../models");
 
-//Lectura de usuario
+//Lectura de usuarios
 //Leer todos los usarios
 async function getAllUsuarios() {
   try {
@@ -56,4 +56,3 @@ async function updateUser(id, updatedData) {
 }
 
 module.exports = { getAllUsuarios, getUsuarioById, deleteUsuario, updateUser };
-const Usuario = require("../../models/Usuario");

@@ -3,6 +3,8 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 const { sequelize } = require("./models");
 const cors = require("cors");
+const swaggerUi = require("swagger-ui-express");
+const swaggerSpec = require("./config/swagger");
 const productoRoutes = require("./api/routes/productoRoutes");
 
 // Configuración de CORS para permitir todas las solicitudes (solo para desarrollo, en producción CAMBIAR)
@@ -13,6 +15,9 @@ app.use(express.json());
 
 // Rutas
 app.use("/api", productoRoutes);
+
+// Ruta para la documentación de Swagger
+app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // Servidor escuchando en el puerto especificado
 app.listen(PORT, () => {
