@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import "./App.css";
 import Login from "./componente/Login";
 import { Navigation } from "./routes";
 import { AuthProvider } from "./context";

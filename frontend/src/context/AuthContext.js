@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, createContext } from "react";
-import { saveToken, getToken, removeToken } from "../utils/authToken";
-import { getMeApi } from "../api/user";
+import { saveToken, getToken, removeToken } from "../api/token";
+import { getMeApi } from "../api/usuario";
 
 export const AuthContext = createContext({
   auth: null, // Estado inicial

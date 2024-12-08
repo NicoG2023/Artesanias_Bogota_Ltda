@@ -1,24 +1,16 @@
-import React from 'react';
-import { Routes, Route } from 'react-router-dom';
+import React from "react";
+import { BasicLayout } from "../layouts";
+import { Login, OlvidarPassword, Productos, Registro } from "../pages";
 
 const usuariosRoutes = [
-  //const { userRole } = useAuth();
-  {path: "/Home",
-    element: <HomeDashboard />, 
+  { path: "/Login", layout: BasicLayout, element: <Login /> },
+  { path: "/Registro", layout: BasicLayout, element: <Registro /> },
+  {
+    path: "/OlvidoContraseña",
+    layout: BasicLayout,
+    element: <OlvidarPassword />,
   },
-  {path: "/Login",
-    element:  <Login />,
-  },
-  {path: "/Registro",
-    element: <Registro />,
-  },
-  {path: "/OlvidoContraseña",
-    element: <Contraseña />,
-  },
-  {path: "/Productos",
-    element: <Productos />,
-  },
-  {/* Agrega más rutas específicas para usuarios */}
-]
+  { path: "/Productos", layout: BasicLayout, element: <Productos /> },
+];
 
 export default usuariosRoutes;

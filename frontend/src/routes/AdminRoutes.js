@@ -1,16 +1,44 @@
 import React from "react";
+import {
+  AdminDashboard,
+  Usuarios,
+  Ordenes,
+  Inventario,
+  Analiticas,
+} from "../pages";
 import { AdminLayout } from "../layouts";
-import { Routes, Route } from "react-router-dom";
+import PrivateRoutes from "./PrivateRoutes";
 
 const adminRoutes = [
-  //const { userRole } = useAuth();
-  //{ path: "/admin", element: <AdminDashboard /> },
-  //{ path: "/Usuarios", element: <Usuarios /> },
-  //{ path: "/Ordenes", element: <Ordenes /> },
-  //{ path: "/Inventario", element: <Inventario /> },
-  //{ path: "/Analiticas", element: <Analiticas /> },
   {
-    /* Agrega más rutas específicas para el administrador */
+    path: "/admin",
+    layout: AdminLayout,
+    element: <PrivateRoutes allowedRoles={"admin"} />,
+    children: [{ path: "", element: <AdminDashboard /> }],
+  },
+  {
+    path: "/Usuarios",
+    layout: AdminLayout,
+    element: <PrivateRoutes allowedRoles={"admin"} />,
+    children: [{ path: "", element: <Usuarios /> }],
+  },
+  {
+    path: "/Ordenes",
+    layout: AdminLayout,
+    element: <PrivateRoutes allowedRoles={"admin"} />,
+    children: [{ path: "", element: <Ordenes /> }],
+  },
+  {
+    path: "/Inventario",
+    layout: AdminLayout,
+    element: <PrivateRoutes allowedRoles={"admin"} />,
+    children: [{ path: "", element: <Inventario /> }],
+  },
+  {
+    path: "/Analiticas",
+    layout: AdminLayout,
+    element: <PrivateRoutes allowedRoles={"admin"} />,
+    children: [{ path: "", element: <Analiticas /> }],
   },
 ];
 

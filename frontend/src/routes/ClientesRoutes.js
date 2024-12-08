@@ -1,25 +1,41 @@
-import React from 'react';
-import { Routes, Route } from 'react-router-dom';
-
+import React from "react";
+import { ClientesDashboard, Carrito } from "../pages";
+import { ClientLayout } from "../layouts";
+import PrivateRoutes from "./PrivateRoutes";
 
 const clientesRoutes = [
-  //const { userRole } = useAuth();
-  {path: "/clientes",
-    element: <ClientesDashboard />, 
+  {
+    path: "/Productos",
+    layout: ClientLayout,
+    element: (
+      <PrivateRoutes allowedRoles={"admin, cliente, staff, superadmin"} />
+    ),
+    children: [{ path: "", element: <ClientesDashboard /> }],
   },
-  {path: "/Productos",
-    element:  <Productos />,
+  {
+    path: "/Carrito",
+    layout: ClientLayout,
+    element: (
+      <PrivateRoutes allowedRoles={"admin, cliente, staff, superadmin"} />
+    ),
+    children: [{ path: "", element: <Carrito /> }],
   },
-  {path: "/Carrito",
-    element: <Carrito />,
+  {
+    path: "/Pagos",
+    layout: ClientLayout,
+    element: (
+      <PrivateRoutes allowedRoles={"admin, cliente, staff, superadmin"} />
+    ),
+    children: [{ path: "", element: <Carrito /> }],
   },
-  {path: "/Pagos",
-    element: <Pagos />,
+  {
+    path: "/Ordenes",
+    layout: ClientLayout,
+    element: (
+      <PrivateRoutes allowedRoles={"admin, cliente, staff, superadmin"} />
+    ),
+    children: [{ path: "", element: <Carrito /> }],
   },
-  {path: "/Ordenes",
-    element: <Ordenes />,
-  }, 
-  {/* Agrega más rutas específicas para los clientes */}
-]
+];
 
 export default clientesRoutes;
