@@ -14,31 +14,76 @@ const adminRoutes = [
     path: "/admin",
     layout: AdminLayout,
     element: <PrivateRoutes allowedRoles={"admin"} />,
-    children: [{ path: "", element: <AdminDashboard /> }],
+    children: [
+      {
+        path: "",
+        element: (
+          <AdminLayout>
+            <AdminDashboard />
+          </AdminLayout>
+        ),
+      },
+    ],
   },
   {
     path: "/Usuarios",
     layout: AdminLayout,
     element: <PrivateRoutes allowedRoles={"admin"} />,
-    children: [{ path: "", element: <Usuarios /> }],
+    children: [
+      {
+        path: "",
+        element: (
+          <AdminLayout>
+            <Usuarios />
+          </AdminLayout>
+        ),
+      },
+    ],
   },
   {
     path: "/Ordenes",
     layout: AdminLayout,
     element: <PrivateRoutes allowedRoles={"admin"} />,
-    children: [{ path: "", element: <Ordenes /> }],
+    children: [
+      {
+        path: "",
+        element: (
+          <AdminLayout>
+            <Ordenes />
+          </AdminLayout>
+        ),
+      },
+    ],
   },
   {
     path: "/Inventario",
     layout: AdminLayout,
     element: <PrivateRoutes allowedRoles={"admin"} />,
-    children: [{ path: "", element: <Inventario /> }],
+    children: [
+      {
+        path: "",
+        element: (
+          <AdminLayout>
+            <Inventario />
+          </AdminLayout>
+        ),
+      },
+    ],
   },
   {
     path: "/Analiticas",
     layout: AdminLayout,
     element: <PrivateRoutes allowedRoles={"admin"} />,
-    children: [{ path: "", element: <Analiticas /> }],
+    children: [
+      {
+        path: "",
+        element: (
+          <AdminLayout>
+            <Analiticas />
+          </AdminLayout>
+        ),
+      },
+    ],
   },
 ];
 

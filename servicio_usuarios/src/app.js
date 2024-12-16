@@ -6,7 +6,8 @@ const { sequelize } = require("./models");
 const cors = require("cors");
 const swaggerUi = require("swagger-ui-express");
 const swaggerSpec = require("./config/swagger");
-const usuarioRoutes = require("./api/routes/usuarioRoutes"); //Importa rutas
+const usuarioRoutes = require("./api/routes/usuarioRoutes");
+const authRoutes = require("./api/routes/authRoutes");
 
 // Configuración de CORS para permitir todas las solicitudes (solo para desarrollo, en producción CAMBIAR)
 app.use(cors());
@@ -14,7 +15,8 @@ app.use(cors());
 // Middleware básico
 app.use(express.json());
 
-app.use("/usuario", usuarioRoutes);
+app.use("/api", usuarioRoutes);
+app.use("/api", authRoutes);
 
 app.get("/", (req, res) => {
   res.send("¡Servicio funcionando!");

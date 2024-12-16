@@ -1,0 +1,17 @@
+.client-layout {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: #F7F2E7;
+
+  &__main-content {
+    flex-grow: 1;
+    padding: 2rem 1rem;
+
+    main {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+  }
+
+}

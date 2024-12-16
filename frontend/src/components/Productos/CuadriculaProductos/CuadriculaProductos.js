@@ -1,5 +1,5 @@
 import React from "react";
 
-export function Ordenes() {
+export function CuadriculaProductos() {
   return <div></div>;
 }

@@ -10,7 +10,12 @@ const clientesRoutes = [
     element: (
       <PrivateRoutes allowedRoles={"admin, cliente, staff, superadmin"} />
     ),
-    children: [{ path: "", element: <ClientesDashboard /> }],
+    children: [
+      {
+        path: "",
+        element: <ClientesDashboard />,
+      },
+    ],
   },
   {
     path: "/Carrito",
@@ -18,7 +23,12 @@ const clientesRoutes = [
     element: (
       <PrivateRoutes allowedRoles={"admin, cliente, staff, superadmin"} />
     ),
-    children: [{ path: "", element: <Carrito /> }],
+    children: [
+      {
+        path: "",
+        element: <Carrito />,
+      },
+    ],
   },
   {
     path: "/Pagos",

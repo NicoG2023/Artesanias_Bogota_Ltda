@@ -1,6 +1,6 @@
 const express = require("express");
 const { login, register, getMe } = require("../views/authController");
-const verifyToken = require("../../middleware/auth");
+const { verifyToken } = require("../../middleware/auth");
 const router = express.Router();
 /**
  * @swagger
@@ -126,3 +126,5 @@ router.post("/auth/register", register);
  *         description: Usuario no encontrado
  */
 router.get("/auth/me", verifyToken, getMe);
+
+module.exports = router;

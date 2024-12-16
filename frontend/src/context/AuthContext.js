@@ -12,7 +12,7 @@ export const AuthContext = createContext({
 
 export function AuthProvider({ children }) {
   const [auth, setAuth] = useState(null);
-  const [loading, setLoading] = useState(true); // Nuevo estado para la carga inicial
+  const [loading, setLoading] = useState(true);
   const isInitialized = useRef(false);
 
   useEffect(() => {
@@ -29,7 +29,7 @@ export function AuthProvider({ children }) {
       } else {
         setAuth(null);
       }
-      setLoading(false); // Finaliza la carga
+      setLoading(false);
     };
 
     if (!isInitialized.current) {
@@ -42,10 +42,13 @@ export function AuthProvider({ children }) {
     saveToken(token);
     try {
       const user = await getMeApi(token);
+      console.log("user login authcontext -->", user);
       setAuth({ token, user });
+      return user; // Devuelve el usuario para manejar la redirección en el componente que llama a login
     } catch (error) {
       console.error("Error en el inicio de sesión:", error);
       setAuth(null);
+      throw error;
     }
   };
 
@@ -61,7 +64,7 @@ export function AuthProvider({ children }) {
     }));
   };
 
-  if (loading) return null; // Mostrar nada mientras carga
+  if (loading) return null;
 
   return (
     <AuthContext.Provider value={{ auth, login, logout, updateUser, loading }}>

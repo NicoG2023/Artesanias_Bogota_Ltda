@@ -8,19 +8,46 @@ const staffRoutes = [
     path: "/Pagos",
     layout: StaffLayout,
     element: <PrivateRoutes allowedRoles={"staff"} />,
-    children: [{ path: "", element: <Pagos /> }],
+    children: [
+      {
+        path: "",
+        element: (
+          <StaffLayout>
+            <Pagos />
+          </StaffLayout>
+        ),
+      },
+    ],
   },
   {
     path: "/Ordenes",
     layout: StaffLayout,
     element: <PrivateRoutes allowedRoles={"staff"} />,
-    children: [{ path: "", element: <Ordenes /> }],
+    children: [
+      {
+        path: "",
+        element: (
+          <StaffLayout>
+            <Ordenes />
+          </StaffLayout>
+        ),
+      },
+    ],
   },
   {
     path: "/Informes",
     layout: StaffLayout,
     element: <PrivateRoutes allowedRoles={"staff"} />,
-    children: [{ path: "", element: <Informes /> }],
+    children: [
+      {
+        path: "",
+        element: (
+          <StaffLayout>
+            <Informes />
+          </StaffLayout>
+        ),
+      },
+    ],
   },
 ];
 

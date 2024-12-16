@@ -1,0 +1,55 @@
+.top-menu {
+  background-color: #c64d34 !important;
+  border: none !important;
+  margin: 0 !important;
+
+  .top-menu__container {
+    display: flex !important;
+    align-items: center !important;
+    padding: 2.5rem 1rem !important;
+  }
+
+  .top-menu__button {
+    flex: 0 0 15% !important;
+    display: flex !important;
+    justify-content: center !important;
+    padding: 0 !important;
+
+    .brand,
+    .login {
+      background-color: transparent !important;
+      color: #f7f2e7 !important;
+      font-size: 1.2rem !important;
+      font-weight: bold !important;
+      padding: 0.5rem !important;
+
+      &:hover {
+        color: #e2b13c !important;
+      }
+    }
+  }
+
+  .top-menu__banner {
+    flex: 0 0 70% !important;
+    padding: 0 !important;
+
+    .banner-image {
+      max-height: 4rem;
+      width: 100%;
+      object-fit: cover;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .top-menu__container {
+      flex-direction: column !important;
+    }
+
+    .top-menu__button,
+    .top-menu__banner {
+      flex: 0 0 100% !important;
+      margin: 0.5rem 0 !important;
+    }
+  }
+}
+

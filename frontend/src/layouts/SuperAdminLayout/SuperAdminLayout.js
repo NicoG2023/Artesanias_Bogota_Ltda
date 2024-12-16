@@ -1,6 +1,6 @@
 import React from "react";
 import "./SuperAdminLayout.scss";
 
-export default function SuperAdminLayout() {
+export function SuperAdminLayout() {
   return <div></div>;
 }

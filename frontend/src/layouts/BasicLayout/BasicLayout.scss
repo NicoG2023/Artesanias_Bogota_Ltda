@@ -1,0 +1,23 @@
+.basic-layout {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+  
+    &__topmenu {
+      background-color: #c64d34; // Fondo del TopMenu
+    }
+  
+    &__main-content {
+      flex-grow: 1; // Asegura que este bloque ocupe el espacio restante
+      padding: 2rem;
+      background-color: #f7f2e7;
+    }
+  
+    &__footer {
+      background-color: #c64d34; // Fondo del Footer
+      padding: 1rem;
+      color: #ffffff;
+      text-align: center;
+    }
+  }
+  
