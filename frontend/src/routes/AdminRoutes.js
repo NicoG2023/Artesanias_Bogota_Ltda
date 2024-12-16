@@ -1,24 +1,90 @@
-import React from 'react';
-import { Routes, Route } from 'react-router-dom';
+import React from "react";
+import {
+  AdminDashboard,
+  Usuarios,
+  Ordenes,
+  Inventario,
+  Analiticas,
+} from "../pages";
+import { AdminLayout } from "../layouts";
+import PrivateRoutes from "./PrivateRoutes";
 
 const adminRoutes = [
-  //const { userRole } = useAuth();
-  {path: "/admin",
-    element: <AdminDashboard />, 
+  {
+    path: "/admin",
+    layout: AdminLayout,
+    element: <PrivateRoutes allowedRoles={"admin"} />,
+    children: [
+      {
+        path: "",
+        element: (
+          <AdminLayout>
+            <AdminDashboard />
+          </AdminLayout>
+        ),
+      },
+    ],
   },
-  {path: "/Usuarios",
-    element:  <Usuarios />,
+  {
+    path: "/Usuarios",
+    layout: AdminLayout,
+    element: <PrivateRoutes allowedRoles={"admin"} />,
+    children: [
+      {
+        path: "",
+        element: (
+          <AdminLayout>
+            <Usuarios />
+          </AdminLayout>
+        ),
+      },
+    ],
   },
-  {path: "/Ordenes",
-    element: <Ordenes />,
+  {
+    path: "/Ordenes",
+    layout: AdminLayout,
+    element: <PrivateRoutes allowedRoles={"admin"} />,
+    children: [
+      {
+        path: "",
+        element: (
+          <AdminLayout>
+            <Ordenes />
+          </AdminLayout>
+        ),
+      },
+    ],
   },
-  {path: "/Inventario",
-    element: <Inventario />,
+  {
+    path: "/Inventario",
+    layout: AdminLayout,
+    element: <PrivateRoutes allowedRoles={"admin"} />,
+    children: [
+      {
+        path: "",
+        element: (
+          <AdminLayout>
+            <Inventario />
+          </AdminLayout>
+        ),
+      },
+    ],
   },
-  {path: "/Analiticas",
-    element: <Analiticas />,
-  }, 
-  {/* Agrega más rutas específicas para el administrador */}
-]
+  {
+    path: "/Analiticas",
+    layout: AdminLayout,
+    element: <PrivateRoutes allowedRoles={"admin"} />,
+    children: [
+      {
+        path: "",
+        element: (
+          <AdminLayout>
+            <Analiticas />
+          </AdminLayout>
+        ),
+      },
+    ],
+  },
+];
 
 export default adminRoutes;

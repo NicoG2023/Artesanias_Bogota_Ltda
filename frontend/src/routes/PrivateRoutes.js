@@ -1,49 +1,24 @@
-import React, {useEffect, useState, useMemo} from "react";
+import React from "react";
 import { Navigate, Outlet } from "react-router-dom";
+import { useAuth } from "../hooks";
 
-const ENTITY_KEY = "selectedEntity";
+function PrivateRoutes({ allowedRoles }) {
+  const { auth } = useAuth();
 
-function ProtectedRoutes({isAdminRoute, isSuperAdminRoute}){
-    const {auth} = useAuth();
-    const {entidad, loading: entidadLoading} = useEntidad();
-    const {isLoading, setIsLoading} = useState(true);
+  const hasAccess = auth?.user && allowedRoles.includes(auth.user.rol);
 
-    useEffect(() => {
-     if(!entidadLoading){
-        setIsLoading(false);
-     }
-    }, entidadLoading);
+  if (!auth?.user) {
+    //Usuario no autenticado: redirige al inicio de sesion
+    return <Navigate to="/login" />;
+  }
 
-    const storedEntity = useMemo(() => {
-        const savedEntity = localStorage.getItem(ENTITY_KEY);
-        return savedEntity ? JSON.parse(savedEntity) : entidad;
-    }, [entidad]);
+  if (!hasAccess) {
+    //Usuario autenticado pero sin acceso: redirige a una pagina de acceso denegado
+    return <Navigate to="/access-denied" />;
+  }
 
-    const isAdmin = useMemo(() => {
-     if(auth?.me?.entidades && storedEntity){
-        return auth.me.entidades.some(
-            (ent) => ent.entidad.id === storedEntity.id && entidad.is_staff
-        );
-     }
-    return false;
-    }, [auth, storedEntity]);
-
-    const isSuperAdmin = useMemo(() =>{
-        return auth?.me?.is_superuser;
-    }, [auth]);
-
-    if(isLoading){
-        return <div>Loading...</div>;
-    }
-    if(isSuperAdminRoute && !isSuperAdmin){
-        return <Navigate to = "/" />;
-    }
-
-    if(isAdminRoute && !isAdmin){
-        return <Navigate to = "/" />;
-    }
-
-    return <Outlet />
+  //Usuario autenticado y con acceso: muestra el contenido
+  return <Outlet />;
 }
 
-export default ProtectedRoutes;
+export default PrivateRoutes;

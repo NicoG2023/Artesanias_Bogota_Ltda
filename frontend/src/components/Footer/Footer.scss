@@ -1,0 +1,31 @@
+.footer {
+    background-color: #c64d34;
+    color: #f7f2e7;
+    padding: 1rem 0;
+    text-align: center;
+  
+    p {
+      margin-bottom: 0.5rem;
+    }
+  
+    .copyright {
+      font-size: 0.875rem;
+      margin-top: 0.5rem;
+    }
+  
+    .contact {
+      font-size: 0.875rem;
+      margin-top: 1rem;
+  
+      a {
+        color: #f7f2e7;
+        text-decoration: underline;
+  
+        &:hover {
+          color: #e2b13c;
+          transition: color 0.3s ease;
+        }
+      }
+    }
+  }
+  

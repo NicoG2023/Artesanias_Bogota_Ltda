@@ -1,25 +1,54 @@
-import React from 'react';
-import { Routes, Route } from 'react-router-dom';
-
+import React from "react";
+import PrivateRoutes from "./PrivateRoutes";
+import { StaffLayout } from "../layouts";
+import { Pagos, Ordenes, Informes } from "../pages";
 
 const staffRoutes = [
-  //const { userRole } = useAuth();
-  {path: "/empleados",
-   element: <StaffDashboard />, 
+  {
+    path: "/Pagos",
+    layout: StaffLayout,
+    element: <PrivateRoutes allowedRoles={"staff"} />,
+    children: [
+      {
+        path: "",
+        element: (
+          <StaffLayout>
+            <Pagos />
+          </StaffLayout>
+        ),
+      },
+    ],
   },
-  {path: "/Productos",
-    element:  <Productos />,
+  {
+    path: "/Ordenes",
+    layout: StaffLayout,
+    element: <PrivateRoutes allowedRoles={"staff"} />,
+    children: [
+      {
+        path: "",
+        element: (
+          <StaffLayout>
+            <Ordenes />
+          </StaffLayout>
+        ),
+      },
+    ],
   },
-  {path: "/Pagos",
-    element: <Pagos />,
+  {
+    path: "/Informes",
+    layout: StaffLayout,
+    element: <PrivateRoutes allowedRoles={"staff"} />,
+    children: [
+      {
+        path: "",
+        element: (
+          <StaffLayout>
+            <Informes />
+          </StaffLayout>
+        ),
+      },
+    ],
   },
-  {path: "/Ordenes",
-    element: <Ordenes />,
-  },
-  {path: "/Informes",
-    element: <Informes />,
-  }, 
-  {/* Agrega más rutas específicas para usuarios */}
-]
+];
 
 export default staffRoutes;

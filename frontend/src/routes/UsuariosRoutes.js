@@ -1,24 +1,40 @@
-import React from 'react';
-import { Routes, Route } from 'react-router-dom';
+import React from "react";
+import { BasicLayout } from "../layouts";
+import { Login, OlvidarPassword, Registro } from "../pages";
+import { DynamicLayout } from "../layouts/DynamicLayout";
 
 const usuariosRoutes = [
-  //const { userRole } = useAuth();
-  {path: "/Home",
-    element: <HomeDashboard />, 
+  {
+    path: "/Login",
+    layout: BasicLayout,
+    element: (
+      <BasicLayout>
+        <Login />
+      </BasicLayout>
+    ),
   },
-  {path: "/Login",
-    element:  <Login />,
+  {
+    path: "/Registro",
+    layout: BasicLayout,
+    element: (
+      <BasicLayout>
+        <Registro />
+      </BasicLayout>
+    ),
   },
-  {path: "/Registro",
-    element: <Registro />,
+  {
+    path: "/OlvidoContraseña",
+    layout: BasicLayout,
+    element: (
+      <BasicLayout>
+        <OlvidarPassword />
+      </BasicLayout>
+    ),
   },
-  {path: "/OlvidoContraseña",
-    element: <Contraseña />,
+  {
+    path: "/",
+    element: <DynamicLayout />,
   },
-  {path: "/Productos",
-    element: <Productos />,
-  },
-  {/* Agrega más rutas específicas para usuarios */}
-]
+];
 
 export default usuariosRoutes;

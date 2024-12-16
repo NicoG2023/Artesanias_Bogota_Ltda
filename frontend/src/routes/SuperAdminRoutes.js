@@ -1,19 +1,24 @@
-import PrivateRoutes from './PrivateRoutes';
+import React from "react";
+import PrivateRoutes from "./PrivateRoutes";
+import { SuperAdminLayout } from "../layouts";
+import { UsuariosSuperAdmin } from "../pages";
 
-const superAdminROutes = [
-    {path: "",
-     element: <PrivateRoutes isSuperAdminRoute />, 
-     children: [
-        {
+const superAdminRoutes = [
+  {
+    path: "/UsuariosSuperAdmin",
+    layout: SuperAdminLayout,
+    element: <PrivateRoutes allowedRoles={"superadmin"} />,
+    children: [
+      {
         path: "",
         element: (
-            {/*<SuperAdminLayout>
-                <Entidades />
-               </SuperAdminLayout>*/}
+          <SuperAdminLayout>
+            <UsuariosSuperAdmin />
+          </SuperAdminLayout>
         ),
-        }
-     ]
-    },
-]
+      },
+    ],
+  },
+];
 
-export default superAdminROutes;
+export default superAdminRoutes;

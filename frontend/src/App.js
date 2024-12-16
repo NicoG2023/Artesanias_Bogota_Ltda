@@ -1,25 +1,25 @@
-import React, { useState } from "react";
-import "./App.css";
-import Login from "./componente/Login";
+import React from "react";
 import { Navigation } from "./routes";
+import { AuthProvider } from "./context";
+import { ToastContainer } from "react-toastify";
+import "semantic-ui-css/semantic.min.css";
 
 function App() {
-  const [isLoginVisible, setIsLoginVisible] = useState(false);
-
-  const handleLoginClick = () => {
-    setIsLoginVisible(!isLoginVisible);
-  };
-
   return (
-    <div className="App">
+    <AuthProvider>
       <Navigation />
-      <header className="App-header">
-        <button onClick={handleLoginClick}>
-          {isLoginVisible ? "Cerrar Login" : "Ir al login"}
-        </button>
-        {isLoginVisible && <Login />}
-      </header>
-    </div>
+      <ToastContainer
+        position="bottom-center"
+        autoClose={1500}
+        hideProgressBar
+        newestOnTop
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+      />
+    </AuthProvider>
   );
 }
 
