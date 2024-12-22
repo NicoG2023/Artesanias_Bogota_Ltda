@@ -31,6 +31,7 @@ module.exports = {
         categoria_fk: categoria_fk,
         color: faker.color.human(),
         talla: faker.helpers.arrayElement(["S", "M", "L", "XL"]),
+        rating: parseFloat(faker.helpers.arrayElement([1, 2, 3, 4, 5])),
         createdAt: new Date(),
         updatedAt: new Date(),
       };

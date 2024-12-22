@@ -55,6 +55,15 @@ const Producto = sequelize.define(
       type: DataTypes.STRING,
       allowNull: true,
     },
+    rating: {
+      type: DataTypes.FLOAT,
+      allowNull: true,
+      validate: {
+        min: 0,
+        max: 5,
+      },
+      defaultValue: 0,
+    },
   },
   {
     tableName: "productos",

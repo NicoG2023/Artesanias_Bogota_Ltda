@@ -1,15 +1,63 @@
 const { Producto, Categoria } = require("../../models");
 const productoSerializer = require("../serializers/productoSerializer");
 const { containerClient } = require("../../config/blob-storage");
+const {
+  generateBlobSASQueryParameters,
+  StorageSharedKeyCredential,
+} = require("@azure/storage-blob");
 const multer = require("multer");
 const path = require("path");
 const { v4: uuidv4 } = require("uuid");
 const { generarSKU } = require("../../models/Producto");
+const { Op } = require("sequelize");
+require("dotenv").config();
+
+// Cargar las credenciales desde el archivo .env
+const accountName = process.env.AZURE_ACCOUNT_NAME;
+const accountKey = process.env.AZURE_ACCOUNT_KEY;
+
+if (!accountName || !accountKey) {
+  throw new Error(
+    "Faltan AZURE_ACCOUNT_NAME o AZURE_ACCOUNT_KEY en el archivo .env"
+  );
+}
+
+const sharedKeyCredential = new StorageSharedKeyCredential(
+  accountName,
+  accountKey
+);
+
+const generarURLFirmada = (blobName, permisos, expiracionEnHoras = 5) => {
+  try {
+    const sasOptions = {
+      containerName: containerClient.containerName,
+      blobName,
+      permissions: permisos,
+      expiresOn: new Date(new Date().valueOf() + 3600 * 5000), //Expira en 5 horas
+    };
+
+    const sasToken = generateBlobSASQueryParameters(
+      sasOptions,
+      sharedKeyCredential
+    ).toString();
+    return `https://${accountName}.blob.core.windows.net/${containerClient.containerName}/${blobName}?${sasToken}`;
+  } catch (error) {
+    console.error("Error al generar URL firmada:", error.message);
+    return null;
+  }
+};
 
 //Vista para obtener productos con paginación y filtrado
 const obtenerProductos = async (req, res) => {
   try {
-    const { page = 1, search = "", categoria = null } = req.query;
+    const {
+      page = 1,
+      search = "",
+      categoria = null,
+      color = null,
+      minPrecio = 0,
+      maxPrecio = 100000000,
+    } = req.query;
     const limit = 10;
     const offset = (page - 1) * limit;
 
@@ -17,20 +65,40 @@ const obtenerProductos = async (req, res) => {
     const where = {
       ...(search && { nombre: { [Op.like]: `%${search}%` } }),
       ...(categoria && { categoria_fk: categoria }),
+      ...(color && { color }),
+      precio: {
+        [Op.gte]: minPrecio,
+        [Op.lte]: maxPrecio,
+      },
     };
 
     // Se realiza la búsqueda con paginación y las relaciones necesarias
     const { rows: productos, count: total } = await Producto.findAndCountAll({
       where,
-      includ: [{ model: Categoria, attributes: ["id", "nombre"] }],
+      include: [
+        { model: Categoria, as: "categorias", attributes: ["id", "nombre"] },
+      ],
       limit,
       offset,
     });
 
+    // Se generan URLs firmadas dinamicamente para cada producto
+    const productosConURLs = await Promise.all(
+      productos.map(async (producto) => {
+        const urlFirmada = await generarURLFirmada(
+          producto.imagen.split("/").pop(),
+          "r"
+        );
+        return {
+          ...productoSerializer(producto),
+          imagen: urlFirmada || producto.imagen,
+        };
+      })
+    );
+
     // Se serializan los productos y se estructura la respuesta
-    const serializedProductos = productos.map(productoSerializer);
     res.json({
-      data: serializedProductos,
+      data: productosConURLs,
       pagination: {
         total,
         page: Number(page),
@@ -38,6 +106,7 @@ const obtenerProductos = async (req, res) => {
       },
     });
   } catch (error) {
+    console.error("Error en obtenerProductos:", error);
     res.status(500).json({ error: "Error al obtener los productos" });
   }
 };
