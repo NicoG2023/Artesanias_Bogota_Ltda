@@ -1,6 +1,5 @@
 const { DataTypes } = require("sequelize");
 const sequelize = require("../config/database");
-const Categoria = require("./Categoria"); // Importar el modelo Categoria para la referencia
 
 const Producto = sequelize.define(
   "Producto",
@@ -38,14 +37,6 @@ const Producto = sequelize.define(
       type: DataTypes.BOOLEAN,
       allowNull: false,
       defaultValue: true,
-    },
-    categoria_fk: {
-      type: DataTypes.INTEGER,
-      references: {
-        model: Categoria, // Usamos el modelo Categoria en lugar de "categorias"
-        key: "id",
-      },
-      allowNull: false,
     },
     color: {
       type: DataTypes.STRING,
@@ -100,25 +91,12 @@ const Producto = sequelize.define(
 );
 
 function generarSKU(producto) {
-  const categoria = producto.categoria_fk
-    ? `CAT${producto.categoria_fk}`
-    : "GEN";
   const color = producto.color
     ? `-${producto.color.substring(0, 3).toUpperCase()}`
     : "";
   const talla = producto.talla ? `-${producto.talla.toUpperCase()}` : "";
   const uniqueId = Date.now().toString().slice(-4);
-  console.log(
-    "Categoria: ",
-    categoria,
-    "color: ",
-    color,
-    "talla: ",
-    talla,
-    "uniqueId: ",
-    uniqueId
-  );
-  return `${categoria}${color}${talla}-${uniqueId}`;
+  return `PROD${color}${talla}-${uniqueId}`;
 }
 
 module.exports = {

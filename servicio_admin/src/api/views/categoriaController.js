@@ -5,9 +5,9 @@ const { Op } = require("sequelize");
 
 const obtenerFiltros = async (req, res) => {
   try {
-    // Obtener nombre de las categorías
+    // Obtener id y nombre de las categorías
     const categorias = await Categoria.findAll({
-      attributes: ["nombre"],
+      attributes: ["id", "nombre"], // Incluir id y nombre
     });
 
     // Obtener colores únicos de los productos
@@ -17,7 +17,10 @@ const obtenerFiltros = async (req, res) => {
     });
 
     res.json({
-      categorias: categorias.map((cat) => cat.nombre),
+      categorias: categorias.map((cat) => ({
+        id: cat.id,
+        nombre: cat.nombre,
+      })), // Enviar ambos valores como un objeto
       colores: colores.map((col) => col.color),
     });
   } catch (error) {

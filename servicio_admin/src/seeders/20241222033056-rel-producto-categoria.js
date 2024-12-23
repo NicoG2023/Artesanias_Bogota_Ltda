@@ -15,7 +15,7 @@ module.exports = {
     const productoIds = productos[0].map((producto) => producto.id);
     const categoriaIds = categorias[0].map((categoria) => categoria.id);
 
-    const relaciones = new Set(); // Usar un Set para evitar duplicados
+    const relaciones = new Set(); // Usar un Set para garantizar relaciones únicas
 
     // Generar relaciones únicas entre producto y categoría
     while (relaciones.size < 100) {
@@ -23,7 +23,7 @@ module.exports = {
       const categoria_fk = faker.helpers.arrayElement(categoriaIds);
 
       // Crear una clave única para la relación
-      const claveUnica = `${producto_fk}-${categoria_fk}`;
+      const claveUnica = `${categoria_fk}-${producto_fk}`;
 
       if (!relaciones.has(claveUnica)) {
         relaciones.add(claveUnica); // Añadir clave única al Set
@@ -32,10 +32,10 @@ module.exports = {
 
     // Convertir el Set en un array de relaciones únicas
     const relacionesFinales = Array.from(relaciones).map((relacion) => {
-      const [producto_fk, categoria_fk] = relacion.split("-").map(Number);
+      const [categoria_fk, producto_fk] = relacion.split("-").map(Number);
       return {
-        producto_fk,
         categoria_fk,
+        producto_fk,
       };
     });
 

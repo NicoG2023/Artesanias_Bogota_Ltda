@@ -12,25 +12,30 @@ export function useProductos() {
     page: 1,
     search: "",
     categoria: null,
+    color: null,
+    minPrecio: 0,
+    maxPrecio: 100000000,
   });
 
-  //Funcion para cargar productos
+  // Función para cargar productos
   const fetchProductos = async () => {
     setLoading(true);
     setError(null);
 
     try {
       const data = await obtenerProductosApi(filters);
-      setProductos(data.data);
-      setPagination(data.pagination);
+      console.log("Productos obtenidos:", data.data);
+      setProductos([...data.data]); // Asegura inmutabilidad
+      setPagination({ ...data.pagination }); // Asegura inmutabilidad
     } catch (error) {
+      console.error("Error al obtener productos:", error);
       setError(error);
     } finally {
       setLoading(false);
     }
   };
 
-  //Funcion para cargar filtros
+  // Función para cargar filtros
   const fetchFiltros = async () => {
     setLoading(true);
     setError(null);
@@ -45,22 +50,25 @@ export function useProductos() {
     }
   };
 
-  //Efecto para cargar productos cuando los filtros cambian
+  // Efecto para cargar productos cuando los filtros cambian
   useEffect(() => {
+    console.log("Cambiaron los filtros:", filters); // Depuración
     fetchProductos();
   }, [filters]);
 
-  //Efecto para cargar los filtros al montar el componente
+  // Efecto para cargar los filtros al montar el componente
   useEffect(() => {
     fetchFiltros();
   }, []);
 
-  // Funcion para actualizar los filtros
+  // Función para actualizar los filtros
   const updateFilters = (newFilters) => {
-    setFilters((prevFilters) => ({
-      ...prevFilters,
+    const updatedFilters = {
+      ...filters,
       ...newFilters,
-    }));
+    };
+    console.log("Actualizando filtros en hook:", updatedFilters); // Depuración
+    setFilters(updatedFilters); // Esto debería disparar el useEffect
   };
 
   return {

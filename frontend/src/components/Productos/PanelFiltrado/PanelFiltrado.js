@@ -11,25 +11,20 @@ export function PanelFiltrado() {
   });
 
   // Manejo de cambio de categoría
-  const manejoCambioCategoria = (categoria) => {
-    setFilters((prev) => ({ ...prev, categoria }));
-    updateFilters({ categoria });
+  const manejoCambioCategoria = (categoriaId) => {
+    console.log("Seleccionando categoría:", categoriaId);
+    updateFilters({ categoria: categoriaId });
   };
 
   // Manejo de cambio de color
   const manejoCambioColor = (color) => {
-    setFilters((prev) => ({ ...prev, color }));
     updateFilters({ color });
   };
 
   // Manejo de cambio de rango de precios
   const manejoCambioPrecio = (e) => {
     const { name, value } = e.target;
-    setFilters((prev) => ({ ...prev, [name]: value }));
-    updateFilters({
-      minPrecio: filters.minPrecio,
-      maxPrecio: filters.maxPrecio,
-    });
+    updateFilters({ [name]: value });
   };
 
   return (
@@ -40,19 +35,19 @@ export function PanelFiltrado() {
       <div className="filter-panel__section">
         <h3 className="filter-panel__subtitle">Categoría</h3>
         {categorias.map((categoria) => (
-          <div key={categoria} className="filter-panel__checkbox">
+          <div key={categoria.id} className="filter-panel__checkbox">
             <input
               type="radio"
-              id={`categoria-${categoria}`}
+              id={`categoria-${categoria.id}`}
               name="categoria"
               className="filter-panel__radio-input"
-              onChange={() => manejoCambioCategoria(categoria)}
+              onChange={() => manejoCambioCategoria(categoria.id)}
             />
             <label
-              htmlFor={`categoria-${categoria}`}
+              htmlFor={`categoria-${categoria.id}`}
               className="filter-panel__radio-label"
             >
-              {categoria}
+              {categoria.nombre}
             </label>
           </div>
         ))}
@@ -84,7 +79,6 @@ export function PanelFiltrado() {
             type="number"
             name="minPrecio"
             placeholder="Mínimo"
-            value={filters.minPrecio}
             onChange={manejoCambioPrecio}
             className="filter-panel__price-input"
           />
@@ -92,7 +86,6 @@ export function PanelFiltrado() {
             type="number"
             name="maxPrecio"
             placeholder="Máximo"
-            value={filters.maxPrecio}
             onChange={manejoCambioPrecio}
             className="filter-panel__price-input"
           />

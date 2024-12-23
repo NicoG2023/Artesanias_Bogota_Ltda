@@ -20,17 +20,17 @@ Inventario.belongsTo(Producto, {
 
 // Relación Producto - Categoria (Muchos a Muchos)
 Producto.belongsToMany(Categoria, {
-  through: REL_ProductoCategoria, // Tabla intermedia
+  through: REL_ProductoCategoria,
   foreignKey: "producto_fk",
   otherKey: "categoria_fk",
-  as: "categorias", // Alias para acceder a las categorías del producto
+  as: "categorias",
 });
 
 Categoria.belongsToMany(Producto, {
-  through: REL_ProductoCategoria, // Tabla intermedia
+  through: REL_ProductoCategoria,
   foreignKey: "categoria_fk",
   otherKey: "producto_fk",
-  as: "productos", // Alias para acceder a los productos de la categoría
+  as: "productos",
 });
 
 // Relación Carrito - Producto (Muchos a Muchos)

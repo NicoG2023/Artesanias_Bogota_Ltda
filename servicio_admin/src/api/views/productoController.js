@@ -1,4 +1,4 @@
-const { Producto, Categoria } = require("../../models");
+const { Producto, REL_ProductoCategoria, Categoria } = require("../../models");
 const productoSerializer = require("../serializers/productoSerializer");
 const { containerClient } = require("../../config/blob-storage");
 const {
@@ -61,10 +61,9 @@ const obtenerProductos = async (req, res) => {
     const limit = 10;
     const offset = (page - 1) * limit;
 
-    //Condiciones de búsqueda y filtrado
+    // Condiciones de búsqueda y filtrado
     const where = {
       ...(search && { nombre: { [Op.like]: `%${search}%` } }),
-      ...(categoria && { categoria_fk: categoria }),
       ...(color && { color }),
       precio: {
         [Op.gte]: minPrecio,
@@ -72,33 +71,59 @@ const obtenerProductos = async (req, res) => {
       },
     };
 
-    // Se realiza la búsqueda con paginación y las relaciones necesarias
+    // Filtrado por categoría a través de la tabla intermedia
+    const include = [
+      {
+        model: Categoria,
+        as: "categorias",
+        attributes: ["id", "nombre"],
+        through: {
+          model: REL_ProductoCategoria,
+          as: "relaciones",
+          attributes: [], // No necesitamos los datos de la tabla intermedia
+        },
+        ...(categoria && { where: { id: categoria } }), // Filtrar por categoría si se pasa
+      },
+    ];
+
+    // Consulta con paginación y relaciones
     const { rows: productos, count: total } = await Producto.findAndCountAll({
       where,
-      include: [
-        { model: Categoria, as: "categorias", attributes: ["id", "nombre"] },
-      ],
+      include,
       limit,
       offset,
     });
 
-    // Se generan URLs firmadas dinamicamente para cada producto
-    const productosConURLs = await Promise.all(
+    // Procesar productos, excluyendo "categoria" y agregando las categorías relacionadas
+    const productosProcesados = await Promise.all(
       productos.map(async (producto) => {
+        const productoJSON = producto.toJSON();
+
+        // Generar URL firmada para la imagen
         const urlFirmada = await generarURLFirmada(
-          producto.imagen.split("/").pop(),
+          productoJSON.imagen.split("/").pop(),
           "r"
         );
+
         return {
-          ...productoSerializer(producto),
-          imagen: urlFirmada || producto.imagen,
+          id: productoJSON.id,
+          nombre: productoJSON.nombre,
+          sku: productoJSON.sku,
+          precio: productoJSON.precio,
+          descripcion: productoJSON.descripcion,
+          imagen: urlFirmada || productoJSON.imagen,
+          es_activo: productoJSON.es_activo,
+          color: productoJSON.color,
+          talla: productoJSON.talla,
+          rating: productoJSON.rating,
+          categorias: productoJSON.categorias || [], // Asegurar que siempre haya un array de categorías
         };
       })
     );
 
-    // Se serializan los productos y se estructura la respuesta
+    // Respuesta serializada
     res.json({
-      data: productosConURLs,
+      data: productosProcesados,
       pagination: {
         total,
         page: Number(page),

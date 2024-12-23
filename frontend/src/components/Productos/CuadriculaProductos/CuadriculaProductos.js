@@ -25,6 +25,8 @@ export function CuadriculaProductos() {
   const totalPages = pagination.pages || 1; // Valor predeterminado
   const activePage = pagination.page || 1; // Valor predeterminado
 
+  console.log("Productos actuales:", productos); // Depuración
+
   return (
     <div className="product-grid">
       {/* Mostrar productos */}
