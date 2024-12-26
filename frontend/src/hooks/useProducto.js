@@ -24,7 +24,6 @@ export function useProductos() {
 
     try {
       const data = await obtenerProductosApi(filters);
-      console.log("Productos obtenidos:", data.data);
       setProductos([...data.data]); // Asegura inmutabilidad
       setPagination({ ...data.pagination }); // Asegura inmutabilidad
     } catch (error) {
@@ -52,7 +51,6 @@ export function useProductos() {
 
   // Efecto para cargar productos cuando los filtros cambian
   useEffect(() => {
-    console.log("Cambiaron los filtros:", filters); // Depuración
     fetchProductos();
   }, [filters]);
 
@@ -67,7 +65,6 @@ export function useProductos() {
       ...filters,
       ...newFilters,
     };
-    console.log("Actualizando filtros en hook:", updatedFilters); // Depuración
     setFilters(updatedFilters); // Esto debería disparar el useEffect
   };
 

@@ -1,16 +1,15 @@
 import React from "react";
 import { Pagination } from "semantic-ui-react";
-import { useProductos } from "../../../hooks/useProducto";
 import "./CuadriculaProductos.scss";
 
-export function CuadriculaProductos() {
+export function CuadriculaProductos({ productosHook }) {
   const {
     productos = [],
     loading,
     error,
     pagination = { pages: 1, page: 1 },
     updateFilters,
-  } = useProductos();
+  } = productosHook;
 
   if (loading) return <p className="loading">Cargando productos...</p>;
   if (error)
@@ -24,8 +23,6 @@ export function CuadriculaProductos() {
 
   const totalPages = pagination.pages || 1; // Valor predeterminado
   const activePage = pagination.page || 1; // Valor predeterminado
-
-  console.log("Productos actuales:", productos); // Depuración
 
   return (
     <div className="product-grid">

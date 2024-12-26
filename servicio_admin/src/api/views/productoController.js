@@ -58,8 +58,20 @@ const obtenerProductos = async (req, res) => {
       minPrecio = 0,
       maxPrecio = 100000000,
     } = req.query;
-    const limit = 10;
+    const limit = 12;
     const offset = (page - 1) * limit;
+
+    let categoriaArray = [];
+    if (categoria) {
+      categoriaArray = Array.isArray(categoria)
+        ? categoria.map(Number)
+        : categoria.split(",").map(Number);
+    }
+
+    let colorArray = [];
+    if (color) {
+      colorArray = Array.isArray(color) ? color : color.split(",");
+    }
 
     // Condiciones de búsqueda y filtrado
     const where = {
@@ -69,6 +81,7 @@ const obtenerProductos = async (req, res) => {
         [Op.gte]: minPrecio,
         [Op.lte]: maxPrecio,
       },
+      ...(colorArray.length > 0 && { color: { [Op.in]: colorArray } }),
     };
 
     // Filtrado por categoría a través de la tabla intermedia
@@ -82,7 +95,9 @@ const obtenerProductos = async (req, res) => {
           as: "relaciones",
           attributes: [], // No necesitamos los datos de la tabla intermedia
         },
-        ...(categoria && { where: { id: categoria } }), // Filtrar por categoría si se pasa
+        ...(categoriaArray.length > 0 && {
+          where: { id: { [Op.in]: categoriaArray } },
+        }),
       },
     ];
 

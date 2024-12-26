@@ -1,30 +1,56 @@
+// PanelFiltrado.jsx
 import React, { useState } from "react";
-import { useProductos } from "../../../hooks/useProducto";
 import "./PanelFiltrado.scss";
 
-export function PanelFiltrado() {
-  const { categorias, colores, updateFilters } = useProductos();
+export function PanelFiltrado({ productosHook }) {
+  const { categorias, colores, updateFilters } = productosHook;
+
+  // Ahora almacenamos arrays para permitir múltiples selecciones
   const [filters, setFilters] = useState({
-    color: null,
+    categoria: [], // Array de IDs de categorías seleccionadas
+    color: [], // Array de colores seleccionados
     minPrecio: 0,
     maxPrecio: 100000000,
   });
 
-  // Manejo de cambio de categoría
+  // Manejo de cambio de categorías (checkbox multiple)
   const manejoCambioCategoria = (categoriaId) => {
-    console.log("Seleccionando categoría:", categoriaId);
-    updateFilters({ categoria: categoriaId });
+    let newCategorias;
+    // Si ya está en el array, la quitamos; si no, la añadimos
+    if (filters.categoria.includes(categoriaId)) {
+      newCategorias = filters.categoria.filter((c) => c !== categoriaId);
+    } else {
+      newCategorias = [...filters.categoria, categoriaId];
+    }
+
+    // Actualizamos estado local
+    const newFilters = { ...filters, categoria: newCategorias };
+    setFilters(newFilters);
+
+    // Llamamos a updateFilters para disparar la nueva búsqueda
+    updateFilters(newFilters);
   };
 
-  // Manejo de cambio de color
-  const manejoCambioColor = (color) => {
-    updateFilters({ color });
+  // Manejo de cambio de colores (checkbox multiple)
+  const manejoCambioColor = (colorName) => {
+    let newColores;
+    if (filters.color.includes(colorName)) {
+      newColores = filters.color.filter((c) => c !== colorName);
+    } else {
+      newColores = [...filters.color, colorName];
+    }
+
+    const newFilters = { ...filters, color: newColores };
+    setFilters(newFilters);
+    updateFilters(newFilters);
   };
 
   // Manejo de cambio de rango de precios
   const manejoCambioPrecio = (e) => {
     const { name, value } = e.target;
-    updateFilters({ [name]: value });
+    const newFilters = { ...filters, [name]: value };
+    setFilters(newFilters);
+    updateFilters(newFilters);
   };
 
   return (
@@ -32,20 +58,21 @@ export function PanelFiltrado() {
       <h2 className="filter-panel__title">Filtros</h2>
 
       {/* Filtro por Categoría */}
-      <div className="filter-panel__section">
+      <div className="filter-panel__section filter-panel__section--scrollable">
         <h3 className="filter-panel__subtitle">Categoría</h3>
         {categorias.map((categoria) => (
           <div key={categoria.id} className="filter-panel__checkbox">
             <input
-              type="radio"
+              type="checkbox"
               id={`categoria-${categoria.id}`}
               name="categoria"
-              className="filter-panel__radio-input"
+              className="filter-panel__checkbox-input"
+              checked={filters.categoria.includes(categoria.id)}
               onChange={() => manejoCambioCategoria(categoria.id)}
             />
             <label
               htmlFor={`categoria-${categoria.id}`}
-              className="filter-panel__radio-label"
+              className="filter-panel__checkbox-label"
             >
               {categoria.nombre}
             </label>
@@ -54,7 +81,7 @@ export function PanelFiltrado() {
       </div>
 
       {/* Filtro por Color */}
-      <div className="filter-panel__section">
+      <div className="filter-panel__section filter-panel__section--scrollable">
         <h3 className="filter-panel__subtitle">Color</h3>
         {colores.map((color) => (
           <div key={color} className="filter-panel__checkbox">
@@ -62,6 +89,7 @@ export function PanelFiltrado() {
               type="checkbox"
               id={color}
               className="filter-panel__checkbox-input"
+              checked={filters.color.includes(color)}
               onChange={() => manejoCambioColor(color)}
             />
             <label htmlFor={color} className="filter-panel__checkbox-label">
@@ -81,6 +109,7 @@ export function PanelFiltrado() {
             placeholder="Mínimo"
             onChange={manejoCambioPrecio}
             className="filter-panel__price-input"
+            value={filters.minPrecio}
           />
           <input
             type="number"
@@ -88,6 +117,7 @@ export function PanelFiltrado() {
             placeholder="Máximo"
             onChange={manejoCambioPrecio}
             className="filter-panel__price-input"
+            value={filters.maxPrecio}
           />
         </div>
       </div>

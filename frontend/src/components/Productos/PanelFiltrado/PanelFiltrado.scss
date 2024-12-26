@@ -77,6 +77,12 @@
       color: #6E6159;
       font-weight: bold;
     }
+
+    &__section--scrollable {
+      max-height: 162px;  // Ajusta según tu preferencia
+      overflow-y: auto;
+      margin-bottom: 1.5rem; // por consistencia con tus secciones
+    }
   }
   
   @media (max-width: 768px) {

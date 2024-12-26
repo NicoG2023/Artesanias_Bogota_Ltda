@@ -12,13 +12,13 @@ export async function obtenerProductosApi({
   const url = new URL(baseUrl);
 
   // Agregar parametros de consulta
-  url.searchParams.append("page", page);
-  if (search) url.searchParams.append("search", search);
-  if (categoria) url.searchParams.append("categoria", categoria);
-  if (color) url.searchParams.append("color", color);
+  url.searchParams.set("page", page);
+  if (search) url.searchParams.set("search", search);
+  if (categoria) url.searchParams.set("categoria", categoria);
+  if (color) url.searchParams.set("color", color);
   if (minPrecio || maxPrecio) {
-    url.searchParams.append("minPrecio", minPrecio);
-    url.searchParams.append("maxPrecio", maxPrecio);
+    url.searchParams.set("minPrecio", minPrecio);
+    url.searchParams.set("maxPrecio", maxPrecio);
   }
 
   try {
