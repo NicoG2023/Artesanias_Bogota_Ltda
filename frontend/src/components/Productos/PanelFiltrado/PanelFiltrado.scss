@@ -1,0 +1,101 @@
+.filter-panel {
+    background-color: #F7F2E7;
+    border-radius: 8px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  
+    &__title {
+      color: #C64D34;
+      font-size: 1.5rem;
+      font-weight: bold;
+      margin-bottom: 1rem;
+    }
+  
+    &__section {
+      margin-bottom: 1.5rem;
+    }
+  
+    &__subtitle {
+      color: #6E6159;
+      font-size: 1.2rem;
+      font-weight: bold;
+      margin-bottom: 0.5rem;
+    }
+  
+    &__checkbox {
+      display: flex;
+      align-items: center;
+      margin-bottom: 0.5rem;
+  
+      &-input {
+        margin-right: 0.5rem;
+        cursor: pointer;
+      }
+  
+      &-label {
+        color: #6E6159;
+        cursor: pointer;
+      }
+    }
+  
+    &__range {
+      width: 100%;
+      margin-bottom: 0.5rem;
+      -webkit-appearance: none;
+      background: #E2B13C;
+      outline: none;
+      opacity: 0.7;
+      transition: opacity 0.2s;
+      border-radius: 5px;
+  
+      &:hover {
+        opacity: 1;
+      }
+  
+      &::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 20px;
+        height: 20px;
+        background: #C64D34;
+        cursor: pointer;
+        border-radius: 50%;
+      }
+  
+      &::-moz-range-thumb {
+        width: 20px;
+        height: 20px;
+        background: #C64D34;
+        cursor: pointer;
+        border-radius: 50%;
+      }
+    }
+  
+    &__price-display {
+      display: flex;
+      justify-content: space-between;
+      color: #6E6159;
+      font-weight: bold;
+    }
+
+    &__section--scrollable {
+      max-height: 162px;  // Ajusta según tu preferencia
+      overflow-y: auto;
+      margin-bottom: 1.5rem; // por consistencia con tus secciones
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .filter-panel {
+      padding: 1rem;
+  
+      &__title {
+        font-size: 1.3rem;
+      }
+  
+      &__subtitle {
+        font-size: 1.1rem;
+      }
+    }
+  }
+  

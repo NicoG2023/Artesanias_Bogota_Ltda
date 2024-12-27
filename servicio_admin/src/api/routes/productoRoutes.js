@@ -5,6 +5,7 @@ const {
   editarProducto,
   desactivarProducto,
 } = require("../views/productoController");
+const { obtenerFiltros } = require("../views/categoriaController");
 
 const router = express.Router();
 
@@ -205,5 +206,34 @@ router.put("/productos/:id", editarProducto);
  *         description: Error al desactivar el producto
  */
 router.put("/productos/:id/desactivar", desactivarProducto);
+
+/**
+ * @swagger
+ * /productos/filtros:
+ *   get:
+ *     summary: Obtener nombres de las categorías y colores únicos de los productos
+ *     tags: [Categorías y Colores]
+ *     responses:
+ *       200:
+ *         description: Lista de nombres de categorías y colores únicos de productos
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 categorias:
+ *                   type: array
+ *                   items:
+ *                     type: string
+ *                   description: Lista de nombres de categorías
+ *                 colores:
+ *                   type: array
+ *                   items:
+ *                     type: string
+ *                   description: Lista de colores únicos de productos
+ *       500:
+ *         description: Error al obtener categorías y colores únicos
+ */
+router.get("/productos/filtros", obtenerFiltros);
 
 module.exports = router;

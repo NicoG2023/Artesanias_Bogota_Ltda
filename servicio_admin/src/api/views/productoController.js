@@ -1,36 +1,144 @@
-const { Producto, Categoria } = require("../../models");
+const { Producto, REL_ProductoCategoria, Categoria } = require("../../models");
 const productoSerializer = require("../serializers/productoSerializer");
 const { containerClient } = require("../../config/blob-storage");
+const {
+  generateBlobSASQueryParameters,
+  StorageSharedKeyCredential,
+} = require("@azure/storage-blob");
 const multer = require("multer");
 const path = require("path");
 const { v4: uuidv4 } = require("uuid");
 const { generarSKU } = require("../../models/Producto");
+const { Op } = require("sequelize");
+require("dotenv").config();
+
+// Cargar las credenciales desde el archivo .env
+const accountName = process.env.AZURE_ACCOUNT_NAME;
+const accountKey = process.env.AZURE_ACCOUNT_KEY;
+
+if (!accountName || !accountKey) {
+  throw new Error(
+    "Faltan AZURE_ACCOUNT_NAME o AZURE_ACCOUNT_KEY en el archivo .env"
+  );
+}
+
+const sharedKeyCredential = new StorageSharedKeyCredential(
+  accountName,
+  accountKey
+);
+
+const generarURLFirmada = (blobName, permisos, expiracionEnHoras = 5) => {
+  try {
+    const sasOptions = {
+      containerName: containerClient.containerName,
+      blobName,
+      permissions: permisos,
+      expiresOn: new Date(new Date().valueOf() + 3600 * 5000), //Expira en 5 horas
+    };
+
+    const sasToken = generateBlobSASQueryParameters(
+      sasOptions,
+      sharedKeyCredential
+    ).toString();
+    return `https://${accountName}.blob.core.windows.net/${containerClient.containerName}/${blobName}?${sasToken}`;
+  } catch (error) {
+    console.error("Error al generar URL firmada:", error.message);
+    return null;
+  }
+};
 
 //Vista para obtener productos con paginación y filtrado
 const obtenerProductos = async (req, res) => {
   try {
-    const { page = 1, search = "", categoria = null } = req.query;
-    const limit = 10;
+    const {
+      page = 1,
+      search = "",
+      categoria = null,
+      color = null,
+      minPrecio = 0,
+      maxPrecio = 100000000,
+    } = req.query;
+    const limit = 12;
     const offset = (page - 1) * limit;
 
-    //Condiciones de búsqueda y filtrado
+    let categoriaArray = [];
+    if (categoria) {
+      categoriaArray = Array.isArray(categoria)
+        ? categoria.map(Number)
+        : categoria.split(",").map(Number);
+    }
+
+    let colorArray = [];
+    if (color) {
+      colorArray = Array.isArray(color) ? color : color.split(",");
+    }
+
+    // Condiciones de búsqueda y filtrado
     const where = {
       ...(search && { nombre: { [Op.like]: `%${search}%` } }),
-      ...(categoria && { categoria_fk: categoria }),
+      ...(color && { color }),
+      precio: {
+        [Op.gte]: minPrecio,
+        [Op.lte]: maxPrecio,
+      },
+      ...(colorArray.length > 0 && { color: { [Op.in]: colorArray } }),
     };
 
-    // Se realiza la búsqueda con paginación y las relaciones necesarias
+    // Filtrado por categoría a través de la tabla intermedia
+    const include = [
+      {
+        model: Categoria,
+        as: "categorias",
+        attributes: ["id", "nombre"],
+        through: {
+          model: REL_ProductoCategoria,
+          as: "relaciones",
+          attributes: [], // No necesitamos los datos de la tabla intermedia
+        },
+        ...(categoriaArray.length > 0 && {
+          where: { id: { [Op.in]: categoriaArray } },
+        }),
+      },
+    ];
+
+    // Consulta con paginación y relaciones
     const { rows: productos, count: total } = await Producto.findAndCountAll({
       where,
-      includ: [{ model: Categoria, attributes: ["id", "nombre"] }],
+      include,
       limit,
       offset,
     });
 
-    // Se serializan los productos y se estructura la respuesta
-    const serializedProductos = productos.map(productoSerializer);
+    // Procesar productos, excluyendo "categoria" y agregando las categorías relacionadas
+    const productosProcesados = await Promise.all(
+      productos.map(async (producto) => {
+        const productoJSON = producto.toJSON();
+
+        // Generar URL firmada para la imagen
+        const urlFirmada = await generarURLFirmada(
+          productoJSON.imagen.split("/").pop(),
+          "r"
+        );
+
+        return {
+          id: productoJSON.id,
+          nombre: productoJSON.nombre,
+          sku: productoJSON.sku,
+          precio: productoJSON.precio,
+          descripcion: productoJSON.descripcion,
+          imagen: urlFirmada || productoJSON.imagen,
+          es_activo: productoJSON.es_activo,
+          color: productoJSON.color,
+          talla: productoJSON.talla,
+          rating: productoJSON.rating,
+          categorias: productoJSON.categorias || [], // Asegurar que siempre haya un array de categorías
+        };
+      })
+    );
+
+    // Respuesta serializada
     res.json({
-      data: serializedProductos,
+      data: productosProcesados,
       pagination: {
         total,
         page: Number(page),
@@ -38,6 +146,7 @@ const obtenerProductos = async (req, res) => {
       },
     });
   } catch (error) {
+    console.error("Error en obtenerProductos:", error);
     res.status(500).json({ error: "Error al obtener los productos" });
   }
 };
