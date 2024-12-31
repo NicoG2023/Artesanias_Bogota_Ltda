@@ -1,3 +1,13 @@
+.products-page {
+  // Clase contenedora para la página de productos
+
+  .buscador-container {
+    display: flex;
+    justify-content: center;  // Centra horizontalmente
+    margin-bottom: 1.5rem;    // Espacio debajo del buscador
+  }
+}
+
 .main-content {
     display: flex;
     gap: 2rem;

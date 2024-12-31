@@ -1,5 +1,7 @@
-import React from "react";
+// src/components/CuadriculaProductos/CuadriculaProductos.jsx
+import React, { useState } from "react";
 import { Pagination } from "semantic-ui-react";
+import { ModalProducto } from "../ModalProducto/ModalProducto";
 import "./CuadriculaProductos.scss";
 
 export function CuadriculaProductos({ productosHook }) {
@@ -11,6 +13,9 @@ export function CuadriculaProductos({ productosHook }) {
     updateFilters,
   } = productosHook;
 
+  const [open, setOpen] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState(null);
+
   if (loading) return <p className="loading">Cargando productos...</p>;
   if (error)
     return (
@@ -21,14 +26,30 @@ export function CuadriculaProductos({ productosHook }) {
     updateFilters({ page: activePage });
   };
 
-  const totalPages = pagination.pages || 1; // Valor predeterminado
-  const activePage = pagination.page || 1; // Valor predeterminado
+  const totalPages = pagination.pages || 1;
+  const activePage = pagination.page || 1;
+
+  // Al hacer clic en un producto, abrimos el modal
+  const handleOpenModal = (producto) => {
+    setSelectedProduct(producto);
+    setOpen(true);
+  };
+
+  // Al cerrar el modal
+  const handleCloseModal = () => {
+    setOpen(false);
+    setSelectedProduct(null); // Opcional, para limpiar el producto seleccionado
+  };
 
   return (
     <div className="product-grid">
-      {/* Mostrar productos */}
+      {/* Grid de productos */}
       {productos.map((producto) => (
-        <div key={producto.id} className="product-card">
+        <div
+          key={producto.id}
+          className="product-card"
+          onClick={() => handleOpenModal(producto)}
+        >
           <img
             src={producto.imagen}
             alt={producto.nombre}
@@ -77,6 +98,13 @@ export function CuadriculaProductos({ productosHook }) {
           />
         )}
       </div>
+
+      {/* Modal de producto */}
+      <ModalProducto
+        open={open}
+        onClose={handleCloseModal}
+        producto={selectedProduct}
+      />
     </div>
   );
 }

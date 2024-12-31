@@ -1,0 +1,31 @@
+/* src/components/Buscador/Buscador.scss */
+
+.buscador-input {
+    /* Hacemos que el contenedor del input ocupe el 40% de ancho */
+    width: 40% !important; /* !important para sobrescribir los estilos de Semantic */
+  
+    /* Personalizar el input interno de Semantic UI */
+    .ui.input > input {
+      background-color: #F7F2E7 !important;
+      color: #6E6159 !important;
+      border: 1px solid #C64D34 !important;
+      border-radius: 4px;
+  
+      &:focus {
+        outline: none;
+        border-color: #C64D34 !important;
+        /* Efecto de sombra sutil (opcional) */
+        box-shadow: 0 0 4px rgba(198, 77, 52, 0.3);
+      }
+    }
+  
+    /* Estiliza el ícono de la lupita */
+    .ui.icon.input > .icon.search.link.icon {
+      color: #C64D34 !important;
+  
+      &:hover {
+        opacity: 0.8; /* Efecto hover */
+      }
+    }
+  }
+  
