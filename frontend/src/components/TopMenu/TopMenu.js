@@ -5,6 +5,7 @@ import "./TopMenu.scss";
 
 export function TopMenu() {
   const { auth, logout } = useAuth();
+  console.log("rol del user: ", auth?.user?.rol);
 
   return (
     <Menu borderless className="top-menu">
@@ -35,6 +36,16 @@ export function TopMenu() {
                 icon="user"
                 onClick={() => (window.location.href = "/perfil")}
               />
+
+              {/* Solo visible si rol es "cliente" */}
+              {auth?.user?.rol === "cliente" && (
+                <Dropdown.Item
+                  text="Mis Órdenes"
+                  icon="shopping cart"
+                  onClick={() => (window.location.href = "/Ordenes-cliente")}
+                />
+              )}
+
               <Dropdown.Item text="Logout" icon="sign-out" onClick={logout} />
             </Dropdown.Menu>
           </Dropdown>

@@ -1,5 +1,5 @@
 import React from "react";
-import { ClientesDashboard, Carrito } from "../pages";
+import { ClientesDashboard, Carrito, OrdenesCliente } from "../pages";
 import { ClientLayout } from "../layouts";
 import PrivateRoutes from "./PrivateRoutes";
 
@@ -39,12 +39,12 @@ const clientesRoutes = [
     children: [{ path: "", element: <Carrito /> }],
   },
   {
-    path: "/Ordenes",
+    path: "/Ordenes-cliente",
     layout: ClientLayout,
     element: (
       <PrivateRoutes allowedRoles={"admin, cliente, staff, superadmin"} />
     ),
-    children: [{ path: "", element: <Carrito /> }],
+    children: [{ path: "", element: <OrdenesCliente /> }],
   },
 ];
 

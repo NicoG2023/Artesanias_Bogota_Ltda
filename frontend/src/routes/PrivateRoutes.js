@@ -9,7 +9,7 @@ function PrivateRoutes({ allowedRoles }) {
 
   if (!auth?.user) {
     //Usuario no autenticado: redirige al inicio de sesion
-    return <Navigate to="/login" />;
+    return <Navigate to="/Login" />;
   }
 
   if (!hasAccess) {
