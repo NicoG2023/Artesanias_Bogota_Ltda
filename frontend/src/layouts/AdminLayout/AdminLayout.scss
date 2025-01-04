@@ -1,0 +1,26 @@
+.admin-layout {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: #F7F2E7;
+  
+  
+
+  &__content {
+    display: flex; /* Agregado: distribución horizontal */
+    flex-grow: 1;
+    margin-top: 2rem; /* Para darle espacio debajo del TopMenu */
+  }
+
+  &__sidebar {
+    width: 14rem; /* Asegúrate de que la barra lateral tenga el ancho fijo deseado */
+    border-right: 3px solid black;
+  }
+
+  &__main-content {
+    flex-grow: 1; /* El área de contenido toma el resto del espacio */
+    padding: 2rem 1rem;
+  }
+
+  
+}

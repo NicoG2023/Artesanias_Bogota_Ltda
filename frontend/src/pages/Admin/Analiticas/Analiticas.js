@@ -1,5 +1,5 @@
 import React from "react";
 
 export function Analiticas() {
-  return <div></div>;
+  return <div>Page analiticas</div>;
 }

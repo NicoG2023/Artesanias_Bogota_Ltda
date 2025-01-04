@@ -1,18 +1,81 @@
 const express = require("express");
 const {
-  getAllUsuariosController,
-  getUsuarioController,
-  deleteUsuarioController,
-  updateUsuarioController,
-} = require("../views/viewsController");
+  createUsuario,
+  getAllUsuarios,
+  getUsuarioById,
+  deleteUsuario,
+  updateUsuario,
+} = require("../views/views");
 const { verifyToken, authorizeRoles } = require("../../middleware/auth");
 const router = express.Router();
+
 /**
  * @swagger
  * tags:
  *   name: Usuarios
  *   description: Endpoints para gestión de usuarios
  */
+
+/**
+ * @swagger
+ * /usuarios:
+ *   post:
+ *     summary: Crear un nuevo usuario
+ *     tags: [Usuarios]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               nombre:
+ *                 type: string
+ *               apellido:
+ *                 type: string
+ *               email:
+ *                 type: string
+ *               password:
+ *                 type: string
+ *               puntos_descuento:
+ *                 type: integer
+ *               rol:
+ *                 type: string
+ *               es_activo:
+ *                 type: boolean
+ *     responses:
+ *       201:
+ *         description: Usuario creado exitosamente
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 id:
+ *                   type: integer
+ *                 nombre:
+ *                   type: string
+ *                 apellido:
+ *                   type: string
+ *                 email:
+ *                   type: string
+ *                 puntos_descuento:
+ *                   type: integer
+ *                 rol:
+ *                   type: string
+ *       400:
+ *         description: Error en la creación del usuario
+ *       403:
+ *         description: Acceso denegado
+ */
+router.post(
+  "/usuarios",
+  verifyToken,
+  authorizeRoles("admin", "superadmin"),
+  createUsuario
+); // Crear un usuario
 
 /**
  * @swagger
@@ -25,28 +88,14 @@ const router = express.Router();
  *     responses:
  *       200:
  *         description: Lista de usuarios
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               items:
- *                 type: object
- *                 properties:
- *                   id:
- *                     type: integer
- *                   nombre:
- *                     type: string
- *                   email:
- *                     type: string
- *       403:
- *         description: Acceso denegado
  */
 router.get(
   "/usuarios",
   verifyToken,
   authorizeRoles("admin", "superadmin"),
-  getAllUsuariosController
-); // Obtener todos los usuarios
+  getAllUsuarios
+);
+
 /**
  * @swagger
  * /usuario/{id}:
@@ -61,43 +110,40 @@ router.get(
  *         schema:
  *           type: integer
  *         required: true
- *         description: ID del usuario
- *     responses:
- *       200:
- *         description: Detalles del usuario
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 id:
- *                   type: integer
- *                 nombre:
- *                   type: string
- *                 email:
- *                   type: string
- *       403:
- *         description: Acceso denegado
- *       404:
- *         description: Usuario no encontrado
  */
 router.get(
   "/usuario/:id",
   verifyToken,
   authorizeRoles("admin", "superadmin"),
-  getUsuarioController
-); // Obtener un usuario por ID
+  getUsuarioById
+);
+
+/**
+ * @swagger
+ * /usuario/{id}:
+ *   put:
+ *     summary: Actualizar un usuario
+ *     tags: [Usuarios]
+ */
+router.put(
+  "/usuario/:id",
+  verifyToken,
+  authorizeRoles("admin", "superadmin"),
+  updateUsuario
+);
+
+/**
+ * @swagger
+ * /usuario/{id}:
+ *   delete:
+ *     summary: Eliminar un usuario
+ *     tags: [Usuarios]
+ */
 router.delete(
   "/usuario/:id",
   verifyToken,
   authorizeRoles("admin", "superadmin"),
-  deleteUsuarioController
-); // Eliminar un usuario por ID
-router.post(
-  "/usuario/:id",
-  verifyToken,
-  authorizeRoles("admin", "superadmin"),
-  updateUsuarioController
-); // Actualizar un usuario por ID
+  deleteUsuario
+);
 
 module.exports = router;

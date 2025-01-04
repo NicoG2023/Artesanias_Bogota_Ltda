@@ -1,58 +1,117 @@
-const Usuario = require("../../models");
+const { Usuario } = require("../../models");
 
-//Lectura de usuarios
-//Leer todos los usarios
-async function getAllUsuarios() {
+// Crear un usuario
+const createUsuario = async (req, res) => {
   try {
-    const usuarios = await Usuario.findAll();
-    return usuarios;
+    const { nombre, apellido, email, password, puntos_descuento, rol, es_activo } = req.body;
+
+    // Validar campos obligatorios
+    if (!nombre || !apellido || !email || !password) {
+      return res.status(400).json({ message: "Faltan campos obligatorios (nombre, apellido, email, password)" });
+    }
+
+    const existingUser = await Usuario.findOne({ where: { email } });
+    if (existingUser) {
+      return res.status(400).json({ message: "El email ya está registrado" });
+    }
+
+    // Crear el usuario
+    const nuevoUsuario = await Usuario.create({
+      nombre,
+      apellido,
+      email,
+      password,
+      puntos_descuento: puntos_descuento || 0,  // Valor por defecto en caso de no especificarse
+      rol: rol || "cliente",
+      es_activo: es_activo !== undefined ? es_activo : true,
+    });
+
+    // Excluir la contraseña antes de devolver la respuesta
+    const { password: _, ...usuarioSinPassword } = nuevoUsuario.toJSON();
+
+    res.status(201).json(usuarioSinPassword);
   } catch (error) {
-    throw new Error("Error al obtener los usuarios: " + error.message);
-  }
-}
+    console.error("Error al crear el usuario:", error);
 
-//Leer un usuario por id
-async function getUsuarioById(id) {
+    // Mostrar detalles del error
+    if (error.errors) {
+      error.errors.forEach(err => {
+        console.error(`Validation error in field: ${err.path}, message: ${err.message}`);
+      });
+    }
+
+    res.status(400).json({ message: "Error al crear el usuario: " + error.message });
+  }
+};
+
+// Obtener todos los usuarios
+const getAllUsuarios = async (req, res) => {
   try {
+    const usuarios = await Usuario.findAll({
+      attributes: { exclude: ["password"] }, // Excluir contraseña
+    });
+    res.status(200).json(usuarios);
+  } catch (error) {
+    console.error("Error al obtener los usuarios:", error);
+    res.status(400).json({ message: "Error al obtener los usuarios: " + error.message });
+  }
+};
+
+// Obtener un usuario por ID
+const getUsuarioById = async (req, res) => {
+  try {
+    const { id } = req.params;
     const usuario = await Usuario.findOne({
-      where: { id: id },
+      where: { id },
+      attributes: { exclude: ["password"] }, // Excluir contraseña
     });
     if (!usuario) {
-      throw new Error("Usuario no encontrado");
+      return res.status(404).json({ message: "Usuario no encontrado" });
     }
-    return usuario;
+    res.status(200).json(usuario);
   } catch (error) {
-    throw new Error("Error al obtener el usuario: " + error.message);
+    console.error("Error al obtener el usuario:", error);
+    res.status(400).json({ message: "Error al obtener el usuario: " + error.message });
   }
-}
+};
 
-//Eliminacion de usuario
-async function deleteUsuario(id) {
+// Actualizar un usuario
+const updateUsuario = async (req, res) => {
   try {
+    const { id } = req.params;
+    const updatedData = req.body;
     const usuario = await Usuario.findByPk(id);
     if (!usuario) {
-      throw new Error("Usuario no encontrado");
+      return res.status(404).json({ message: "Usuario no encontrado" });
+    }
+    await usuario.update(updatedData);
+    res.status(200).json(usuario);
+  } catch (error) {
+    console.error("Error al actualizar el usuario:", error);
+    res.status(400).json({ message: "Error al actualizar el usuario: " + error.message });
+  }
+};
+
+// Eliminar un usuario
+const deleteUsuario = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const usuario = await Usuario.findByPk(id);
+    if (!usuario) {
+      return res.status(404).json({ message: "Usuario no encontrado" });
     }
     await usuario.destroy();
-    return { message: "Usuario eliminado correctamente" };
+    res.status(200).json({ message: "Usuario eliminado correctamente" });
   } catch (error) {
-    throw new Error("Error al eliminar el usuario: " + error.message);
+    console.error("Error al eliminar el usuario:", error);
+    res.status(400).json({ message: "Error al eliminar el usuario: " + error.message });
   }
-}
+};
 
-async function updateUser(id, updatedData) {
-  try {
-    const user = await Usuario.findByPk(id);
-    if (!user) {
-      throw new Error("Usuario no encontrado");
-    }
-
-    await user.update(updatedData);
-    return user;
-  } catch (error) {
-    console.error("Error actualizando el usuario:", error);
-    throw error;
-  }
-}
-
-module.exports = { getAllUsuarios, getUsuarioById, deleteUsuario, updateUser };
+module.exports = {
+  createUsuario,
+  getAllUsuarios,
+  getUsuarioById,
+  updateUsuario,
+  deleteUsuario,
+};
