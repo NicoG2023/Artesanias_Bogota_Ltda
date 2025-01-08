@@ -3,3 +3,4 @@ export * from "./Cliente";
 export * from "./Footer";
 export * from "./TopMenu";
 export * from "./Productos";
+export * from "./Admin";

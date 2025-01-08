@@ -1,11 +1,17 @@
 import React from "react";
 import { Menu, Image, Container, Button, Dropdown } from "semantic-ui-react";
 import { useAuth } from "../../hooks";
+import { useNavigate } from "react-router-dom";
 import "./TopMenu.scss";
 
 export function TopMenu() {
   const { auth, logout } = useAuth();
-  console.log("rol del user: ", auth?.user?.rol);
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    logout(); // Llamar la función de logout
+    navigate("/"); // Redirigir al home
+  };
 
   return (
     <Menu borderless className="top-menu">
@@ -42,11 +48,15 @@ export function TopMenu() {
                 <Dropdown.Item
                   text="Mis Órdenes"
                   icon="shopping cart"
-                  onClick={() => (window.location.href = "/Ordenes-cliente")}
+                  onClick={() => (window.location.href = "/ordenes-cliente")}
                 />
               )}
 
-              <Dropdown.Item text="Logout" icon="sign-out" onClick={logout} />
+              <Dropdown.Item
+                text="Logout"
+                icon="sign-out"
+                onClick={handleLogout} // Redirigir al presionar logout
+              />
             </Dropdown.Menu>
           </Dropdown>
         </Menu.Item>

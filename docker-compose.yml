@@ -48,6 +48,7 @@ services:
       - ./servicio_usuarios/src:/app/src
     ports:
       - "3001:3000" # Exponer el puerto 3000 para el desarrollo en Express
+      - "50051:50051"   # gRPC se ve fuera como 50051 (opcional, si lo quieres exponer host->container)
     env_file:
       - .env
     environment:
@@ -71,6 +72,7 @@ services:
       - ./servicio_admin/src:/app/src
     ports:
       - "3002:3000" # Exponer el puerto 3000 para el desarrollo en Express
+      - "50052:50052"   # gRPC se ve fuera como 50052 (opcional, si lo quieres exponer host->container)
     env_file:
       - .env
     environment:

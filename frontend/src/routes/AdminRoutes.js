@@ -2,7 +2,7 @@ import React from "react";
 import {
   AdminDashboard,
   Usuarios,
-  Ordenes,
+  OrdenesAdmin,
   Inventario,
   Analiticas,
 } from "../pages";
@@ -12,7 +12,6 @@ import PrivateRoutes from "./PrivateRoutes";
 const adminRoutes = [
   {
     path: "/admin",
-    layout: AdminLayout,
     element: <PrivateRoutes allowedRoles={"admin"} />,
     children: [
       {
@@ -26,8 +25,7 @@ const adminRoutes = [
     ],
   },
   {
-    path: "/Usuarios",
-    layout: AdminLayout,
+    path: "/admin-usuarios",
     element: <PrivateRoutes allowedRoles={"admin"} />,
     children: [
       {
@@ -41,23 +39,21 @@ const adminRoutes = [
     ],
   },
   {
-    path: "/Ordenes",
-    layout: AdminLayout,
+    path: "/admin-ordenes",
     element: <PrivateRoutes allowedRoles={"admin"} />,
     children: [
       {
         path: "",
         element: (
           <AdminLayout>
-            <Ordenes />
+            <OrdenesAdmin />
           </AdminLayout>
         ),
       },
     ],
   },
   {
-    path: "/Inventario",
-    layout: AdminLayout,
+    path: "/admin-inventario",
     element: <PrivateRoutes allowedRoles={"admin"} />,
     children: [
       {
@@ -71,8 +67,7 @@ const adminRoutes = [
     ],
   },
   {
-    path: "/Analiticas",
-    layout: AdminLayout,
+    path: "/admin-analiticas",
     element: <PrivateRoutes allowedRoles={"admin"} />,
     children: [
       {

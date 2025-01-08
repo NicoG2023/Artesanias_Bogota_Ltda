@@ -1,0 +1,53 @@
+/* SideMenu.scss */
+
+.side-menu-admin {
+    width: 100%; /* El contenedor del menú se ajusta a su padre (250px del layout) */
+    height: 100%; 
+    background-color: #C64D34 !important; /* color principal, si lo deseas */
+  
+    .ui.menu.side {
+      background-color: #C64D34 !important;
+      /* Quita borde, ajusta diseño */
+      border: none;
+      border-radius: 0;
+      margin: 0; 
+      box-shadow: none;
+  
+      width: 100%; /* Ocupa todo el contenedor */
+      min-height: 100vh; /* Si quieres que el menú ocupe la altura total,
+                            aunque normalmente con un layout flexible
+                            crece según el contenido
+                          */
+  
+      /* Estilo de los items */
+      .item {
+        color: #fff !important; /* texto blanco */
+        font-weight: 500;
+        padding: 1rem;
+  
+        i.icon {
+          margin-right: 10px !important;
+          /* color de ícono (si quieres blanco) */
+          color: #fff !important;
+        }
+  
+        &:hover {
+          background-color: #E2B13C !important; /* color secundario */
+          color: #6E6159 !important; /* texto café grisáceo */
+          i.icon {
+            color: #6E6159 !important;
+          }
+        }
+  
+        /* Cuando está activo */
+        &.active {
+          background-color: #E2B13C !important; /* color secundario */
+          color: #6E6159 !important; 
+          i.icon {
+            color: #6E6159 !important;
+          }
+        }
+      }
+    }
+  }
+  

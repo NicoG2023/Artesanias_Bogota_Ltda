@@ -1,0 +1,39 @@
+syntax = "proto3";
+
+package users;
+
+// Servicio para exponer métodos relacionados con usuarios
+service UserService {
+  rpc GetUsersByIds (GetUsersByIdsRequest) returns (GetUsersByIdsResponse);
+
+  // método para búsqueda de usuarios
+  rpc SearchUsers (SearchUsersRequest) returns (SearchUsersResponse);
+}
+
+// Mensaje de request: un array de IDs (método existente)
+message GetUsersByIdsRequest {
+  repeated int32 user_ids = 1;
+}
+
+// Modelo de usuario que exponemos (sin contraseña)
+message User {
+  int32 id = 1;
+  string nombre = 2;
+  string apellido = 3;
+  string email = 4;
+}
+
+// Respuesta: varios usuarios (método existente)
+message GetUsersByIdsResponse {
+  repeated User users = 1;
+}
+
+// Request para SearchUsers
+message SearchUsersRequest {
+  string searchTerm = 1;
+}
+
+// Response para SearchUsers
+message SearchUsersResponse {
+  repeated User users = 1;
+}

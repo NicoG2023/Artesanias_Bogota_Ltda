@@ -10,7 +10,6 @@ const router = express.Router();
 const {
   crearOrden,
   obtenerOrdenes,
-  obtenerOrdenPorId,
   obtenerOrdenesPorUsuario,
   updateEstadoOrden,
 } = require("../views/OrdenController");
@@ -80,38 +79,10 @@ router.post("/", verifyToken, authorizeRoles("cliente"), crearOrden);
  *         description: Error al obtener las órdenes
  */
 router.get(
-  "/",
+  "/ordenes",
   verifyToken,
   authorizeRoles("admin", "superadmin"),
   obtenerOrdenes
-);
-
-/**
- * @swagger
- * /api/ordenes/{id}:
- *   get:
- *     summary: Obtiene una orden por ID
- *     tags: [Ordenes]
- *     parameters:
- *       - in: path
- *         name: id
- *         schema:
- *           type: integer
- *         required: true
- *         description: ID de la orden
- *     responses:
- *       200:
- *         description: Orden encontrada
- *       404:
- *         description: Orden no encontrada
- *       500:
- *         description: Error al obtener la orden
- */
-router.get(
-  "/:id",
-  verifyToken,
-  authorizeRoles("admin", "superadmin"),
-  obtenerOrdenPorId
 );
 
 /**
@@ -134,7 +105,7 @@ router.get(
  *         description: Error al obtener las órdenes por usuario
  */
 router.get(
-  "/usuario/:usuario_fk",
+  "/mis-ordenes/:usuario_fk",
   verifyToken,
   authorizeRoles("cliente", "admin", "superadmin"),
   obtenerOrdenesPorUsuario

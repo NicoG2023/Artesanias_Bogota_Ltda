@@ -18,6 +18,7 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     const initializeAuth = async () => {
       const token = getToken();
+      console.log("token de user -> ", token);
       if (token) {
         try {
           const user = await getMeApi(token);

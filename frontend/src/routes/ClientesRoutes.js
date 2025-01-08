@@ -6,9 +6,10 @@ import PrivateRoutes from "./PrivateRoutes";
 const clientesRoutes = [
   {
     path: "/Productos",
-    layout: ClientLayout,
     element: (
-      <PrivateRoutes allowedRoles={"admin, cliente, staff, superadmin"} />
+      <ClientLayout>
+        <PrivateRoutes allowedRoles={"admin, cliente, staff, superadmin"} />
+      </ClientLayout>
     ),
     children: [
       {
@@ -19,9 +20,10 @@ const clientesRoutes = [
   },
   {
     path: "/Carrito",
-    layout: ClientLayout,
     element: (
-      <PrivateRoutes allowedRoles={"admin, cliente, staff, superadmin"} />
+      <ClientLayout>
+        <PrivateRoutes allowedRoles={"admin, cliente, staff, superadmin"} />
+      </ClientLayout>
     ),
     children: [
       {
@@ -32,19 +34,26 @@ const clientesRoutes = [
   },
   {
     path: "/Pagos",
-    layout: ClientLayout,
     element: (
-      <PrivateRoutes allowedRoles={"admin, cliente, staff, superadmin"} />
+      <ClientLayout>
+        <PrivateRoutes allowedRoles={"admin, cliente, staff, superadmin"} />
+      </ClientLayout>
     ),
     children: [{ path: "", element: <Carrito /> }],
   },
   {
-    path: "/Ordenes-cliente",
-    layout: ClientLayout,
+    path: "/ordenes-cliente",
     element: (
-      <PrivateRoutes allowedRoles={"admin, cliente, staff, superadmin"} />
+      <ClientLayout>
+        <PrivateRoutes allowedRoles={"admin, cliente, staff, superadmin"} />
+      </ClientLayout>
     ),
-    children: [{ path: "", element: <OrdenesCliente /> }],
+    children: [
+      {
+        path: "",
+        element: <OrdenesCliente />,
+      },
+    ],
   },
 ];
 

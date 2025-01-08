@@ -1,7 +1,15 @@
-import React from "react";
-import "./TablaOrdenesCliente.scss";
-import { Message, Table, Pagination, Loader } from "semantic-ui-react";
+import React, { useState } from "react";
+import "./TablaOrdenesAdmin.scss";
+import {
+  Message,
+  Table,
+  Pagination,
+  Loader,
+  Button,
+  Icon,
+} from "semantic-ui-react";
 import { map } from "lodash";
+import { ModalOrden } from "../ModalOrden";
 
 function formatDate(dateString) {
   if (!dateString) return "";
@@ -16,8 +24,20 @@ function formatDate(dateString) {
   });
 }
 
-export function TablaOrdenesCliente({ ordenesHook }) {
-  const { ordenes, loading, error, page, setPage, pagination } = ordenesHook;
+export function TablaOrdenesAdmin({ ordenesHook }) {
+  const {
+    ordenes,
+    loading,
+    error,
+    page,
+    setPage,
+    pagination,
+    searchTerm,
+    setSearchTerm,
+  } = ordenesHook;
+  // Estado local para el modal
+  const [selectedOrden, setSelectedOrden] = useState(null);
+  const [openModal, setOpenModal] = useState(false);
 
   if (loading) {
     return <Loader active inline="centered" content="Cargando órdenes..." />;
@@ -33,41 +53,63 @@ export function TablaOrdenesCliente({ ordenesHook }) {
   }
 
   if (!ordenes || ordenes.length === 0) {
-    return <Message info>Actualmente no tienes órdenes registradas.</Message>;
+    return <Message info>Actualmente no hay órdenes registradas.</Message>;
   }
 
-  // Cambiar de página
+  // Función para abrir el modal y setear la orden seleccionada
+  const mostrarInfoOrden = (orden) => {
+    setSelectedOrden(orden);
+    setOpenModal(true);
+  };
+
   const handlePageChange = (e, data) => {
     setPage(data.activePage);
   };
 
+  // Función para cerrar el modal
+  const onCloseModal = () => {
+    setOpenModal(false);
+    setSelectedOrden(null);
+  };
+
   return (
     <div className="tabla-ordenes">
-      <Table celled className="tabla-ordenes-usuario">
+      <Table celled className="tabla-ordenes-admin">
         <Table.Header>
           <Table.Row>
             <Table.HeaderCell>Fecha</Table.HeaderCell>
             <Table.HeaderCell>Estado</Table.HeaderCell>
+            <Table.HeaderCell>Cliente</Table.HeaderCell>
             <Table.HeaderCell>Total</Table.HeaderCell>
             <Table.HeaderCell>Lugar</Table.HeaderCell>
             <Table.HeaderCell>Fecha de Pago</Table.HeaderCell>
+            <Table.HeaderCell>Acciones</Table.HeaderCell> {/* Nueva columna */}
           </Table.Row>
         </Table.Header>
-
         <Table.Body>
           {map(ordenes, (orden, index) => (
             <Table.Row key={index}>
               <Table.Cell>{formatDate(orden.fecha_orden)}</Table.Cell>
               <Table.Cell>{orden.estado}</Table.Cell>
-              <Table.Cell>$ {orden.total}</Table.Cell>
+              <Table.Cell>
+                {orden.usuarioNombre} {orden.usuarioApellido}
+              </Table.Cell>
+              <Table.Cell>{orden.total}</Table.Cell>
               <Table.Cell>{orden.puntoVenta?.nombre}</Table.Cell>
               <Table.Cell>{formatDate(orden.pago?.fecha_pago)}</Table.Cell>
+
+              {/* Botón para ver detalles */}
+              <Table.Cell textAlign="right">
+                <Button icon onClick={() => mostrarInfoOrden(orden)}>
+                  <Icon name="address card" />
+                </Button>
+              </Table.Cell>
             </Table.Row>
           ))}
         </Table.Body>
       </Table>
 
-      <div className="tabla-paginacion">
+      <div className="tabla-ordenes-admin__paginacion">
         {pagination.pages > 1 && (
           <Pagination
             activePage={page}
@@ -83,6 +125,13 @@ export function TablaOrdenesCliente({ ordenesHook }) {
           />
         )}
       </div>
+
+      {/* Modal de detalles de la orden */}
+      <ModalOrden
+        open={openModal}
+        onClose={onCloseModal}
+        orden={selectedOrden}
+      />
     </div>
   );
 }

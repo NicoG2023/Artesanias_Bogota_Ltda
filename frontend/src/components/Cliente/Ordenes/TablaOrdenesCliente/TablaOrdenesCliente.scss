@@ -1,0 +1,45 @@
+.tabla-ordenes {
+    /* La tabla general ocupa el 75% de la anchura de la página */
+    width: 75%;
+    margin: 0 auto; /* Centra horizontalmente */
+    padding: 1rem;  /* Espacio interno, opcional */
+  
+    /* Color de fondo sutil. Opcional si quieres un contenedor distinto */
+    background-color: #f7f2e7;
+    border-radius: 8px;
+  
+    /* Mensajes (Loader, Message info, Message negative) centrados */
+    .ui.loader,
+    .ui.message {
+      width: 75%;
+      margin: 2rem auto; /* Centra el mensaje y separa del contenedor */
+    }
+  
+    /* La tabla en sí */
+    &-usuario {
+      border: 1px solid #dcdcdc; /* Borde alrededor */
+      border-radius: 4px;
+  
+      thead > tr > th {
+        background-color: #c64d34; /* color principal */
+        color: #fff;
+        text-align: center;
+      }
+  
+      tbody > tr > td {
+        color: #6e6159; /* gris suave */
+      }
+  
+      /* Estilo de las filas al pasar el mouse */
+      tbody > tr:hover {
+        background-color: #f2ebe2; 
+      }
+    }
+  
+    /* Contenedor de la paginación */
+    .tabla-paginacion {
+      margin-top: 1rem;
+      text-align: center; /* Centra la paginación */
+    }
+  }
+  
