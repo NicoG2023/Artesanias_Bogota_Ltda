@@ -2,6 +2,7 @@ import { API_SERVICIO_USUARIOS } from "../utils/constants";
 
 export async function getMeApi(token) {
   try {
+    console.log("token de user -> ", token);
     const url = `${API_SERVICIO_USUARIOS}/api/auth/me`;
     const params = {
       method: "GET",

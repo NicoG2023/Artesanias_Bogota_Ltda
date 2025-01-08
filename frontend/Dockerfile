@@ -1,27 +1,24 @@
-# Dockerfile para el entorno de desarrollo en React
-FROM node:alpine
+FROM node:18-alpine
 
 # Crear directorio de trabajo
 WORKDIR /app
 
-# Copiar package.json y package-lock.json
+# Copiar package.json y lock (solo para instalar dependencias)
 COPY package*.json ./
 
 # Instalar dependencias
 RUN npm install
 
-# Copiar el resto de los archivos del proyecto
+# (Opcional) Copiar el src para tenerlo en la imagen base 
+# pero no es obligatorio si vas a usar un volumen
 COPY public ./public
-COPY src/ ./src
+COPY src ./src
 
-# Establecer la variable de entorno NODE_PATH para incluir /app/node_modules
-ENV NODE_PATH=/app/node_modules
+# Ambiente para forzar polling (opcional, si no lo manejas en docker-compose)
+ENV CHOKIDAR_USEPOLLING=true
 
-# Exponer el puerto 3000
+# Exponer el puerto (3000 por defecto)
 EXPOSE 3000
 
-# Establecer el directorio de trabajo a /app/src
-WORKDIR /app/src
-
-# Iniciar la aplicación en modo de desarrollo
-CMD ["npm", "start", "--", "--watch"]
+# Correr el server de desarrollo
+CMD ["npm", "start"]

@@ -1,14 +1,15 @@
 import React from "react";
-import { ClientesDashboard, Carrito } from "../pages";
+import { ClientesDashboard, Carrito, OrdenesCliente } from "../pages";
 import { ClientLayout } from "../layouts";
 import PrivateRoutes from "./PrivateRoutes";
 
 const clientesRoutes = [
   {
     path: "/Productos",
-    layout: ClientLayout,
     element: (
-      <PrivateRoutes allowedRoles={"admin, cliente, staff, superadmin"} />
+      <ClientLayout>
+        <PrivateRoutes allowedRoles={"admin, cliente, staff, superadmin"} />
+      </ClientLayout>
     ),
     children: [
       {
@@ -19,9 +20,10 @@ const clientesRoutes = [
   },
   {
     path: "/Carrito",
-    layout: ClientLayout,
     element: (
-      <PrivateRoutes allowedRoles={"admin, cliente, staff, superadmin"} />
+      <ClientLayout>
+        <PrivateRoutes allowedRoles={"admin, cliente, staff, superadmin"} />
+      </ClientLayout>
     ),
     children: [
       {
@@ -32,19 +34,26 @@ const clientesRoutes = [
   },
   {
     path: "/Pagos",
-    layout: ClientLayout,
     element: (
-      <PrivateRoutes allowedRoles={"admin, cliente, staff, superadmin"} />
+      <ClientLayout>
+        <PrivateRoutes allowedRoles={"admin, cliente, staff, superadmin"} />
+      </ClientLayout>
     ),
     children: [{ path: "", element: <Carrito /> }],
   },
   {
-    path: "/Ordenes",
-    layout: ClientLayout,
+    path: "/ordenes-cliente",
     element: (
-      <PrivateRoutes allowedRoles={"admin, cliente, staff, superadmin"} />
+      <ClientLayout>
+        <PrivateRoutes allowedRoles={"admin, cliente, staff, superadmin"} />
+      </ClientLayout>
     ),
-    children: [{ path: "", element: <Carrito /> }],
+    children: [
+      {
+        path: "",
+        element: <OrdenesCliente />,
+      },
+    ],
   },
 ];
 
