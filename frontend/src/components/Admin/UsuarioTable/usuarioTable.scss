@@ -1,0 +1,69 @@
+.table-container {
+  max-height: 400px; /* Ajusta la altura según el diseño */
+  max-width: 600px;
+  overflow-y: auto; /* Activa el desplazamiento vertical */
+  border: 1px solid #ddd; /* Opcional: agrega un borde alrededor del contenedor */
+  padding-right: 10px; /* Opcional: espacio para evitar que la barra de desplazamiento se superponga al contenido */
+}
+
+.table-container table tbody tr:nth-child(odd) {
+  background-color: #f9f9f9; /* Color claro para filas impares */
+}
+
+.table-container table tbody tr:nth-child(even) {
+  background-color: #ffffff; /* Color blanco para filas pares */
+}
+
+.table-container table tbody tr:hover {
+  background-color: #e6f7ff; /* Un azul claro o un color tenue */
+  cursor: pointer; /* Indica que la fila es interactiva */
+}
+
+.table-container table {
+  border-collapse: collapse; /* Junta los bordes */
+  width: 100%; /* Asegura que la tabla ocupe todo el ancho del contenedor */
+}
+
+.table-container table th, 
+.table-container table td {
+  border: 1px solid #ddd; /* Bordes suaves */
+  padding: 8px; /* Espaciado interno */
+  text-align: left; /* Alinea el texto a la izquierda */
+}
+
+.table-container table th {
+  background-color: #4CAF50; /* Verde corporativo */
+  color: white; /* Texto blanco */
+  text-transform: uppercase; /* Texto en mayúsculas */
+  font-weight: bold; /* Resalta el texto */
+  padding: 10px; /* Más espacio en las celdas */
+}
+
+.table-container table td:last-child {
+  text-align: center; /* Centra las acciones */
+}
+
+.table-container button {
+  margin: 0 5px; /* Espaciado entre botones */
+  padding: 6px 12px; /* Botones más cómodos */
+  font-size: 14px; /* Texto claro */
+}
+
+.table-container button:hover {
+  opacity: 0.8; /* Añade un efecto al pasar el cursor */
+}
+
+@media (max-width: 768px) {
+  .table-container {
+    overflow-x: auto; /* Permite desplazamiento horizontal */
+  }
+
+  .table-container table {
+    font-size: 12px; /* Reduce el tamaño de texto */
+  }
+}
+
+
+
+
+

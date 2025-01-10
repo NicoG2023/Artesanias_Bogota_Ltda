@@ -4,23 +4,86 @@
   min-height: 100vh;
   background-color: #F7F2E7;
   
+
   
 
   &__content {
-    display: flex; /* Agregado: distribución horizontal */
+    display: flex; /* Distribución horizontal */
     flex-grow: 1;
-    margin-top: 2rem; /* Para darle espacio debajo del TopMenu */
+    text-align: center;
   }
 
   &__sidebar {
-    width: 14rem; /* Asegúrate de que la barra lateral tenga el ancho fijo deseado */
-    border-right: 3px solid black;
+    width: 14rem; /* Ancho fijo para la barra lateral */
+    background-color: #fff; /* Fondo para diferenciar la barra lateral */
+    text-align: center;
   }
 
   &__main-content {
     flex-grow: 1; /* El área de contenido toma el resto del espacio */
     padding: 2rem 1rem;
+    overflow-y: auto; /* Añadir desplazamiento si el contenido se extiende más allá de la altura visible */
+    background-color: #F7F2E7; /* Fondo claro para contraste */
+    text-align: center;
   }
 
-  
+ 
 }
+
+/* Ajustes específicos para la tabla de usuarios */
+.usuarios {
+  .ui.table {
+    width: 100%; /* Asegura que la tabla ocupe todo el ancho disponible */
+    border-collapse: collapse; /* Evitar bordes dobles */
+
+    th, td {
+      padding: 10px; /* Espaciado de celdas */
+      text-align: left; /* Alineación de texto */
+      border: 1px solid #ddd; /* Bordes para las celdas */
+    }
+
+    th {
+      background-color: #f4f4f4; /* Fondo gris claro para encabezados */
+      font-weight: bold;
+    }
+
+    tr:nth-child(even) {
+      background-color: #f9f9f9; /* Alternar color de filas */
+    }
+
+    tr:hover {
+      background-color: #e8f5e9; /* Fondo verde claro al pasar el mouse */
+    }
+  }
+
+  .usuario__table_container_container {
+    max-height: 500px; /* Altura máxima según el diseño */
+    overflow-y: auto; /* Activar barra de desplazamiento */
+    border: 1px solid #ddd; /* Borde alrededor */
+    padding-right: 10px; /* Espacio para la barra de desplazamiento */
+    background-color: #fff; /* Fondo blanco para la tabla */
+    border-radius: 8px; /* Bordes redondeados */
+  }
+
+  &__container button {
+    display: block;
+    border-radius: 8px;
+    margin: 20px auto;
+    color: white;
+    background-color: rgb(34, 139, 34);
+    font-size: 20px;
+    padding: 10px 20px;
+    border: none;
+    cursor: pointer;
+
+    &:hover {
+      background-color: rgb(28, 112, 28);
+    }
+  }
+}
+
+
+
+
+
+

@@ -4,10 +4,12 @@ import { useAuth } from "../../hooks";
 import { AdminDashboard, Login } from "../../pages";
 import { Footer } from "../../components/Footer";
 import { TopMenu } from "../../components/TopMenu";
-import { Sidebar } from "../../components/Sidebar/Sidebar";
+import { Sidebar } from "../../components/Admin";
+
 
 
 export function AdminLayout({ children }) {
+
 
   const { auth } = useAuth();
     if (!auth) return <Login />;
@@ -30,4 +32,6 @@ export function AdminLayout({ children }) {
       </div>
     );
 }
+
+
 

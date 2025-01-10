@@ -1,34 +1,25 @@
-import React, { useState } from "react";
+import React from "react";
 import { Button, Form } from "semantic-ui-react";
-import { useNavigate } from "react-router-dom";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { toast } from "react-toastify";
-import { useAuth } from "../../hooks";
-import { createUsuarioApi } from "../../api/usuario";
+import { useAuth } from "../../../hooks";
+import { createUsuarioApi } from "../../../api/usuario";
 import "./UsuarioForm.scss";
 
-export function UsuarioForm({ onUserAdded }) {
-    const { token, login } = useAuth();  //const { login } = useAuth();
-    const navigate = useNavigate();
-
+export function UsuarioForm() {
+    const { auth } = useAuth();
     const formik = useFormik({
       initialValues: initialValues(),
       validationSchema: Yup.object(validationSchema()),
       onSubmit: async (formValue, { resetForm }) => {
         try {
-          console.log("Token enviado:", token);
+          console.log("Token enviado:", auth.token);
           console.log("Valores enviados:", formValue);
 
-          const response = await createUsuarioApi(token, formValue);
-
-          const newToken = response.token;
-
-        //  const user = await login(token);
-
-          //const { token_response} = response;
+          await createUsuarioApi(auth.token, formValue);
           toast.success("Usuario agregado exitosamente");
-          onUserAdded(); // Notifica al componente padre para refrescar la tabla
+       //   onUserAdded(); // Notifica al componente padre para refrescar la tabla
           resetForm(); // Limpia el formulario
         } catch (error) {
           toast.error("Error al agregar usuario: " + error.message);
