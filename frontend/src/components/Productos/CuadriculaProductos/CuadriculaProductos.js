@@ -1,10 +1,11 @@
 // src/components/CuadriculaProductos/CuadriculaProductos.jsx
 import React, { useState } from "react";
-import { Pagination } from "semantic-ui-react";
+import { Pagination, Button } from "semantic-ui-react";
 import { ModalProducto } from "../ModalProducto/ModalProducto";
+import { ModalProductoAdmin } from "../ModalProductoAdmin/ModalProductoAdmin";
 import "./CuadriculaProductos.scss";
 
-export function CuadriculaProductos({ productosHook }) {
+export function CuadriculaProductos({ productosHook, context }) {
   const {
     productos = [],
     loading,
@@ -48,7 +49,7 @@ export function CuadriculaProductos({ productosHook }) {
         <div
           key={producto.id}
           className="product-card"
-          onClick={() => handleOpenModal(producto)}
+          onClick={context === "client" ? () => handleOpenModal(producto) : undefined}
         >
           <img
             src={producto.imagen}
@@ -66,6 +67,11 @@ export function CuadriculaProductos({ productosHook }) {
                 />
               ))}
             </div>
+            {context === "admin" && (
+            <div className="admin-buttons">
+              <Button className="edit-button" onClick={() => handleOpenModal(producto)}>Editar</Button>
+            </div>
+          )}
           </div>
         </div>
       ))}
@@ -99,12 +105,20 @@ export function CuadriculaProductos({ productosHook }) {
         )}
       </div>
 
-      {/* Modal de producto */}
-      <ModalProducto
+      {context === "admin" && (
+        <ModalProductoAdmin 
         open={open}
         onClose={handleCloseModal}
         producto={selectedProduct}
-      />
+        />
+      )}
+      {context === "client" && (
+        <ModalProducto
+        open={open}
+        onClose={handleCloseModal}
+        producto={selectedProduct}
+        />
+      )}
     </div>
   );
 }
