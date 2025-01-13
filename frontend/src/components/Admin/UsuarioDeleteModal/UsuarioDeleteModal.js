@@ -1,15 +1,14 @@
 import React, { useState } from "react";
 import { Modal, Button, Icon } from "semantic-ui-react";
-import { deleteUsuarioApi } from "../../../api/usuario"; // Importa la API de eliminación
+import { deleteUsuarioApi } from "../../../api/usuario"; 
 import { useAuth } from "../../../hooks";
 import { toast } from "react-toastify";
 import "./UsuarioDeleteModal.scss";
 
-export function UsuarioDeleteModal({ open, onClose, selectedUsuario, setUsuarios }) {
+export function UsuarioDeleteModal({ open, onClose, selectedUsuario, onUserActions }) {
   const { auth } = useAuth();
   const [loading, setLoading] = useState(false); // Estado para manejar el loading
 
-  // Función para manejar la eliminación del usuario
   const handleDeleteConfirm = async () => {
     setLoading(true);
     try {
@@ -17,16 +16,12 @@ export function UsuarioDeleteModal({ open, onClose, selectedUsuario, setUsuarios
       await deleteUsuarioApi(auth.token, selectedUsuario.id);
       toast.success("Usuario eliminado exitosamente");
 
-      // Actualizar la lista de usuarios, eliminando al usuario de la lista (si setUsuarios es necesario más adelante)
-      if (setUsuarios) {
-        setUsuarios((prevUsuarios) => prevUsuarios.filter((usuario) => usuario.id !== selectedUsuario.id));
-      }
-
-      onClose(); // Cierra el modal tras éxito
+      onUserActions();
+      onClose();
     } catch (error) {
       toast.error("Error al eliminar usuario: " + error.message);
     } finally {
-      setLoading(false); // Restablece el estado de loading
+      setLoading(false);
     }
   };
 
@@ -39,23 +34,23 @@ export function UsuarioDeleteModal({ open, onClose, selectedUsuario, setUsuarios
       <Modal.Content scrolling>
         <div className="modal-container">
           <h1 className="question-text">
-            ¿Está seguro que desea eliminar el usuario {selectedUsuario?.nombre} {selectedUsuario?.apellido}?
+            ¿Está seguro que desea eliminar al (la) usuario {selectedUsuario?.nombre} {selectedUsuario?.apellido}?
           </h1>
           <div className="buttons-options">
             {/* Botón para confirmar la eliminación */}
             <Button
               className="afirmative-option"
               color="red"
-              onClick={handleDeleteConfirm} // Llama a la función para eliminar el usuario
-              loading={loading} // Muestra un indicador de carga
-              disabled={loading} // Deshabilita el botón mientras se elimina
+              onClick={handleDeleteConfirm}
+              loading={loading}
+              disabled={loading}
             >
               {loading ? "Eliminando..." : "Eliminar"}
             </Button>
             {/* Botón para cancelar */}
             <Button
               className="cancel-option"
-              onClick={onClose} // Simplemente cierra el modal
+              onClick={onClose}
             >
               Cancelar
             </Button>

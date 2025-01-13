@@ -1,44 +1,46 @@
-/* Estilos para el contenedor principal */
 .usuarios {
-  position: relative; /* Para asegurar que los elementos dentro del contenedor no se vean afectados por el modal */
-  z-index: 1; /* Aseguramos que el contenido del contenedor esté por debajo del modal */
+  position: relative;
+  z-index: 1;
   text-align: center;
+  display: flex;
+  flex-direction: column;
+  padding: 2rem 1rem;
 
-  /* Botón para registrar un nuevo usuario */
+  &__title {
+    font-size: 24px;
+    margin-bottom: 20px;
+    font-weight: bold;
+    color: #333;
+  }
+
   &__container {
-    button {
-      display: block;
-      border-radius: 8px;
-      margin: 20px auto;
-      color: white;
-      background-color: rgb(34, 139, 34);
-      font-size: 20px;
-      padding: 10px 20px;
-      border: none;
-      cursor: pointer;
+    margin: 20px auto;
+    text-align: center;
+    width: 100%;
 
-      &:hover {
-        background-color: rgb(28, 112, 28);
-      }
-    }
+  }
+
+  .create__usuario__title {
+    font-size: 20px;
+    margin-top: 30px;
+    margin-bottom: 10px;
+    color: #555;
+    font-weight: 500;
+  }
+
+  .usuario__table_container {
+    max-height: 500px;
+    overflow-y: auto;
+    padding-right: 10px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    margin-top: 20px;
+  }
+  .ui.modal {
+    border-radius: 8px;
   }
 }
 
-/* Estilos para el modal overlay */
-.overlay {
-  position: fixed; /* Posiciona el overlay de forma fija */
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5); /* Fondo oscuro semitransparente */
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 9999; /* Asegura que el overlay esté por encima del contenido */
-}
-
-/* Estilo para el botón de cierre */
 .close-button {
   position: absolute;
   top: 10px;
@@ -54,15 +56,27 @@
   }
 }
 
-/* Contenedor de la tabla */
-.usuario__table_container_container {
-  max-height: 500px; /* Ajusta la altura a lo que desees */
-  overflow-y: auto; /* Activa la barra de desplazamiento */
-  border: 1px solid #ddd; /* Opcional: Añadir un borde alrededor */
-  padding-right: 10px; /* Ajuste opcional para compensar la barra de desplazamiento */
+@media (max-width: 768px) {
+  .usuarios {
+    &__title {
+      font-size: 20px;
+    }
+
+    &__container {
+      .button__modal {
+        font-size: 16px;
+        padding: 8px 16px;
+      }
+    }
+
+    .create__usuario__title {
+      font-size: 18px;
+    }
+
+    .usuario__table_container {
+      max-height: 300px;
+    }
+  }
 }
-
-
-
   
   

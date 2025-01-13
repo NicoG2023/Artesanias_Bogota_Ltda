@@ -2,7 +2,7 @@ import React from "react";
 import { Modal, Button, Icon} from "semantic-ui-react";
 import "./UsuarioModal.scss";
 
-export function UsuarioModal({ open, onClose, UsuarioForms, selectedUsuario }){
+export function UsuarioModal({ open, onClose, UsuarioForms, selectedUsuario, onUserAction }){
   const headerTitle = selectedUsuario ? "Actualizar un usuario" : "Registrar un usuario";
   console.log(headerTitle);
 
@@ -14,7 +14,7 @@ export function UsuarioModal({ open, onClose, UsuarioForms, selectedUsuario }){
       <Modal.Header className="header-title">{headerTitle}</Modal.Header>
       <Modal.Content scrolling>
         <div className="contenedor-modal">
-          <UsuarioForms />
+          <UsuarioForms onUserActions={onUserAction}/>
         </div>
       </Modal.Content>
     </Modal>

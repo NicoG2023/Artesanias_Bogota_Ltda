@@ -1,0 +1,99 @@
+.table-container {
+  min-height: 300px;
+  max-height: calc(100vh - 200px);
+  width: 100%;
+  overflow-y: auto;
+  box-sizing: border-box;
+  padding-right: 10px;
+
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    table-layout: auto;
+
+    th,
+    td {
+      padding: 8px;
+      text-align: left;
+      white-space: nowrap;
+    }
+
+    th {
+      background-color: #4CAF50;
+      color: white;
+      text-transform: uppercase;
+      font-weight: bold;
+      padding: 10px;
+      text-align: center;
+    }
+
+    tbody {
+      tr {
+        &:nth-child(odd) {
+          background-color: #f9f9f9;
+        }
+
+        &:nth-child(even) {
+          background-color: #ffffff;
+        }
+
+        &:hover {
+          background-color: #e6f7ff;
+          cursor: pointer;
+        }
+      }
+
+      td {
+        &:nth-child(4) { // Email
+          min-width: 200px;
+          max-width: 300px;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+
+        &:nth-child(1) { // ID
+          max-width: 50px;
+          text-align: center;
+        }
+
+        &:last-child { // Columna de acciones
+          text-align: center;
+
+          .action-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+          }
+        }
+      }
+    }
+  }
+
+  button {
+    padding: 6px 12px;
+    font-size: 14px;
+
+    &:hover {
+      opacity: 0.8;
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .table-container {
+    overflow-x: auto;
+
+    table {
+      font-size: 12px;
+    }
+  }
+}
+
+
+
+
+
+
+
+
+

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Button, Form } from "semantic-ui-react";
 import { useFormik } from "formik";
 import * as Yup from "yup";
@@ -7,22 +7,30 @@ import { useAuth } from "../../../hooks";
 import { updateUsuarioApi } from "../../../api/usuario";
 import "./UsuarioUpdateForm.scss";
 
-export function UsuarioUpdateForm({ usuario, onClose }) {
+
+export function UsuarioUpdateForm({ usuario, onClose, onUserActions }) {
   const { auth } = useAuth();
-  
+  const [loading, setLoading] = useState(false); // Estado para manejar el loading
+
+
   const formik = useFormik({
     initialValues: initialValues(usuario),
     validationSchema: Yup.object(validationSchema()),
     onSubmit: async (formValue) => {
+      setLoading(true);
       try {
         await updateUsuarioApi(auth.token, usuario.id, formValue);
         toast.success("Usuario actualizado exitosamente");
-        onClose(); // Cierra el modal después de la actualización
+        onUserActions();
+        onClose();
       } catch (error) {
         toast.error("Error al actualizar usuario: " + error.message);
+      } finally {
+        setLoading(false);
       }
     },
   });
+
 
   return (
     <Form className="update-user-form" onSubmit={formik.handleSubmit}>
@@ -83,7 +91,15 @@ export function UsuarioUpdateForm({ usuario, onClose }) {
         error={formik.errors.es_activo ? { content: formik.errors.es_activo, pointing: "below" } : null}
         className="update-user-form__input"
       />
-      <Button type="submit" content="Actualizar Usuario" primary fluid className="update-user-form__button" />
+      <Button
+        type="submit"
+        content={loading ? "Actualizando..." : "Actualizar Usuario"}
+        primary
+        fluid
+        className="update-user-form__button"
+        loading={loading}
+        disabled={loading}
+      />
     </Form>
   );
 }

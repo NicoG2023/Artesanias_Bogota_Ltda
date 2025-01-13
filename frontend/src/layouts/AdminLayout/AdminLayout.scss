@@ -3,68 +3,29 @@
   flex-direction: column;
   min-height: 100vh;
   background-color: #F7F2E7;
-  
-
-  
 
   &__content {
-    display: flex; /* Distribución horizontal */
+    display: flex;
     flex-grow: 1;
     text-align: center;
   }
 
   &__sidebar {
-    width: 14rem; /* Ancho fijo para la barra lateral */
-    background-color: #fff; /* Fondo para diferenciar la barra lateral */
+    width: 14rem;
+    background-color: #fff;
     text-align: center;
   }
 
   &__main-content {
-    flex-grow: 1; /* El área de contenido toma el resto del espacio */
+    flex-grow: 1;
     padding: 2rem 1rem;
-    overflow-y: auto; /* Añadir desplazamiento si el contenido se extiende más allá de la altura visible */
-    background-color: #F7F2E7; /* Fondo claro para contraste */
+    overflow-y: auto;
+    background-color: #F7F2E7;
     text-align: center;
   }
-
- 
 }
 
-/* Ajustes específicos para la tabla de usuarios */
 .usuarios {
-  .ui.table {
-    width: 100%; /* Asegura que la tabla ocupe todo el ancho disponible */
-    border-collapse: collapse; /* Evitar bordes dobles */
-
-    th, td {
-      padding: 10px; /* Espaciado de celdas */
-      text-align: left; /* Alineación de texto */
-      border: 1px solid #ddd; /* Bordes para las celdas */
-    }
-
-    th {
-      background-color: #f4f4f4; /* Fondo gris claro para encabezados */
-      font-weight: bold;
-    }
-
-    tr:nth-child(even) {
-      background-color: #f9f9f9; /* Alternar color de filas */
-    }
-
-    tr:hover {
-      background-color: #e8f5e9; /* Fondo verde claro al pasar el mouse */
-    }
-  }
-
-  .usuario__table_container_container {
-    max-height: 500px; /* Altura máxima según el diseño */
-    overflow-y: auto; /* Activar barra de desplazamiento */
-    border: 1px solid #ddd; /* Borde alrededor */
-    padding-right: 10px; /* Espacio para la barra de desplazamiento */
-    background-color: #fff; /* Fondo blanco para la tabla */
-    border-radius: 8px; /* Bordes redondeados */
-  }
-
   &__container button {
     display: block;
     border-radius: 8px;
@@ -81,9 +42,3 @@
     }
   }
 }
-
-
-
-
-
-
