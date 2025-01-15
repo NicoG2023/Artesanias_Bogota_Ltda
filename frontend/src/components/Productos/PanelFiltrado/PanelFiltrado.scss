@@ -83,6 +83,21 @@
       overflow-y: auto;
       margin-bottom: 1.5rem; // por consistencia con tus secciones
     }
+
+    &__apply-button {
+      display: block;
+      margin-top: 1rem;
+      background-color: #c64d34;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      padding: 0.5rem 1rem;
+      cursor: pointer;
+      font-weight: bold;
+      &:hover {
+        background-color: #a83d28;
+      }
+    }
   }
   
   @media (max-width: 768px) {

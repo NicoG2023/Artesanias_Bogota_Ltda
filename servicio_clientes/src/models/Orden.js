@@ -11,7 +11,7 @@ const Orden = sequelize.define(
       primaryKey: true,
       autoIncrement: true,
     },
-    usuraio_fk: {
+    usuario_fk: {
       type: DataTypes.INTEGER,
       allowNull: false,
     },
