@@ -1,6 +1,7 @@
 import React from "react";
-import { Menu, Image, Container, Button, Dropdown } from "semantic-ui-react";
+import { Menu, Image, Container, Button, Dropdown, Popup, Icon } from "semantic-ui-react";
 import { useAuth } from "../../hooks";
+import { Carrito } from "../Cliente/Carrito";
 import "./TopMenu.scss";
 
 export function TopMenu() {
@@ -21,6 +22,19 @@ export function TopMenu() {
             alt="Artesanías Banner"
             fluid
             className="banner-image"
+          />
+        </Menu.Item>
+
+        {/* Carrito de compras */}
+        <Menu.Item className="top-menu__cart">
+          <Popup
+            trigger={
+              <Icon name="shopping cart" size="large" link />
+            }
+            content={<Carrito showTotal={false} />}
+            on="click"
+            position="bottom right"
+            className="cart-popup"
           />
         </Menu.Item>
 
