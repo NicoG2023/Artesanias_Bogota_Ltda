@@ -3,92 +3,132 @@ const { Carrito, Producto, REL_CarritoProducto } = require("../../models");
 // Obtener el contenido del carrito
 const obtenerCarrito = async (req, res) => {
   try {
-    const { userId } = req.user; // Se asume que el usuario está autenticado y el ID se encuentra en el token
-    const carrito = await Carrito.findAll({
+    const { userId } = req.user;
+    // 1) Hallar el carrito de este usuario
+    //    Si un usuario solo tiene un carrito, es mejor usar findOne en vez de findAll
+    const carrito = await Carrito.findOne({
       where: { usuario_fk: userId },
       include: [
         {
-          model: REL_CarritoProducto,
-          attributes: ["id", "carrito_fk", "producto_fk", "cantidad"],
+          model: Producto,
+          as: "productos",
+          attributes: ["id", "nombre", "precio"], // O los campos que necesites
+          through: {
+            model: REL_CarritoProducto,
+            attributes: ["id", "cantidad"], // Campos que desees exponer de la tabla pivote
+          },
         },
       ],
     });
 
-    res.status(200).json(carrito);
+    // Si no tiene carrito, podríamos retornar un arreglo vacío
+    if (!carrito) {
+      return res.status(200).json({ productos: [] });
+    }
+
+    // Retornamos el carrito con sus productos
+    return res.status(200).json(carrito);
   } catch (error) {
-    res.status(500).json({ error: "Error al obtener el carrito" });
+    console.error(error);
+    return res.status(500).json({ error: "Error al obtener el carrito" });
   }
 };
 
 // Agregar un producto al carrito
 const agregarAlCarrito = async (req, res) => {
   const { productoId, cantidad } = req.body;
-  const { userId } = req.user; // Se asume que el usuario está autenticado
+  const { userId } = req.user;
 
   try {
-    // Verificar si el producto existe
+    // 1) Verificar si el producto existe
     const producto = await Producto.findByPk(productoId);
     if (!producto) {
       return res.status(404).json({ error: "Producto no encontrado" });
     }
 
-    // Verificar si ya está en el carrito
-    const [itemCarrito, created] = await Carrito.findOrCreate({
-      where: { usuario_fk: userId, producto_fk: productoId },
-      defaults: { cantidad },
+    // 2) Verificar/crear el carrito para este usuario
+    const [carrito] = await Carrito.findOrCreate({
+      where: { usuario_fk: userId },
+      // Si quieres asignarle más campos por defecto, hazlo aquí
+      defaults: {},
     });
 
+    // 3) Verificar si el producto ya está en la tabla pivote para este carrito
+    const [rel, created] = await REL_CarritoProducto.findOrCreate({
+      where: {
+        carrito_fk: carrito.id,
+        producto_fk: productoId,
+      },
+      defaults: {
+        cantidad: cantidad || 1,
+      },
+    });
+
+    // 4) Si ya existía (created === false), entonces sumamos la nueva cantidad
     if (!created) {
-      // Si ya existe, actualizar la cantidad
-      itemCarrito.cantidad += cantidad;
-      await itemCarrito.save();
+      rel.cantidad += cantidad || 1;
+      await rel.save();
     }
 
-    res.status(201).json({ message: "Producto agregado al carrito" });
+    return res.status(201).json({ message: "Producto agregado al carrito" });
   } catch (error) {
-    res.status(500).json({ error: "Error al agregar al carrito" });
+    console.error(error);
+    return res.status(500).json({ error: "Error al agregar al carrito" });
   }
 };
 
-// Actualizar la cantidad de un producto en el carrito
+// Actualizar la cantidad de un producto en el carrito (tabla pivote)
 const actualizarCantidad = async (req, res) => {
-  const { itemId } = req.params;
+  const { itemId } = req.params; // itemId = ID de la fila en REL_CarritoProducto
   const { cantidad } = req.body;
 
   try {
-    const itemCarrito = await Carrito.findByPk(itemId);
+    // 1) Buscar el registro en la tabla pivote
+    const itemCarrito = await REL_CarritoProducto.findByPk(itemId);
     if (!itemCarrito) {
-      return res.status(404).json({ error: "Producto no encontrado en el carrito" });
+      return res
+        .status(404)
+        .json({ error: "Producto no encontrado en el carrito" });
     }
 
+    // 2) Si la cantidad es menor o igual a 0, eliminamos ese producto del carrito
     if (cantidad <= 0) {
       await itemCarrito.destroy();
-      return res.status(200).json({ message: "Producto eliminado del carrito" });
+      return res
+        .status(200)
+        .json({ message: "Producto eliminado del carrito" });
     }
 
+    // 3) Si es mayor a 0, actualizamos la cantidad
     itemCarrito.cantidad = cantidad;
     await itemCarrito.save();
 
-    res.status(200).json({ message: "Cantidad actualizada" });
+    return res.status(200).json({ message: "Cantidad actualizada" });
   } catch (error) {
-    res.status(500).json({ error: "Error al actualizar la cantidad" });
+    console.error(error);
+    return res.status(500).json({ error: "Error al actualizar la cantidad" });
   }
 };
 
 // Eliminar un producto del carrito
 const eliminarDelCarrito = async (req, res) => {
-  const { itemId } = req.params;
+  const { itemId } = req.params; // itemId = ID de la fila en REL_CarritoProducto
 
   try {
-    const itemCarrito = await Carrito.findByPk(itemId);
+    // 1) Buscar la relación pivote
+    const itemCarrito = await REL_CarritoProducto.findByPk(itemId);
     if (!itemCarrito) {
-      return res.status(404).json({ error: "Producto no encontrado en el carrito" });
+      return res
+        .status(404)
+        .json({ error: "Producto no encontrado en el carrito" });
     }
 
+    // 2) Eliminar la fila (relación) de la tabla pivote
     await itemCarrito.destroy();
-    res.status(200).json({ message: "Producto eliminado del carrito" });
+    return res.status(200).json({ message: "Producto eliminado del carrito" });
   } catch (error) {
-    res.status(500).json({ error: "Error al eliminar del carrito" });
+    console.error(error);
+    return res.status(500).json({ error: "Error al eliminar del carrito" });
   }
 };
 

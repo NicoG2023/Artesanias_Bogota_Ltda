@@ -1,11 +1,11 @@
 const express = require("express");
 const {
   obtenerCarrito,
-  agregarProductoACarrito,
-  editarCantidadProducto,
-  eliminarProductoDeCarrito,
+  agregarAlCarrito,
+  actualizarCantidad,
+  eliminarDelCarrito,
 } = require("../views/carritoController");
-const { verifyToken } = require("../../../../servicio_usuarios/src/middleware/auth");
+const { verifyToken } = require("../../middleware/auth");
 
 const router = express.Router();
 
@@ -91,7 +91,7 @@ router.get("/carrito/:usuarioId", verifyToken, obtenerCarrito);
  *       500:
  *         description: Error al agregar el producto al carrito
  */
-router.post("/carrito", verifyToken, agregarProductoACarrito);
+router.post("/carrito", verifyToken, agregarAlCarrito);
 
 /**
  * @swagger
@@ -130,7 +130,11 @@ router.post("/carrito", verifyToken, agregarProductoACarrito);
  *       500:
  *         description: Error al editar la cantidad del producto
  */
-router.put("/carrito/:usuarioId/producto/:productoId", verifyToken, editarCantidadProducto);
+router.put(
+  "/carrito/:usuarioId/producto/:productoId",
+  verifyToken,
+  actualizarCantidad
+);
 
 /**
  * @swagger
@@ -159,6 +163,10 @@ router.put("/carrito/:usuarioId/producto/:productoId", verifyToken, editarCantid
  *       500:
  *         description: Error al eliminar el producto del carrito
  */
-router.delete("/carrito/:usuarioId/producto/:productoId", verifyToken, eliminarProductoDeCarrito);
+router.delete(
+  "/carrito/:usuarioId/producto/:productoId",
+  verifyToken,
+  eliminarDelCarrito
+);
 
 module.exports = router;

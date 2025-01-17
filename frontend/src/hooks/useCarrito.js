@@ -5,11 +5,13 @@ import {
   actualizarCantidadCarritoApi,
   eliminarDelCarritoApi,
 } from "../api/carrito";
+import { useAuth } from "./useAuth";
 
 export function useCarrito() {
   const [carrito, setCarrito] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const { auth } = useAuth();
 
   useEffect(() => {
     cargarCarrito();
@@ -19,7 +21,7 @@ export function useCarrito() {
   const cargarCarrito = async () => {
     try {
       setLoading(true);
-      const data = await obtenerCarritoApi();
+      const data = await obtenerCarritoApi(auth.token, auth?.user?.id);
       setCarrito(data);
     } catch (err) {
       setError(err.message);
@@ -32,7 +34,11 @@ export function useCarrito() {
   const agregarProducto = async (productoId, cantidad) => {
     try {
       setLoading(true);
-      const nuevoProducto = await agregarAlCarritoApi(productoId, cantidad);
+      const nuevoProducto = await agregarAlCarritoApi(
+        auth.token,
+        productoId,
+        cantidad
+      );
       setCarrito((prev) => [...prev, nuevoProducto]);
     } catch (err) {
       setError(err.message);
@@ -45,7 +51,11 @@ export function useCarrito() {
   const actualizarProducto = async (itemId, cantidad) => {
     try {
       setLoading(true);
-      const productoActualizado = await actualizarCantidadCarritoApi(itemId, cantidad);
+      const productoActualizado = await actualizarCantidadCarritoApi(
+        auth.token,
+        itemId,
+        cantidad
+      );
       setCarrito((prev) =>
         prev.map((item) =>
           item.id === itemId ? { ...item, ...productoActualizado } : item
@@ -62,7 +72,7 @@ export function useCarrito() {
   const eliminarProducto = async (itemId) => {
     try {
       setLoading(true);
-      await eliminarDelCarritoApi(itemId);
+      await eliminarDelCarritoApi(auth.token, itemId);
       setCarrito((prev) => prev.filter((item) => item.id !== itemId));
     } catch (err) {
       setError(err.message);
