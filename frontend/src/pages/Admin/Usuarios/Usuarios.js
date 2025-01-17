@@ -1,52 +1,105 @@
 import React, { useState, useEffect } from "react";
-import { UsuarioCreateForm } from '../../../components/Admin/UsuarioCreateForm/UsuarioCreateForm'
-import { UsuariosTable } from '../../../components/Admin/UsuariosTable/UsuariosTable'
-import { UsuarioModal } from '../../../components/Admin/UsuarioModal/UsuarioModal'
+import { UsuarioCreateForm } from '../../../components/Admin/UsuarioCreateForm/UsuarioCreateForm';
+import { UsuariosTable } from '../../../components/Admin/UsuariosTable/UsuariosTable';
+import { UsuarioModal } from '../../../components/Admin/UsuarioModal/UsuarioModal';
 import { useAuth } from "../../../hooks";
 import { toast } from "react-toastify";
-import { getAllUsuariosApi } from "../../../api/usuario";
+import { getUsuariosPagesApi, getAllUsuariosApi } from "../../../api/usuario";
 
 
 export function Usuarios() {
-  const[isModalOpen, setIsModalOpen] = useState(false);
-  const{ auth } = useAuth();
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const { auth } = useAuth();
 
-  // Estado para los usuarios
+
   const [usuarios, setUsuarios] = useState([]);
+  const [searchResults, setSearchResults] = useState(null); // Resultado de búsqueda
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
 
-  // Fucnión para cargar los usuarios
-  const fetchUsuarios = async () => {
+
+  const fetchUsuarios = async (page = 1) => {
     try {
-      const usuariosData = await getAllUsuariosApi(auth.token);
-      setUsuarios(usuariosData);
+      const usuariosData = await getUsuariosPagesApi(auth.token, page);
+      setUsuarios(usuariosData.usuarios);
+      setTotalPages(usuariosData.totalPages);
     } catch (error) {
       toast.error(`Error al obtener usuarios: ${error.message}`);
     }
   };
 
-  // Cargar los usuarios al montar el componente
+
+  const handleSearch = async (query) => {
+    if (!query) {
+      setSearchResults(null); // Restaurar usuarios paginados si no hay búsqueda
+      return;
+    }
+
+
+    try {
+      const allUsuarios = await getAllUsuariosApi(auth.token);
+      const filteredUsuarios = allUsuarios.filter((usuario) => {
+        const lowercasedQuery = query.toLowerCase();
+        return (
+          usuario.nombre.toLowerCase().includes(lowercasedQuery) ||
+          usuario.apellido.toLowerCase().includes(lowercasedQuery) ||
+          usuario.id.toString().includes(lowercasedQuery)
+        );
+      });
+      setSearchResults(filteredUsuarios);
+    } catch (error) {
+      toast.error(`Error al obtener usuarios: ${error.message}`);
+    }
+  };
+
+
   useEffect(() => {
-    fetchUsuarios();
-  }, [auth.token]);
-  
+    fetchUsuarios(currentPage);
+  }, [auth.token, currentPage]);
+
+
   return (
     <div className="usuarios">
       <h1 className="usuarios__title">Registro, actualización e información de usuarios</h1>
       <div className="usuarios__container">
-        {/* Botón para abrir el modal */}
-        <button className = "button__modal"onClick={()=>setIsModalOpen(true)}>Registrar un nuevo usuario</button>
+        <button className="button__modal" onClick={() => setIsModalOpen(true)}>
+          Registrar un nuevo usuario
+        </button>
 
 
-        <UsuarioModal open={isModalOpen} onClose={() => setIsModalOpen(false)} UsuarioForms={UsuarioCreateForm} onUserAction={fetchUsuarios}/>
+        <UsuarioModal
+          open={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          UsuarioForms={UsuarioCreateForm}
+          onUserAction={fetchUsuarios}
+        />
 
 
         <h1 className="create__usuario__title">Usuarios registrados</h1>
         <div className="usuario__table_container">
-         <UsuariosTable usuariosData={usuarios} onUserActionTable={fetchUsuarios} currentUserRole={"admin"}/>
-        </div>  
+          <UsuariosTable
+            usuariosData={searchResults || usuarios} // Mostrar resultados de búsqueda si existen
+            onUserActionTable={fetchUsuarios}
+            currentUserRole={"admin"}
+            currentPage={currentPage}
+            totalPages={totalPages}
+            setCurrentPage={setCurrentPage}
+            onSearch={handleSearch} // Pasar la función de búsqueda al componente hijo
+          />
+        </div>
       </div>
     </div>
-  )
+  );
 }
+
+
+
+
+
+
+
+
+
+
 
 

@@ -44,6 +44,33 @@ const createUsuario = async (req, res) => {
   }
 };
 
+// Obtener usuarios por páginas
+const getUsuariosPages = async (req, res) => {
+  try {
+    const { page = 1, limit = 10 } = req.query; // Leer parámetros de paginación
+    const offset = (page - 1) * limit; // Calcular el inicio de los registros
+
+    // Consultar usuarios con paginación y orden por ID descendente
+    const { count, rows: usuarios } = await Usuario.findAndCountAll({
+      attributes: { exclude: ["password"] },
+      offset: parseInt(offset),
+      limit: parseInt(limit),
+      order: [["id", "DESC"]], // Ordenar por ID en orden descendente
+    });
+
+    // Responder con los usuarios paginados y el total de registros
+    res.status(200).json({
+      usuarios,
+      total: count,
+      totalPages: Math.ceil(count / limit),
+      currentPage: parseInt(page),
+    });
+  } catch (error) {
+    console.error("Error al obtener los usuarios:", error);
+    res.status(400).json({ message: "Error al obtener los usuarios: " + error.message });
+  }
+};
+
 // Obtener todos los usuarios
 const getAllUsuarios = async (req, res) => {
   try {
@@ -110,6 +137,7 @@ const deleteUsuario = async (req, res) => {
 
 module.exports = {
   createUsuario,
+  getUsuariosPages,
   getAllUsuarios,
   getUsuarioById,
   updateUsuario,

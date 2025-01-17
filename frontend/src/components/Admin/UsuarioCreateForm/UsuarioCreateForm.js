@@ -88,7 +88,6 @@ export function UsuarioCreateForm({ onUserActions }) {
         placeholder="Seleccione el Rol del usuario"
         options={[
           { key: "admin", value: "admin", text: "Admin" },
-          { key: "superadmin", value: "cliente", text: "Super Admin" },
           { key: "staff", value: "staff", text: "Staff" },
         ]}
         value={formik.values.rol}

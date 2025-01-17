@@ -1,6 +1,7 @@
 const express = require("express");
 const {
   createUsuario,
+  getUsuariosPages,
   getAllUsuarios,
   getUsuarioById,
   deleteUsuario,
@@ -79,6 +80,64 @@ router.post(
 
 /**
  * @swagger
+ * /usuariospage:
+ *   get:
+ *     summary: Obtener todos los usuarios con paginación
+ *     tags: [Usuarios]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         required: false
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *         description: Número de página a mostrar (opcional, por defecto 1)
+ *       - in: query
+ *         name: limit
+ *         required: false
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *         description: Número de usuarios por página (opcional, por defecto 10)
+ *     responses:
+ *       200:
+ *         description: Lista de usuarios con paginación
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 usuarios:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Usuario'
+ *                 total:
+ *                   type: integer
+ *                   description: Total de usuarios en la base de datos
+ *                 totalPages:
+ *                   type: integer
+ *                   description: Número total de páginas
+ *                 currentPage:
+ *                   type: integer
+ *                   description: Página actual solicitada
+ *       400:
+ *         description: Error al obtener los usuarios
+ *       401:
+ *         description: No autorizado (token no válido)
+ *       403:
+ *         description: No tiene permisos para acceder a este recurso
+ */
+router.get(
+  "/usuariospage",
+  verifyToken,
+  authorizeRoles("admin", "superadmin"),
+  getUsuariosPages
+);
+
+/**
+ * @swagger
  * /usuarios:
  *   get:
  *     summary: Obtener todos los usuarios
@@ -87,7 +146,19 @@ router.post(
  *       - bearerAuth: []
  *     responses:
  *       200:
- *         description: Lista de usuarios
+ *         description: Lista de todos los usuarios
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Usuario'
+ *       400:
+ *         description: Error al obtener los usuarios
+ *       401:
+ *         description: No autorizado (token no válido)
+ *       403:
+ *         description: No tiene permisos para acceder a este recurso
  */
 router.get(
   "/usuarios",

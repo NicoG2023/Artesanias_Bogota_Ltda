@@ -1,66 +1,65 @@
 import React, { useState, useEffect } from "react";
-import { Table, Button, Dropdown, Input } from "semantic-ui-react";
+import { Table, Button, Input, Pagination } from "semantic-ui-react";
 import { UsuarioModal } from "../UsuarioModal/UsuarioModal";
 import { UsuarioUpdateForm } from "../UsuarioUpdateForm/UsuarioUpdateForm";
 import { UsuarioDeleteModal } from "../UsuarioDeleteModal";
 import "./UsuariosTable.scss";
 
-export function UsuariosTable({ usuariosData, onUserActionTable, currentUserRole }) {
-  const [usuarios, setUsuarios] = useState([]);
-  const [selectedRole, setSelectedRole] = useState("");
+
+export function UsuariosTable({
+  usuariosData,
+  onUserActionTable,
+  currentUserRole,
+  currentPage,
+  totalPages,
+  setCurrentPage,
+  onSearch, // Nueva prop para manejar la búsqueda
+}) {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedUsuario, setSelectedUsuario] = useState(null);
   const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [isAscending, setIsAscending] = useState(true);
+
 
   useEffect(() => {
-    if (usuariosData) {
-      setUsuarios(usuariosData);
-    }
-  }, [usuariosData]);
+    onSearch(searchQuery); // Llamar a la función de búsqueda cuando cambia el query
+  }, [searchQuery, onSearch]);
 
-  const filteredUsuarios = usuarios
-    .filter((usuario) => (selectedRole ? usuario.rol === selectedRole : true))
-    .filter((usuario) => {
-      const lowercasedQuery = searchQuery.toLowerCase();
-      return (
-        usuario.nombre.toLowerCase().includes(lowercasedQuery) ||
-        usuario.apellido.toLowerCase().includes(lowercasedQuery) ||
-        usuario.id.toString().includes(lowercasedQuery)
-      );
-    })
-    .sort((a, b) => (isAscending ? a.id - b.id : b.id - a.id));
 
   const handleEditClick = (usuario) => {
     if (usuario.rol === "superadmin" && currentUserRole === "admin") {
-      return; // Si es superadmin y el rol actual es admin, no se puede hacer nada
+      return;
     }
     setSelectedUsuario(usuario);
     setIsUpdateModalOpen(true);
   };
 
+
   const handleDeleteClick = (usuario) => {
     if (usuario.rol === "superadmin" && currentUserRole === "admin") {
-      return; // Si es superadmin y el rol actual es admin, no se puede hacer nada
+      return;
     }
     setSelectedUsuario(usuario);
     setIsDeleteModalOpen(true);
   };
+
 
   const handleModalClose = () => {
     setIsUpdateModalOpen(false);
     setSelectedUsuario(null);
   };
 
+
   const handleDeleteModalClose = () => {
     setIsDeleteModalOpen(false);
     setSelectedUsuario(null);
   };
 
-  const toggleSortOrder = () => {
-    setIsAscending(!isAscending);
+
+  const handlePageChange = (e, { activePage }) => {
+    setCurrentPage(activePage);
   };
+
 
   return (
     <div>
@@ -71,23 +70,8 @@ export function UsuariosTable({ usuariosData, onUserActionTable, currentUserRole
         onChange={(e) => setSearchQuery(e.target.value)}
         fluid
       />
-      <Dropdown
-        placeholder="Filtrar por rol"
-        fluid
-        selection
-        options={[
-          { key: "todos", text: "Todos", value: "" },
-          { key: "admin", text: "Admin", value: "admin" },
-          { key: "cliente", text: "Cliente", value: "cliente" },
-          { key: "staff", text: "Staff", value: "staff" },
-          { key: "superadmin", text: "Superadmin", value: "superadmin" },
-        ]}
-        value={selectedRole}
-        onChange={(e, { value }) => setSelectedRole(value)}
-      />
-      <Button onClick={toggleSortOrder} color="blue" style={{ marginTop: "10px" }}>
-        Ordenar por ID {isAscending ? "de mayor a menor" : "de menor a mayor"}
-      </Button>
+
+
       <div className="table-container">
         <Table celled>
           <Table.Header>
@@ -103,7 +87,7 @@ export function UsuariosTable({ usuariosData, onUserActionTable, currentUserRole
             </Table.Row>
           </Table.Header>
           <Table.Body>
-            {filteredUsuarios.map((usuario) => (
+            {usuariosData.map((usuario) => (
               <Table.Row key={usuario.id}>
                 <Table.Cell>{usuario.id}</Table.Cell>
                 <Table.Cell>{usuario.nombre}</Table.Cell>
@@ -132,6 +116,20 @@ export function UsuariosTable({ usuariosData, onUserActionTable, currentUserRole
           </Table.Body>
         </Table>
       </div>
+
+
+      <Pagination
+        activePage={currentPage}
+        totalPages={totalPages}
+        onPageChange={handlePageChange}
+        boundaryRange={1}
+        siblingRange={1}
+        ellipsisItem={{ content: "..." }}
+        firstItem={{ content: "Primera", icon: "angle double left" }}
+        lastItem={{ content: "Última", icon: "angle double right" }}
+      />
+
+
       {selectedUsuario && (
         <UsuarioModal
           open={isUpdateModalOpen}
@@ -147,6 +145,8 @@ export function UsuariosTable({ usuariosData, onUserActionTable, currentUserRole
           onUserAction={onUserActionTable}
         />
       )}
+
+
       {selectedUsuario && (
         <UsuarioDeleteModal
           open={isDeleteModalOpen}
@@ -158,6 +158,20 @@ export function UsuariosTable({ usuariosData, onUserActionTable, currentUserRole
     </div>
   );
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

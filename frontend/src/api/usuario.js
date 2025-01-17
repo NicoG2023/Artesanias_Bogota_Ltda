@@ -64,6 +64,24 @@ export async function registerApi(formValue) {
 
 //usuarioRoutes Api
 
+export async function getUsuariosPagesApi(token, page = 1, limit = 10) {
+  try {
+    const url = `${API_SERVICIO_USUARIOS}/api/usuariospage?page=${page}&limit=${limit}`;
+    const params = {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    };
+    const response = await fetch(url, params);
+    const result = await response.json();
+    return result;
+  } catch (error) {
+    throw error;
+  }
+}
+
 export async function getAllUsuariosApi(token) {
   try {
     const url = `${API_SERVICIO_USUARIOS}/api/usuarios`;
