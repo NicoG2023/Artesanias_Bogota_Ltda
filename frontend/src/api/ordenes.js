@@ -52,3 +52,29 @@ export async function obtenerOrdenesApi(token, page = 1, searchTerm = "") {
     throw error;
   }
 }
+
+export async function updateEstadoOrdenApi(token, ordenId, nuevoEstado) {
+  const baseUrl = `${API_SERVICIO_CLIENTES}/api/${ordenId}/estado`;
+  try {
+    const params = {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ estado: nuevoEstado }),
+    };
+
+    const response = await fetch(baseUrl, params);
+    if (!response.ok) {
+      throw new Error(
+        `Error al actualizar estado de la orden: ${response.statusText}`
+      );
+    }
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error en updateEstadoOrdenApi", error.message);
+    throw error;
+  }
+}

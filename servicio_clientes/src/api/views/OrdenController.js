@@ -20,7 +20,7 @@ const crearOrden = async (req, res) => {
 
   try {
     const {
-      usuraio_fk,
+      usuario_fk,
       lugar_compra_fk,
       estado,
       pago_fk,
@@ -30,7 +30,7 @@ const crearOrden = async (req, res) => {
 
     const nuevaOrden = await Orden.create(
       {
-        usuraio_fk,
+        usuario_fk,
         lugar_compra_fk,
         estado,
         pago_fk,

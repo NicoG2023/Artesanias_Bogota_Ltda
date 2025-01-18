@@ -7,6 +7,7 @@ import "./SideMenu.scss";
 export function SideMenu() {
   const { auth } = useAuth();
   const { pathname } = useLocation();
+  console.log("ROL:", auth);
 
   return (
     <div className="side-menu-admin">
@@ -46,6 +47,16 @@ export function SideMenu() {
         >
           <Icon name="chart line" /> Analíticas
         </Menu.Item>
+        {/* Solo visible para usuarios con rol "staff" */}
+        {auth.user.rol === "staff" && (
+          <Menu.Item
+            as={Link}
+            to="/productos-staff"
+            active={pathname === "/productos-staff"}
+          >
+            <Icon name="box" /> Productos Staff
+          </Menu.Item>
+        )}
       </Menu>
     </div>
   );

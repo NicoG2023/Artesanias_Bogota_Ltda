@@ -1,7 +1,11 @@
 // src/hooks/useOrdenes.js
 
 import { useState, useCallback } from "react";
-import { obtenerOrdenesPorUsuarioApi, obtenerOrdenesApi } from "../api/ordenes";
+import {
+  obtenerOrdenesPorUsuarioApi,
+  obtenerOrdenesApi,
+  updateEstadoOrdenApi,
+} from "../api/ordenes";
 import { useAuth } from "./useAuth";
 
 export function useOrdenes() {
@@ -129,6 +133,36 @@ export function useOrdenes() {
     [getOrdenes]
   );
 
+  /**
+   * Actualiza el estado de una orden (por ID)
+   */
+  const updateEstadoOrden = useCallback(
+    async (ordenId, nuevoEstado) => {
+      if (!auth?.token) return;
+
+      setLoading(true);
+      setError(null);
+
+      try {
+        // Llamamos a la API
+        const result = await updateEstadoOrdenApi(
+          auth.token,
+          ordenId,
+          nuevoEstado
+        );
+        await getOrdenes(page, searchTerm);
+
+        return result;
+      } catch (err) {
+        setError(err);
+        throw err; // Para manejarlo en la UI si quieres
+      } finally {
+        setLoading(false);
+      }
+    },
+    [auth, page, searchTerm, getOrdenes]
+  );
+
   return {
     // Estados comunes
     ordenes,
@@ -144,5 +178,6 @@ export function useOrdenes() {
     goToPage, // Cambiar página para TODAS las órdenes
     goToPageForUser, // Cambiar página para órdenes del usuario
     onChangeSearchTerm, // Cambiar término de búsqueda
+    updateEstadoOrden,
   };
 }
