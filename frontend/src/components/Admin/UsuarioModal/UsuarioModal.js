@@ -3,8 +3,7 @@ import { Modal, Button, Icon} from "semantic-ui-react";
 import "./UsuarioModal.scss";
 
 export function UsuarioModal({ open, onClose, UsuarioForms, selectedUsuario, onUserAction }){
-  const headerTitle = selectedUsuario ? "Actualizar un usuario" : "Registrar un usuario";
-  console.log(headerTitle);
+  const headerTitle = selectedUsuario ? "Actualizar usuario" : "Registrar un usuario";
 
   return(
     <Modal open={open} onClose={onClose} size="large" className="modal-form-usuario">

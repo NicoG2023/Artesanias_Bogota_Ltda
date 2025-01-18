@@ -149,6 +149,7 @@ export function UsuariosTable({
               onUserActions={handleUserAction}
             />
           )}
+          selectedUsuario={selectedUsuario}
           onUserAction={handleUserAction}
         />
       )}
