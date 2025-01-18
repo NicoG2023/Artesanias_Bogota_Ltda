@@ -5,7 +5,7 @@ import { UsuarioModal } from '../../../components/Admin/UsuarioModal/UsuarioModa
 import { useAuth } from "../../../hooks";
 import { toast } from "react-toastify";
 import { getUsuariosPagesApi, getAllUsuariosApi } from "../../../api/usuario";
-
+import "./Usuarios.scss"
 
 export function Usuarios() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -18,24 +18,13 @@ export function Usuarios() {
   const [totalPages, setTotalPages] = useState(1);
 
 
-  const fetchUsuarios = async (page = 1) => {
-    try {
-      const usuariosData = await getUsuariosPagesApi(auth.token, page);
-      setUsuarios(usuariosData.usuarios);
-      setTotalPages(usuariosData.totalPages);
-    } catch (error) {
-      toast.error(`Error al obtener usuarios: ${error.message}`);
-    }
-  };
-
-
   const handleSearch = async (query) => {
     if (!query) {
-      setSearchResults(null); // Restaurar usuarios paginados si no hay búsqueda
+      setSearchResults(null);
+      await fetchUsuarios(currentPage);
       return;
     }
-
-
+  
     try {
       const allUsuarios = await getAllUsuariosApi(auth.token);
       const filteredUsuarios = allUsuarios.filter((usuario) => {
@@ -51,7 +40,17 @@ export function Usuarios() {
       toast.error(`Error al obtener usuarios: ${error.message}`);
     }
   };
-
+  
+  const fetchUsuarios = async (page = 1) => {
+    try {
+      const usuariosData = await getUsuariosPagesApi(auth.token, page);
+      setUsuarios(usuariosData.usuarios);
+      setTotalPages(usuariosData.totalPages);
+      setCurrentPage(page);
+    } catch (error) {
+      toast.error(`Error al obtener usuarios: ${error.message}`);
+    }
+  };
 
   useEffect(() => {
     fetchUsuarios(currentPage);
@@ -60,7 +59,7 @@ export function Usuarios() {
 
   return (
     <div className="usuarios">
-      <h1 className="usuarios__title">Registro, actualización e información de usuarios</h1>
+      <h1 className="usuarios__title">Gestionar Usuarios</h1>
       <div className="usuarios__container">
         <button className="button__modal" onClick={() => setIsModalOpen(true)}>
           Registrar un nuevo usuario
@@ -74,17 +73,15 @@ export function Usuarios() {
           onUserAction={fetchUsuarios}
         />
 
-
-        <h1 className="create__usuario__title">Usuarios registrados</h1>
         <div className="usuario__table_container">
           <UsuariosTable
-            usuariosData={searchResults || usuarios} // Mostrar resultados de búsqueda si existen
+            usuariosData={searchResults || usuarios}
             onUserActionTable={fetchUsuarios}
             currentUserRole={"admin"}
             currentPage={currentPage}
             totalPages={totalPages}
             setCurrentPage={setCurrentPage}
-            onSearch={handleSearch} // Pasar la función de búsqueda al componente hijo
+            onSearch={handleSearch}
           />
         </div>
       </div>

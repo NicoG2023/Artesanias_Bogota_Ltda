@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Button, Form } from "semantic-ui-react";
 import { useFormik } from "formik";
 import * as Yup from "yup";
@@ -7,19 +7,25 @@ import { useAuth } from "../../../hooks";
 import { updateUsuarioApi } from "../../../api/usuario";
 import "./UsuarioUpdateForm.scss";
 
-
 export function UsuarioUpdateForm({ usuario, onClose, onUserActions }) {
   const { auth } = useAuth();
-  const [loading, setLoading] = useState(false); // Estado para manejar el loading
+  const [loading, setLoading] = useState(false);
+  const [currentUsuario, setCurrentUsuario] = useState(usuario);
 
+  useEffect(() => {
+    setCurrentUsuario(usuario);
+  }, [usuario]);
 
   const formik = useFormik({
-    initialValues: initialValues(usuario),
+    initialValues: initialValues(currentUsuario),
     validationSchema: Yup.object(validationSchema()),
+    enableReinitialize: true,
+    validateOnChange: true,
+    validateOnBlur: true,
     onSubmit: async (formValue) => {
       setLoading(true);
       try {
-        await updateUsuarioApi(auth.token, usuario.id, formValue);
+        await updateUsuarioApi(auth.token, currentUsuario.id, formValue);
         toast.success("Usuario actualizado exitosamente");
         onUserActions();
         onClose();
@@ -31,6 +37,9 @@ export function UsuarioUpdateForm({ usuario, onClose, onUserActions }) {
     },
   });
 
+  const handleInputChange = (e, { name, value }) => {
+    formik.setFieldValue(name, value);
+  };
 
   return (
     <Form className="update-user-form" onSubmit={formik.handleSubmit}>
@@ -38,7 +47,7 @@ export function UsuarioUpdateForm({ usuario, onClose, onUserActions }) {
         name="nombre"
         placeholder="Nombre"
         value={formik.values.nombre}
-        onChange={formik.handleChange}
+        onChange={handleInputChange}
         error={formik.errors.nombre ? { content: formik.errors.nombre, pointing: "below" } : null}
         className="update-user-form__input"
       />
@@ -46,7 +55,7 @@ export function UsuarioUpdateForm({ usuario, onClose, onUserActions }) {
         name="apellido"
         placeholder="Apellido"
         value={formik.values.apellido}
-        onChange={formik.handleChange}
+        onChange={handleInputChange}
         error={formik.errors.apellido ? { content: formik.errors.apellido, pointing: "below" } : null}
         className="update-user-form__input"
       />
@@ -54,7 +63,7 @@ export function UsuarioUpdateForm({ usuario, onClose, onUserActions }) {
         name="email"
         placeholder="Correo Electrónico"
         value={formik.values.email}
-        onChange={formik.handleChange}
+        onChange={handleInputChange}
         error={formik.errors.email ? { content: formik.errors.email, pointing: "below" } : null}
         className="update-user-form__input"
       />
@@ -62,7 +71,7 @@ export function UsuarioUpdateForm({ usuario, onClose, onUserActions }) {
         name="puntos_descuento"
         placeholder="Puntos de descuento"
         value={formik.values.puntos_descuento}
-        onChange={formik.handleChange}
+        onChange={handleInputChange}
         error={formik.errors.puntos_descuento ? { content: formik.errors.puntos_descuento, pointing: "below" } : null}
         className="update-user-form__input"
       />
@@ -75,7 +84,7 @@ export function UsuarioUpdateForm({ usuario, onClose, onUserActions }) {
           { key: "staff", value: "staff", text: "Staff" },
         ]}
         value={formik.values.rol}
-        onChange={(_, data) => formik.setFieldValue("rol", data.value)}
+        onChange={(_, data) => handleInputChange(null, data)}
         error={formik.errors.rol ? { content: formik.errors.rol, pointing: "below" } : null}
         className="update-user-form__input"
       />
@@ -87,7 +96,7 @@ export function UsuarioUpdateForm({ usuario, onClose, onUserActions }) {
           { key: "no_activo", value: false, text: "No activo" },
         ]}
         value={formik.values.es_activo}
-        onChange={(_, data) => formik.setFieldValue("es_activo", data.value)}
+        onChange={(_, data) => handleInputChange(null, data)}
         error={formik.errors.es_activo ? { content: formik.errors.es_activo, pointing: "below" } : null}
         className="update-user-form__input"
       />

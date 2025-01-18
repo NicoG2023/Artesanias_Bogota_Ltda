@@ -1,10 +1,9 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Table, Button, Input, Pagination } from "semantic-ui-react";
 import { UsuarioModal } from "../UsuarioModal/UsuarioModal";
 import { UsuarioUpdateForm } from "../UsuarioUpdateForm/UsuarioUpdateForm";
 import { UsuarioDeleteModal } from "../UsuarioDeleteModal";
 import "./UsuariosTable.scss";
-
 
 export function UsuariosTable({
   usuariosData,
@@ -13,53 +12,62 @@ export function UsuariosTable({
   currentPage,
   totalPages,
   setCurrentPage,
-  onSearch, // Nueva prop para manejar la búsqueda
+  onSearch,
 }) {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedUsuario, setSelectedUsuario] = useState(null);
   const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
-
-  useEffect(() => {
-    onSearch(searchQuery); // Llamar a la función de búsqueda cuando cambia el query
-  }, [searchQuery, onSearch]);
-
+  const handleSearchChange = (e) => {
+    const query = e.target.value;
+    setSearchQuery(query);
+    onSearch(query);
+  };
 
   const handleEditClick = (usuario) => {
     if (usuario.rol === "superadmin" && currentUserRole === "admin") {
       return;
     }
-    setSelectedUsuario(usuario);
+    setSelectedUsuario({...usuario});
     setIsUpdateModalOpen(true);
   };
-
 
   const handleDeleteClick = (usuario) => {
     if (usuario.rol === "superadmin" && currentUserRole === "admin") {
       return;
     }
-    setSelectedUsuario(usuario);
+    setSelectedUsuario({...usuario});
     setIsDeleteModalOpen(true);
   };
-
 
   const handleModalClose = () => {
     setIsUpdateModalOpen(false);
     setSelectedUsuario(null);
   };
 
-
   const handleDeleteModalClose = () => {
     setIsDeleteModalOpen(false);
     setSelectedUsuario(null);
   };
 
-
   const handlePageChange = (e, { activePage }) => {
     setCurrentPage(activePage);
+    // Limpiar búsqueda al cambiar de página
+    if (searchQuery) {
+      setSearchQuery("");
+      onSearch("");
+    }
   };
 
+  const handleUserAction = async () => {
+    // Verifica si hay una búsqueda activa
+    if (searchQuery) {
+      await onSearch(searchQuery); // Filtra resultados con la búsqueda activa
+    } else {
+      await onUserActionTable(currentPage); // Obtiene datos para la página actual
+    }
+  };
 
   return (
     <div>
@@ -67,10 +75,9 @@ export function UsuariosTable({
         icon="search"
         placeholder="Buscar por nombre o ID..."
         value={searchQuery}
-        onChange={(e) => setSearchQuery(e.target.value)}
+        onChange={handleSearchChange}
         fluid
       />
-
 
       <div className="table-container">
         <Table celled>
@@ -117,18 +124,18 @@ export function UsuariosTable({
         </Table>
       </div>
 
-
-      <Pagination
-        activePage={currentPage}
-        totalPages={totalPages}
-        onPageChange={handlePageChange}
-        boundaryRange={1}
-        siblingRange={1}
-        ellipsisItem={{ content: "..." }}
-        firstItem={{ content: "Primera", icon: "angle double left" }}
-        lastItem={{ content: "Última", icon: "angle double right" }}
-      />
-
+      {!searchQuery && (
+        <Pagination
+          activePage={currentPage}
+          totalPages={totalPages}
+          onPageChange={handlePageChange}
+          boundaryRange={1}
+          siblingRange={1}
+          ellipsisItem={{ content: "..." }}
+          firstItem={{ content: "Primera", icon: "angle double left" }}
+          lastItem={{ content: "Última", icon: "angle double right" }}
+        />
+      )}
 
       {selectedUsuario && (
         <UsuarioModal
@@ -136,23 +143,22 @@ export function UsuariosTable({
           onClose={handleModalClose}
           UsuarioForms={() => (
             <UsuarioUpdateForm
+              key={`update-${selectedUsuario.id}`}
               usuario={selectedUsuario}
               onClose={handleModalClose}
-              onUserActions={onUserActionTable}
+              onUserActions={handleUserAction}
             />
           )}
-          selectedUsuario={selectedUsuario}
-          onUserAction={onUserActionTable}
+          onUserAction={handleUserAction}
         />
       )}
-
 
       {selectedUsuario && (
         <UsuarioDeleteModal
           open={isDeleteModalOpen}
           onClose={handleDeleteModalClose}
           selectedUsuario={selectedUsuario}
-          onUserActions={onUserActionTable}
+          onUserActions={handleUserAction}
         />
       )}
     </div>

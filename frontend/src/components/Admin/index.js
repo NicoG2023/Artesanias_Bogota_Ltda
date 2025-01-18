@@ -1,4 +1,4 @@
-export * from "./Sidebar";
+export * from "./SideMenu";
 export * from "./UsuarioCreateForm";
 export * from "./UsuarioUpdateForm";
 export * from "./UsuarioDeleteModal";
