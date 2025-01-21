@@ -1,78 +1,102 @@
 .table-container {
-  min-height: 300px;
+  position: relative;
   max-height: calc(100vh - 200px);
   width: 100%;
-  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
   box-sizing: border-box;
-  padding-right: 10px;
 
-  // Estilo para la barra de búsqueda
-  .ui.input {
-    width: 100%;
-    margin-bottom: 15px; // Espaciado adecuado debajo de la barra de búsqueda
+  .fixed-header {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    padding: 5px 0;
+
+    .ui.input {
+      width: 100%;
+    }
   }
 
-  table {
-    border-collapse: collapse;
-    width: 100%;
-    table-layout: auto;
+  .table-scroll-container {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: auto;
+    margin: 15px 0 5px 0;
 
-    th,
-    td {
-      padding: 8px;
-      text-align: left; // Cambiado de 'center' a 'left' por si otro estilo afecta el centrado
-      white-space: nowrap;
-    }
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      table-layout: auto;
 
-    th {
-      background-color: #4CAF50;
-      color: white;
-      text-transform: uppercase;
-      font-weight: bold;
-      padding: 10px;
-      text-align: center !important; // Aseguramos que el texto esté centrado
-      vertical-align: middle; // Alineación vertical al centro
-    }
+      th {
+        padding: 10px;
+        text-align: center !important;
+        vertical-align: middle;
 
-    tbody {
-      tr {
-        &:nth-child(odd) {
-          background-color: #f9f9f9;
-        }
-
-        &:nth-child(even) {
-          background-color: #ffffff;
-        }
-
-        &:hover {
-          background-color: #e6f7ff;
-          cursor: pointer;
-        }
       }
 
-      td {
-        &:nth-child(4) { // Email
-          min-width: 200px;
-          max-width: 300px;
-          overflow: hidden;
-          text-overflow: ellipsis;
+      th, td {
+        padding: 8px;
+        text-align: left;
+        white-space: nowrap;
+      }
+
+      tbody {
+        tr {
+          &:nth-child(odd) {
+            background-color: #f9f9f9;
+          }
+
+          &:nth-child(even) {
+            background-color: #ffffff;
+          }
+
+          &:hover {
+            background-color: #e6f7ff;
+            cursor: pointer;
+          }
         }
 
-        &:nth-child(1) { // ID
-          max-width: 50px;
-          text-align: center;
-        }
+        td {
+          &:nth-child(4) {
+            min-width: 200px;
+            max-width: 300px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+          }
 
-        &:last-child { // Columna de acciones
-          text-align: center;
+          &:nth-child(1) {
+            max-width: 50px;
+            text-align: center;
+          }
 
-          .action-buttons {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
+          &:last-child {
+            text-align: center;
+
+            .action-buttons {
+              display: flex;
+              justify-content: center;
+              gap: 10px;
+            }
           }
         }
       }
+    }
+  }
+
+  .fixed-footer {
+    position: sticky;
+    bottom: 0;
+    padding-top: 20px;
+    padding-bottom: 0;
+
+
+    z-index: 10;
+
+    .ui.pagination.menu {
+      justify-content: center;
+      flex-wrap: wrap;
+      margin: 0;
     }
   }
 
@@ -88,13 +112,18 @@
 
 @media (max-width: 768px) {
   .table-container {
-    overflow-x: auto;
-
-    table {
-      font-size: 12px;
+    .table-scroll-container {
+      table {
+        font-size: 12px;
+      }
     }
   }
 }
+
+
+
+
+
 
 
 

@@ -71,15 +71,16 @@ export function UsuariosTable({
 
   return (
     <div className="table-container">
-      <Input
-        icon="search"
-        placeholder="Buscar por nombre o ID..."
-        value={searchQuery}
-        onChange={handleSearchChange}
-        fluid
+      <div className="fixed-header">
+       <Input
+         icon="search"
+         placeholder="Buscar por nombre o ID..."
+         value={searchQuery}
+         onChange={handleSearchChange}
+         fluid
       />
-
-      <div className="table-wrapper">
+      </div>
+      <div className="table-scroll-container">
         <Table celled>
           <Table.Header>
             <Table.Row>
@@ -123,20 +124,20 @@ export function UsuariosTable({
           </Table.Body>
         </Table>
       </div>
-
-      {!searchQuery && (
-        <Pagination
-          activePage={currentPage}
-          totalPages={totalPages}
-          onPageChange={handlePageChange}
-          boundaryRange={1}
-          siblingRange={1}
-          ellipsisItem={{ content: "..." }}
-          firstItem={{ content: "Primera", icon: "angle double left" }}
-          lastItem={{ content: "Última", icon: "angle double right" }}
+      <div className="fixed-footer">
+       {!searchQuery && (
+         <Pagination
+           activePage={currentPage}
+           totalPages={totalPages}
+           onPageChange={handlePageChange}
+           boundaryRange={1}
+           siblingRange={1}
+           ellipsisItem={{ content: "..." }}
+           firstItem={{ content: "Primera", icon: "angle double left" }}
+           lastItem={{ content: "Última", icon: "angle double right" }}
         />
       )}
-
+      </div>
       {selectedUsuario && (
         <UsuarioModal
           open={isUpdateModalOpen}
