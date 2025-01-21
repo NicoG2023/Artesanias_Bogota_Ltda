@@ -5,6 +5,7 @@ import * as Yup from "yup";
 import { toast } from "react-toastify";
 import { useAuth } from "../../../../hooks";
 import { actualizarPuntoDeVentaApi } from "../../../../api/puntosVenta";
+import AddressInput from "../PuntosVentaCreateForm/AddressInput";
 import "./puntosVentaUpdateForm.scss";
 
 export function PuntosVentaUpdateForm({ puntoVenta, onClose, onUserActions }) {
@@ -16,23 +17,89 @@ export function PuntosVentaUpdateForm({ puntoVenta, onClose, onUserActions }) {
     setCurrentPuntoVenta(puntoVenta);
   }, [puntoVenta]);
 
+  const extractDireccionComponents = (direccion) => {
+    if (!direccion) return {};
+    
+    const streetTypes = [
+      "avenida carrera",
+      "avenida calle",
+      "avenida",
+      "carrera",
+      "calle",
+      "circunvalar",
+      "diagonal",
+      "transversal"
+    ];
+    
+    streetTypes.sort((a, b) => b.length - a.length);
+    
+    let tipoCalle = "";
+    let restoDireccion = direccion;
+    
+    for (const tipo of streetTypes) {
+      if (direccion.toLowerCase().startsWith(tipo)) {
+        tipoCalle = tipo;
+        restoDireccion = direccion.slice(tipo.length).trim();
+        break;
+      }
+    }
+    
+    if (!tipoCalle) return {};
+    
+    const matches = restoDireccion.match(/^(.*?)\s*#(\d+)-(\d+)$/);
+    if (matches) {
+      return {
+        tipoCalle: tipoCalle,
+        nombreCalle: matches[1].trim(),
+        numeroPrincipal: matches[2],
+        numeroSecundario: matches[3]
+      };
+    }
+    
+    return {};
+  };
+
   const validationSchema = Yup.object().shape({
-    nombre: Yup.string().required("Debe proporcionar un nombre para el punto de venta"),
+    nombre: Yup.string().required("Debe proporcionar un nombre"),
     tipo: Yup.string()
-      .oneOf(["fisico", "online"], "El tipo debe ser 'fisico' u 'online'")
-      .required("Debe seleccionar un tipo"),
-    direccion: Yup.string().when('tipo', {
+      .required("Debe seleccionar un tipo de punto de venta")
+      .oneOf(["fisico", "online"], "El tipo debe ser 'fisico' u 'online'"),
+    tipoCalle: Yup.string().when('tipo', {
       is: 'fisico',
-      then: () => Yup.string().required("Debe proporcionar una dirección"),
+      then: () => Yup.string().required("Debe seleccionar un tipo de calle"),
+      otherwise: () => Yup.string().notRequired(),
+    }),
+    nombreCalle: Yup.string().when('tipo', {
+      is: 'fisico',
+      then: () => Yup.string().required("Debe proporcionar el nombre de la calle"),
+      otherwise: () => Yup.string().notRequired(),
+    }),
+    numeroPrincipal: Yup.string().when('tipo', {
+      is: 'fisico',
+      then: () => Yup.string()
+        .required("Debe proporcionar el número principal")
+        .matches(/^[0-9]/, "Debe comenzar con un número"),
+      otherwise: () => Yup.string().notRequired(),
+    }),
+    numeroSecundario: Yup.string().when('tipo', {
+      is: 'fisico',
+      then: () => Yup.string()
+        .required("Debe proporcionar el número secundario")
+        .matches(/^[0-9]/, "Debe comenzar con un número"),
       otherwise: () => Yup.string().notRequired(),
     }),
   });
+
+  const direccionComponents = extractDireccionComponents(currentPuntoVenta.direccion);
 
   const formik = useFormik({
     initialValues: {
       nombre: currentPuntoVenta.nombre || "",
       tipo: currentPuntoVenta.tipo || "",
-      direccion: currentPuntoVenta.tipo === "fisico" ? currentPuntoVenta.direccion || "" : "",
+      tipoCalle: direccionComponents.tipoCalle || "",
+      nombreCalle: direccionComponents.nombreCalle || "",
+      numeroPrincipal: direccionComponents.numeroPrincipal || "",
+      numeroSecundario: direccionComponents.numeroSecundario || "",
     },
     validationSchema: validationSchema,
     enableReinitialize: true,
@@ -41,7 +108,17 @@ export function PuntosVentaUpdateForm({ puntoVenta, onClose, onUserActions }) {
     onSubmit: async (formValue) => {
       setLoading(true);
       try {
-        await actualizarPuntoDeVentaApi(auth.token, currentPuntoVenta.id, formValue);
+        const direccionCompleta = formValue.tipo === "fisico" 
+          ? `${formValue.tipoCalle} ${formValue.nombreCalle} #${formValue.numeroPrincipal}-${formValue.numeroSecundario}`
+          : "";
+
+        const datosFinales = {
+          nombre: formValue.nombre,
+          tipo: formValue.tipo,
+          direccion: direccionCompleta,
+        };
+
+        await actualizarPuntoDeVentaApi(auth.token, currentPuntoVenta.id, datosFinales);
         toast.success("Punto de venta actualizado exitosamente");
         onUserActions();
         onClose();
@@ -53,43 +130,38 @@ export function PuntosVentaUpdateForm({ puntoVenta, onClose, onUserActions }) {
     },
   });
 
-  const handleInputChange = (e, { name, value }) => {
-    formik.setFieldValue(name, value);
-  };
-
   return (
     <Form className="update-puntoVenta-form" onSubmit={formik.handleSubmit}>
       <Form.Input
         name="nombre"
         placeholder="Nombre del Punto de Venta"
         value={formik.values.nombre}
-        onChange={handleInputChange}
+        onChange={formik.handleChange}
         error={formik.errors.nombre ? { content: formik.errors.nombre, pointing: "below" } : null}
         className="update-puntoVenta-form__input"
       />
 
       <Form.Select
         name="tipo"
-        placeholder="Seleccione el Tipo"
+        placeholder="Seleccione el Tipo de Punto de Venta"
         options={[
           { key: "fisico", value: "fisico", text: "Físico" },
           { key: "online", value: "online", text: "Online" },
         ]}
-        value={formik.values.tipo}
-        onChange={(_, data) => handleInputChange(null, data)}
+        value={formik.values.tipo || ""}
+        onChange={(_, data) => formik.setFieldValue("tipo", data.value)}
         error={formik.errors.tipo ? { content: formik.errors.tipo, pointing: "below" } : null}
         className="update-puntoVenta-form__input"
+        fluid
+        selection
+        portal={{
+          className: 'modalSelectPortal',
+          'data-tipo-select': 'true'
+        }}
       />
 
       {formik.values.tipo === "fisico" && (
-        <Form.Input
-          name="direccion"
-          placeholder="Dirección (Solo para puntos físicos)"
-          value={formik.values.direccion}
-          onChange={handleInputChange}
-          error={formik.errors.direccion ? { content: formik.errors.direccion, pointing: "below" } : null}
-          className="update-puntoVenta-form__input"
-        />
+        <AddressInput formik={formik} />
       )}
 
       <Button

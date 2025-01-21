@@ -20,7 +20,7 @@ export function PuntosVentaTable({
 
   // Función para ordenar los puntos de venta por ID ascendente
   const sortDataAsc = (data) => {
-    return data.sort((a, b) => a.id - b.id);  // Orden ascendente por ID
+    return data.sort((a, b) => a.id - b.id);
   };
 
   const handleSearchChange = (e) => {
@@ -72,6 +72,7 @@ export function PuntosVentaTable({
 
   return (
     <div className="table-container">
+    <div className="fixed-header">
       <Input
         icon="search"
         placeholder="Buscar por nombre o ID..."
@@ -79,44 +80,41 @@ export function PuntosVentaTable({
         onChange={handleSearchChange}
         fluid
       />
+    </div>
 
-      <div className="table-wrapper">
-        <Table celled>
-          <Table.Header>
-            <Table.Row>
-              <Table.HeaderCell>ID</Table.HeaderCell>
-              <Table.HeaderCell>Nombre</Table.HeaderCell>
-              <Table.HeaderCell>Tipo</Table.HeaderCell>
-              <Table.HeaderCell>Direccion</Table.HeaderCell>
-              <Table.HeaderCell>Acciones</Table.HeaderCell>
+    <div className="table-scroll-container">
+      <Table celled>
+        <Table.Header>
+          <Table.Row>
+            <Table.HeaderCell>ID</Table.HeaderCell>
+            <Table.HeaderCell>Nombre</Table.HeaderCell>
+            <Table.HeaderCell>Tipo</Table.HeaderCell>
+            <Table.HeaderCell>Direccion</Table.HeaderCell>
+            <Table.HeaderCell>Acciones</Table.HeaderCell>
+          </Table.Row>
+        </Table.Header>
+        <Table.Body>
+          {sortedData.map((puntoVenta) => (
+            <Table.Row key={puntoVenta.id}>
+              <Table.Cell>{puntoVenta.id}</Table.Cell>
+              <Table.Cell>{puntoVenta.nombre}</Table.Cell>
+              <Table.Cell>{puntoVenta.tipo}</Table.Cell>
+              <Table.Cell>{puntoVenta.tipo === "fisico" ? puntoVenta.direccion || "N/A" : "No aplica"}</Table.Cell>
+              <Table.Cell>
+                <Button onClick={() => handleEditClick(puntoVenta)}>
+                  Actualizar
+                </Button>
+                <Button color="red" onClick={() => handleDeleteClick(puntoVenta)}>
+                  Eliminar
+                </Button>
+              </Table.Cell>
             </Table.Row>
-          </Table.Header>
-          <Table.Body>
-            {sortedData.map((puntoVenta) => (
-              <Table.Row key={puntoVenta.id}>
-                <Table.Cell>{puntoVenta.id}</Table.Cell>
-                <Table.Cell>{puntoVenta.nombre}</Table.Cell>
-                <Table.Cell>{puntoVenta.tipo}</Table.Cell>
-                <Table.Cell>{puntoVenta.tipo === "fisico" ? puntoVenta.direccion || "N/A" : "No aplica"}</Table.Cell>
-                <Table.Cell>
-                  <Button
-                    onClick={() => handleEditClick(puntoVenta)}
-                  >
-                    Actualizar
-                  </Button>
-                  <Button
-                    color="red"
-                    onClick={() => handleDeleteClick(puntoVenta)}
-                  >
-                    Eliminar
-                  </Button>
-                </Table.Cell>
-              </Table.Row>
-            ))}
-          </Table.Body>
-        </Table>
-      </div>
+          ))}
+        </Table.Body>
+      </Table>
+    </div>
 
+    <div className="fixed-footer">
       {!searchQuery && (
         <Pagination
           activePage={currentPage}
@@ -127,8 +125,11 @@ export function PuntosVentaTable({
           ellipsisItem={{ content: "..." }}
           firstItem={{ content: "Primera", icon: "angle double left" }}
           lastItem={{ content: "Última", icon: "angle double right" }}
+          nextItem={{ content: "Siguiente", icon: "angle right" }}
+          prevItem={{ content: "Anterior", icon: "angle left" }}
         />
       )}
+    </div>
 
       {selectedPuntoVenta && (
         <PuntosVentaModal

@@ -1,23 +1,117 @@
 .update-puntoVenta-form {
-    &__button {
-      text-align: center;
-      margin: 20px auto 0;
-      padding: 10px 20px;
-      font-size: 14px;
-      border-radius: 5px;
-      background-color: #2185d0;
-      color: #fff;
-      cursor: pointer;
-      transition: background-color 0.3s ease;
-  
-      &:hover {
-        background-color: #1678c2;
+  &__input {
+    margin-bottom: 1rem !important;
+    position: relative;
+
+    .ui.selection.dropdown {
+      height: 38px !important;
+      min-height: 38px !important;
+      padding: 0 2.1rem 0 1rem !important;
+      line-height: 38px !important;
+
+      .dropdown.icon {
+        height: 100% !important;
+        line-height: 38px !important;
+        top: 0 !important;
+        right: 1rem !important;
+        margin: 0 !important;
+        display: flex !important;
+        align-items: center !important;
       }
-  
-      &:disabled {
-        background-color: #b0b0b0;
-        cursor: not-allowed;
+
+      .text {
+        line-height: 38px !important;
+      }
+
+      .menu {
+        z-index: 1002 !important;
       }
     }
+  }
+
+  &__button {
+    margin-top: 1rem !important;
+    text-align: center;
+    padding: 10px 20px;
+    font-size: 14px;
+    border-radius: 5px;
+    background-color: #2185d0;
+    color: #fff;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+
+    &:hover {
+      background-color: #1678c2;
+    }
+
+    &:disabled {
+      background-color: #b0b0b0;
+      cursor: not-allowed;
+    }
+  }
+}
+
+// Reutilización de los estilos del AddressInput
+.address-input-container {
+  margin: 0 !important;
+
+  .column {
+    padding: 0 0.5rem !important;
+    position: relative;
+
+    &:first-child {
+      padding-left: 0 !important;
+
+      .ui.selection.dropdown {
+        height: 38px !important;
+        min-height: 38px !important;
+        padding: 0 2.1rem 0 1rem !important;
+        line-height: 38px !important;
+
+        .dropdown.icon {
+          height: 100% !important;
+          line-height: 38px !important;
+          top: 0 !important;
+          right: 1rem !important;
+          margin: 0 !important;
+          display: flex !important;
+          align-items: center !important;
+        }
+
+        .text {
+          line-height: 38px !important;
+        }
+
+        .menu {
+          z-index: 1000 !important;
+        }
+      }
+    }
+
+    &:last-child {
+      padding-right: 0 !important;
+    }
+
+    .ui.input input {
+      height: 38px !important;
+      padding: 0 1rem !important;
+      line-height: 38px !important;
+    }
+  }
+}
+
+.modalSelectPortal {
+  &[data-tipo-select="true"] {
+    z-index: 1002 !important;
+  }
+
+  &[data-calle-select="true"] {
+    z-index: 1000 !important;
+  }
+
+  .menu {
+    max-height: 200px !important;
+    overflow-y: auto !important;
+  }
 }
   
