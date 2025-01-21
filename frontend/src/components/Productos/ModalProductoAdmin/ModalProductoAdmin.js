@@ -1,5 +1,6 @@
 import React from "react";
 import { Modal, Button, Icon, Form } from "semantic-ui-react";
+import { desactivarProducto } from "../../../api/productos";
 import "./ModalProductoAdmin.scss";
 
 export function ModalProductoAdmin({ producto, open, onClose}) {
@@ -10,7 +11,9 @@ export function ModalProductoAdmin({ producto, open, onClose}) {
   };
   const handleDelete = () => {
     if (window.confirm("¿Estás seguro de que deseas eliminar el producto?")) {
+      desactivarProducto(producto.id);
       window.alert("Producto eliminado");
+      window.location.reload();
     }
   };
 
@@ -35,11 +38,6 @@ export function ModalProductoAdmin({ producto, open, onClose}) {
               label="Nombre"
               name="nombre"
               defaultValue={producto.nombre}
-            />
-            <Form.Input
-              label="SKU"
-              name="sku"
-              defaultValue={producto.sku}
             />
             <Form.Input
               label="Precio"
@@ -79,7 +77,7 @@ export function ModalProductoAdmin({ producto, open, onClose}) {
               <Icon name="trash" />
               Eliminar producto
             </Button>
-            <Button color="green" onClick={handleSave}>
+            <Button color="green" onClick={handleSave} disabled={!producto.es_activo}>
               <Icon name="save" />
               Guardar cambios
             </Button>

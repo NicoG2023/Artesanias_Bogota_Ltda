@@ -50,3 +50,44 @@ export async function obtenerFiltrosApi() {
     throw error;
   }
 }
+
+export async function editarProducto(id, productoData) {
+  const baseUrl = `${API_SERVICIO_ADMIN}/api/productos/${id}`;
+  const formData = new FormData();
+
+  for (const key in productoData) {
+    formData.append(key, productoData[key]);
+  }
+
+  try {
+    const response = await fetch(baseUrl, {
+      method: "PUT",
+      body: formData,
+    });
+
+    if (!response.ok) {
+      throw new Error(`Error al editar el producto: ${response.statusText}`);
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error en editarProducto", error.message);
+    throw error;
+  }
+}
+
+export async function desactivarProducto(id) {
+  const baseUrl = `${API_SERVICIO_ADMIN}/api/productos/${id}/desactivar`;
+  try {
+    const response = await fetch(baseUrl, { method: "PUT" });
+    if (!response.ok) {
+      throw new Error(`Error al desactivar el producto: ${response.statusText}`);
+    }
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error en desactivarProducto", error.message);
+    throw error;
+  }
+}
