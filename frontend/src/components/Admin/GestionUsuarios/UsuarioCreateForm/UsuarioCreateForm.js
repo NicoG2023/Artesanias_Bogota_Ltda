@@ -3,8 +3,8 @@ import { Button, Form } from "semantic-ui-react";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { toast } from "react-toastify";
-import { useAuth } from "../../../hooks";
-import { createUsuarioApi } from "../../../api/usuario";
+import { useAuth } from "../../../../hooks";
+import { createUsuarioApi } from "../../../../api/usuario";
 import "./UsuarioCreateForm.scss";
 
 export function UsuarioCreateForm({ onUserActions }) {

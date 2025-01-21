@@ -6,6 +6,12 @@
   box-sizing: border-box;
   padding-right: 10px;
 
+  // Estilo para la barra de búsqueda
+  .ui.input {
+    width: 100%;
+    margin-bottom: 15px; // Espaciado adecuado debajo de la barra de búsqueda
+  }
+
   table {
     border-collapse: collapse;
     width: 100%;
@@ -14,7 +20,7 @@
     th,
     td {
       padding: 8px;
-      text-align: left;
+      text-align: left; // Cambiado de 'center' a 'left' por si otro estilo afecta el centrado
       white-space: nowrap;
     }
 
@@ -24,7 +30,8 @@
       text-transform: uppercase;
       font-weight: bold;
       padding: 10px;
-      text-align: center;
+      text-align: center !important; // Aseguramos que el texto esté centrado
+      vertical-align: middle; // Alineación vertical al centro
     }
 
     tbody {
@@ -88,6 +95,10 @@
     }
   }
 }
+
+
+
+
 
 
 

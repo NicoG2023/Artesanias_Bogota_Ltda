@@ -70,7 +70,7 @@ export function UsuariosTable({
   };
 
   return (
-    <div>
+    <div className="table-container">
       <Input
         icon="search"
         placeholder="Buscar por nombre o ID..."
@@ -79,7 +79,7 @@ export function UsuariosTable({
         fluid
       />
 
-      <div className="table-container">
+      <div className="table-wrapper">
         <Table celled>
           <Table.Header>
             <Table.Row>

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { UsuarioCreateForm } from '../../../components/Admin/UsuarioCreateForm/UsuarioCreateForm';
-import { UsuariosTable } from '../../../components/Admin/UsuariosTable/UsuariosTable';
-import { UsuarioModal } from '../../../components/Admin/UsuarioModal/UsuarioModal';
+import { UsuarioCreateForm } from "../../../components/Admin/GestionUsuarios";
+import { UsuariosTable } from "../../../components/Admin/GestionUsuarios";
+import { UsuarioModal } from "../../../components/Admin/GestionUsuarios";
 import { useAuth } from "../../../hooks";
 import { toast } from "react-toastify";
 import { getUsuariosPagesApi, getAllUsuariosApi } from "../../../api/usuario";
@@ -59,12 +59,11 @@ export function Usuarios() {
 
   return (
     <div className="usuarios">
-      <h1 className="usuarios__title">Gestionar Usuarios</h1>
+      <h1 className="usuarios__title">Gestionar usuarios</h1>
       <div className="usuarios__container">
         <button className="button__modal" onClick={() => setIsModalOpen(true)}>
           Registrar un nuevo usuario
         </button>
-
 
         <UsuarioModal
           open={isModalOpen}

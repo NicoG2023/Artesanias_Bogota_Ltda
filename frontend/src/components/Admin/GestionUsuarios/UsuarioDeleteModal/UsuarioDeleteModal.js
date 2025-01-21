@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Modal, Button, Icon } from "semantic-ui-react";
-import { deleteUsuarioApi } from "../../../api/usuario"; 
-import { useAuth } from "../../../hooks";
+import { deleteUsuarioApi } from "../../../../api/usuario"; 
+import { useAuth } from "../../../../hooks";
 import { toast } from "react-toastify";
 import "./UsuarioDeleteModal.scss";
 
