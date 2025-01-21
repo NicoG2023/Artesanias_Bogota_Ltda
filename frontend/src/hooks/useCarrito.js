@@ -1,3 +1,4 @@
+// useCarrito.js
 import { useState, useEffect } from "react";
 import {
   obtenerCarritoApi,
@@ -8,21 +9,20 @@ import {
 import { useAuth } from "./useAuth";
 
 export function useCarrito() {
-  const [carrito, setCarrito] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [carrito, setCarrito] = useState([]);
   const [error, setError] = useState(null);
   const { auth } = useAuth();
 
   useEffect(() => {
     cargarCarrito();
-  }, []);
+  }, [auth?.token]);
 
-  // Cargar el carrito al iniciar
   const cargarCarrito = async () => {
     try {
       setLoading(true);
       const data = await obtenerCarritoApi(auth.token, auth?.user?.id);
-      setCarrito(data);
+      setCarrito(Array.isArray(data) ? data : []); // Actualizamos el carrito global
     } catch (err) {
       setError(err.message);
     } finally {
@@ -30,7 +30,6 @@ export function useCarrito() {
     }
   };
 
-  // Agregar un producto al carrito
   const agregarProducto = async (productoId, cantidad) => {
     try {
       setLoading(true);
@@ -39,7 +38,13 @@ export function useCarrito() {
         productoId,
         cantidad
       );
-      setCarrito((prev) => [...prev, nuevoProducto]);
+      setCarrito((prev) => {
+        if (Array.isArray(prev)) {
+          return [...prev, nuevoProducto]; // Usar prev solo si es un array
+        } else {
+          return [nuevoProducto]; // Si no es un array, retorna solo el nuevo producto
+        }
+      });
     } catch (err) {
       setError(err.message);
     } finally {
@@ -47,7 +52,6 @@ export function useCarrito() {
     }
   };
 
-  // Actualizar la cantidad de un producto en el carrito
   const actualizarProducto = async (itemId, cantidad) => {
     try {
       setLoading(true);
@@ -68,7 +72,6 @@ export function useCarrito() {
     }
   };
 
-  // Eliminar un producto del carrito
   const eliminarProducto = async (itemId) => {
     try {
       setLoading(true);

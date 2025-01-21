@@ -1,14 +1,44 @@
-import React from "react";
-import { Table, Button, Icon } from "semantic-ui-react";
-import "./Carrito.scss";
+import React, { useEffect } from "react";
+import { Table, Button, Icon, Loader } from "semantic-ui-react";
 import { useCarrito } from "../../../hooks/useCarrito";
+import "./Carrito.scss";
 
 export function Carrito() {
-  const { carrito, removeItem, clearCart } = useCarrito();
+  const {
+    carrito,
+    loading,
+    error,
+    cargarCarrito,
+    eliminarProducto,
+    actualizarProducto,
+  } = useCarrito();
 
-  if (!carrito.length) {
+  // Cargar el carrito al montar el componente
+  useEffect(() => {
+    cargarCarrito();
+  }, []);
+
+  if (loading) {
+    return <Loader active inline="centered" content="Cargando carrito..." />;
+  }
+
+  if (error) {
+    return <p>Error al cargar el carrito: {error}</p>;
+  }
+
+  if (!carrito || carrito.length === 0) {
     return <p className="carrito__vacio">El carrito está vacío</p>;
   }
+
+  const handleEliminar = (id) => {
+    eliminarProducto(id);
+  };
+
+  const handleActualizarCantidad = (id, nuevaCantidad) => {
+    if (nuevaCantidad > 0) {
+      actualizarProducto(id, nuevaCantidad);
+    }
+  };
 
   const total = carrito.reduce(
     (acc, item) => acc + item.precio * item.cantidad,
@@ -32,7 +62,28 @@ export function Carrito() {
           {carrito.map((producto) => (
             <Table.Row key={producto.id}>
               <Table.Cell>{producto.nombre}</Table.Cell>
-              <Table.Cell>{producto.cantidad}</Table.Cell>
+              <Table.Cell>
+                <Button
+                  icon="minus"
+                  onClick={() =>
+                    handleActualizarCantidad(
+                      producto.id,
+                      producto.cantidad - 1
+                    )
+                  }
+                  disabled={producto.cantidad === 1}
+                />
+                {producto.cantidad}
+                <Button
+                  icon="plus"
+                  onClick={() =>
+                    handleActualizarCantidad(
+                      producto.id,
+                      producto.cantidad + 1
+                    )
+                  }
+                />
+              </Table.Cell>
               <Table.Cell>${producto.precio.toFixed(2)}</Table.Cell>
               <Table.Cell>
                 ${(producto.precio * producto.cantidad).toFixed(2)}
@@ -41,7 +92,7 @@ export function Carrito() {
                 <Button
                   color="red"
                   icon
-                  onClick={() => removeItem(producto.id)}
+                  onClick={() => handleEliminar(producto.id)}
                 >
                   <Icon name="trash" />
                 </Button>
@@ -54,11 +105,7 @@ export function Carrito() {
           <Table.Row>
             <Table.HeaderCell colSpan="3">Total</Table.HeaderCell>
             <Table.HeaderCell>${total.toFixed(2)}</Table.HeaderCell>
-            <Table.HeaderCell>
-              <Button color="red" onClick={clearCart}>
-                Vaciar Carrito
-              </Button>
-            </Table.HeaderCell>
+            <Table.HeaderCell />
           </Table.Row>
         </Table.Footer>
       </Table>

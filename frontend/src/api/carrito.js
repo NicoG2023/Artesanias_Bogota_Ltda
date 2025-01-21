@@ -10,6 +10,7 @@ export async function obtenerCarritoApi(token, userId) {
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
+        'Cache-Control': 'no-cache',
       },
     });
     if (!response.ok) {
