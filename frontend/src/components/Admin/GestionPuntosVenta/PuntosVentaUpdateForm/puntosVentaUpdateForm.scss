@@ -1,0 +1,23 @@
+.update-puntoVenta-form {
+    &__button {
+      text-align: center;
+      margin: 20px auto 0;
+      padding: 10px 20px;
+      font-size: 14px;
+      border-radius: 5px;
+      background-color: #2185d0;
+      color: #fff;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+  
+      &:hover {
+        background-color: #1678c2;
+      }
+  
+      &:disabled {
+        background-color: #b0b0b0;
+        cursor: not-allowed;
+      }
+    }
+}
+  

@@ -1,0 +1,28 @@
+.add-puntoVenta-form {
+    &__input {
+      background-color: #f7f2e7 !important;
+      border-color: #c64d34 !important;
+      color: #6e6159 !important;
+    
+      &:focus {
+        border-color: #e2b13c !important;
+        background-color: #f7f2e7 !important;
+      }
+    }
+    
+    &__button {
+      background-color: #88b04b !important;
+      color: white !important;
+      font-size: 1rem;
+    
+      &:hover {
+        background-color: #5e8b2f !important;
+      }
+    }
+    
+    &__links {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 1rem;
+    }
+  }
