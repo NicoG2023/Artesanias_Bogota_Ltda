@@ -1,82 +1,88 @@
+@use "sass:map";
+
 .add-puntoVenta-form {
   &__input {
-    margin-bottom: 1rem !important;
+    margin-block-end: 1rem !important;
     position: relative;
 
-    .ui.selection.dropdown {
-      height: 38px !important;
-      min-height: 38px !important;
-      padding: 0 2.1rem 0 1rem !important;
+    :global(.ui.selection.dropdown) {
+      block-size: 38px !important;
+      min-block-size: 38px !important;
+      padding-block: 0 !important;
+      padding-inline: 1rem 2.1rem !important;
       line-height: 38px !important;
 
-      .dropdown.icon {
-        height: 100% !important;
+      :global(.dropdown.icon) {
+        block-size: 100% !important;
         line-height: 38px !important;
-        top: 0 !important;
-        right: 1rem !important;
+        inset-block-start: 0 !important;
+        inset-inline-end: 1rem !important;
         margin: 0 !important;
         display: flex !important;
         align-items: center !important;
       }
 
-      .text {
+      :global(.text) {
         line-height: 38px !important;
+        background: transparent !important;
       }
 
-      .menu {
+      :global(.menu) {
         z-index: 1002 !important;
       }
     }
   }
 
   &__button {
-    margin-top: 1rem !important;
+    margin-block-start: 1rem !important;
   }
 }
 
 .address-input-container {
   margin: 0 !important;
 
-  .column {
-    padding: 0 0.5rem !important;
+  :global(.column) {
+    padding-inline: 0.5rem !important;
     position: relative;
 
     &:first-child {
-      padding-left: 0 !important;
+      padding-inline-start: 0 !important;
 
-      .ui.selection.dropdown {
-        height: 38px !important;
-        min-height: 38px !important;
-        padding: 0 2.1rem 0 1rem !important;
+      :global(.ui.selection.dropdown) {
+        block-size: 38px !important;
+        min-block-size: 38px !important;
+        padding-block: 0 !important;
+        padding-inline: 1rem 2.1rem !important;
         line-height: 38px !important;
 
-        .dropdown.icon {
-          height: 100% !important;
+        :global(.dropdown.icon) {
+          block-size: 100% !important;
           line-height: 38px !important;
-          top: 0 !important;
-          right: 1rem !important;
+          inset-block-start: 0 !important;
+          inset-inline-end: 1rem !important;
           margin: 0 !important;
           display: flex !important;
           align-items: center !important;
         }
 
-        .text {
+        :global(.text) {
           line-height: 38px !important;
+          background: transparent !important;
         }
 
-        .menu {
+        :global(.menu) {
           z-index: 1000 !important;
         }
       }
     }
 
     &:last-child {
-      padding-right: 0 !important;
+      padding-inline-end: 0 !important;
     }
 
-    .ui.input input {
-      height: 38px !important;
-      padding: 0 1rem !important;
+    :global(.ui.input input) {
+      block-size: 38px !important;
+      padding-inline: 1rem !important;
       line-height: 38px !important;
     }
   }
@@ -91,34 +97,38 @@
     z-index: 1000 !important;
   }
 
-  .menu {
-    max-height: 200px !important;
+  :global(.menu) {
+    max-block-size: 200px !important;
     overflow-y: auto !important;
+  }
+
+  :global(.text) {
+    background: transparent !important;
   }
 }
 
 .modal-form-puntoVenta {
-  .ui.modal {
-    max-width: 80%;
-    height: auto !important;
-    min-height: 200px;
-    max-height: 90vh;
+  :global(.ui.modal) {
+    max-inline-size: 80%;
+    block-size: auto !important;
+    min-block-size: 200px;
+    max-block-size: 90vh;
     display: flex;
     flex-direction: column;
     padding: 20px;
     overflow: visible !important;
 
-    & > .header {
+    & > :global(.header) {
       text-align: center;
       font-size: 1.5em;
       font-weight: bold;
       color: #333;
-      width: 100%;
+      inline-size: 100%;
       margin: 0;
-      padding: 10px 0;
+      padding-block: 10px;
     }
 
-    & > .content {
+    & > :global(.content) {
       overflow: visible !important;
       padding: 20px;
     }
@@ -130,8 +140,8 @@
 
   .close-button {
     position: absolute;
-    top: 10px;
-    right: 10px;
+    inset-block-start: 10px;
+    inset-inline-end: 10px;
     background: none;
     border: none;
     font-size: 1.5em;
@@ -148,13 +158,13 @@
     flex-direction: column;
     justify-content: center;
     align-items: stretch;
-    width: 100%;
-    height: 100%;
+    inline-size: 100%;
+    block-size: 100%;
     overflow: visible !important;
 
     form {
-      width: 100%;
-      max-width: none;
+      inline-size: 100%;
+      max-inline-size: none;
       padding: 20px;
       box-sizing: border-box;
     }

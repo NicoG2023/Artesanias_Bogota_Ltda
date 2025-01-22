@@ -10,12 +10,10 @@ import "./PuntosVenta.scss"
 export function PuntosVenta() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { auth } = useAuth();
-
   const [puntosVenta, setPuntosVenta] = useState([]);
-  const [searchResults, setSearchResults] = useState(null); // Resultado de búsqueda
+  const [searchResults, setSearchResults] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-
 
   const handleSearch = async (query) => {
     if (!query) {
@@ -50,10 +48,27 @@ export function PuntosVenta() {
     }
   };
 
+  // Función para manejar la creación de un punto de venta
+  const handleCreatePuntoVenta = async () => {
+    try {
+      // Obtener el número total de páginas actualizado
+      const puntosVentaData = await obtenerPuntosDeVentaPagesApi(auth.token, 1);
+      const newTotalPages = puntosVentaData.totalPages;
+      
+      // Actualizar el estado y cargar la última página
+      setTotalPages(newTotalPages);
+      await fetchPuntosVenta(newTotalPages);
+      
+      // Cerrar el modal
+      setIsModalOpen(false);
+    } catch (error) {
+      toast.error(`Error al actualizar la vista: ${error.message}`);
+    }
+  };
+
   useEffect(() => {
     fetchPuntosVenta(currentPage);
   }, [auth.token, currentPage]);
-
 
   return (
     <div className="puntosVenta">
@@ -66,8 +81,13 @@ export function PuntosVenta() {
         <PuntosVentaModal
           open={isModalOpen}
           onClose={() => setIsModalOpen(false)}
-          PuntosVentaForms={PuntosVentaCreateForm}
-          onUserAction={fetchPuntosVenta}
+          PuntosVentaForms={(props) => (
+            <PuntosVentaCreateForm
+              {...props}
+              onUserActions={handleCreatePuntoVenta}
+            />
+          )}
+          onUserAction={handleCreatePuntoVenta}
         />
 
         <div className="puntosVenta__table_container">

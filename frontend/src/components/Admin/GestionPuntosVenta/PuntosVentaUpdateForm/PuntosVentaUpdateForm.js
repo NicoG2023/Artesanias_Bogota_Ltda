@@ -20,6 +20,9 @@ export function PuntosVentaUpdateForm({ puntoVenta, onClose, onUserActions }) {
   const extractDireccionComponents = (direccion) => {
     if (!direccion) return {};
     
+    // Normalizar la dirección: convertir a minúsculas y eliminar espacios extra
+    const direccionNormalizada = direccion.toLowerCase().trim().replace(/\s+/g, ' ');
+    
     const streetTypes = [
       "avenida carrera",
       "avenida calle",
@@ -30,29 +33,54 @@ export function PuntosVentaUpdateForm({ puntoVenta, onClose, onUserActions }) {
       "diagonal",
       "transversal"
     ];
+
+    const direccionalSuffixes = [
+      "sur",
+      "norte",
+      "este",
+      "oeste",
+      "occidente",
+      "oriente"
+    ].join("|");
     
-    streetTypes.sort((a, b) => b.length - a.length);
-    
+    // Encontrar el tipo de calle más largo que coincida
     let tipoCalle = "";
-    let restoDireccion = direccion;
+    let restoDireccion = direccionNormalizada;
     
     for (const tipo of streetTypes) {
-      if (direccion.toLowerCase().startsWith(tipo)) {
+      if (direccionNormalizada.startsWith(tipo)) {
         tipoCalle = tipo;
-        restoDireccion = direccion.slice(tipo.length).trim();
+        restoDireccion = direccionNormalizada.slice(tipo.length).trim();
         break;
       }
     }
     
     if (!tipoCalle) return {};
     
-    const matches = restoDireccion.match(/^(.*?)\s*#(\d+)-(\d+)$/);
+    // Expresión regular para capturar el número secundario completo
+    const addressRegex = new RegExp(
+      `^(.*?)(?:\\s*#\\s*|\\s+#?\\s*)(\\d+\\s*[a-z]?)\\s*-\\s*(\\d+[^-]*?)(?:\\s*$|\\s+(?=${direccionalSuffixes}\\b)|$)`,
+      'i'
+    );
+    
+    const matches = restoDireccion.match(addressRegex);
+    
     if (matches) {
+      // Limpiamos los espacios extra en los números y sus sufijos, manteniendo el texto completo
+      const numeroPrincipal = matches[2].replace(/\s+/g, ' ').trim();
+      const numeroSecundario = matches[3].replace(/\s+/g, ' ').trim();
+      
+      // Si hay un sufijo direccional después del número secundario, lo incluimos
+      const sufijoDireccional = restoDireccion.match(new RegExp(`\\b(${direccionalSuffixes})\\b`, 'i'));
+      const numeroSecundarioCompleto = sufijoDireccional 
+        ? `${numeroSecundario} ${sufijoDireccional[0]}`.trim()
+        : numeroSecundario;
+      
       return {
         tipoCalle: tipoCalle,
         nombreCalle: matches[1].trim(),
-        numeroPrincipal: matches[2],
-        numeroSecundario: matches[3]
+        numeroPrincipal: numeroPrincipal,
+        numeroSecundario: numeroSecundarioCompleto
       };
     }
     
