@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Dropdown, Loader, Message, Header } from "semantic-ui-react";
 
-export function ListadoPuntosVenta({ puntoVentaHook }) {
+export function ListadoPuntosVenta({ puntoVentaHook, onSelectPuntoVenta }) {
   const { puntosVenta, loading, error, getPuntosVenta } = puntoVentaHook;
   const [puntoVentaSeleccionado, setPuntoVentaSeleccionado] = useState(null);
 
@@ -11,12 +11,16 @@ export function ListadoPuntosVenta({ puntoVentaHook }) {
 
   const handlePuntoVentaChange = (e, { value }) => {
     setPuntoVentaSeleccionado(value);
+    // Avisamos al padre que se eligió un nuevo punto de venta
+    if (onSelectPuntoVenta) {
+      onSelectPuntoVenta(value);
+    }
   };
 
   const opcionesDropdown = puntosVenta.map((pv) => ({
     key: pv.id,
     value: pv.id,
-    text: pv.nombre, // Lo que se mostrará en el dropdown
+    text: pv.nombre,
   }));
 
   if (loading) {
@@ -33,6 +37,7 @@ export function ListadoPuntosVenta({ puntoVentaHook }) {
       </Message>
     );
   }
+
   return (
     <div>
       <Header as="h2">Selecciona un punto de venta</Header>
@@ -44,15 +49,10 @@ export function ListadoPuntosVenta({ puntoVentaHook }) {
         onChange={handlePuntoVentaChange}
       />
 
-      {/* Ejemplo: Mostramos el punto de venta seleccionado */}
       {puntoVentaSeleccionado && (
         <Message info>
           Punto de venta seleccionado:{" "}
-          {
-            // Podemos mostrar el nombre, si queremos un extra step:
-            //   buscar en `puntosVenta` el que coincida con `puntoVentaSeleccionado`
-            puntosVenta.find((pv) => pv.id === puntoVentaSeleccionado)?.nombre
-          }
+          {puntosVenta.find((pv) => pv.id === puntoVentaSeleccionado)?.nombre}
         </Message>
       )}
     </div>

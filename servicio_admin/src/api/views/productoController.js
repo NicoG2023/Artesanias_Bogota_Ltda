@@ -1,4 +1,9 @@
-const { Producto, REL_ProductoCategoria, Categoria } = require("../../models");
+const {
+  Producto,
+  REL_ProductoCategoria,
+  Categoria,
+  Inventario,
+} = require("../../models");
 const productoSerializer = require("../serializers/productoSerializer");
 const { containerClient } = require("../../config/blob-storage");
 const {
@@ -9,7 +14,7 @@ const multer = require("multer");
 const path = require("path");
 const { v4: uuidv4 } = require("uuid");
 const { generarSKU } = require("../../models/Producto");
-const { Op } = require("sequelize");
+const { Op, Sequelize } = require("sequelize");
 require("dotenv").config();
 
 // Cargar las credenciales desde el archivo .env
@@ -57,10 +62,19 @@ const obtenerProductos = async (req, res) => {
       color = null,
       minPrecio = 0,
       maxPrecio = 100000000,
+      // Nuevo query param para filtrar por punto de venta
+      puntoVentaId = null,
     } = req.query;
-    const limit = 12;
-    const offset = (page - 1) * limit;
 
+    // Número de productos por página
+    const limit = 20;
+    const currentPage = Number(page);
+    const offset = (currentPage - 1) * limit;
+
+    // Convertir puntoVentaId a número si llega
+    const pvIdNum = puntoVentaId ? Number(puntoVentaId) : null;
+
+    // Parsear categorías (pueden llegar en un array o como "1,2,3")
     let categoriaArray = [];
     if (categoria) {
       categoriaArray = Array.isArray(categoria)
@@ -68,15 +82,15 @@ const obtenerProductos = async (req, res) => {
         : categoria.split(",").map(Number);
     }
 
+    // Parsear colores
     let colorArray = [];
     if (color) {
       colorArray = Array.isArray(color) ? color : color.split(",");
     }
 
-    // Condiciones de búsqueda y filtrado
+    // Condiciones base para la tabla Producto
     const where = {
       ...(search && { nombre: { [Op.like]: `%${search}%` } }),
-      ...(color && { color }),
       precio: {
         [Op.gte]: minPrecio,
         [Op.lte]: maxPrecio,
@@ -84,8 +98,8 @@ const obtenerProductos = async (req, res) => {
       ...(colorArray.length > 0 && { color: { [Op.in]: colorArray } }),
     };
 
-    // Filtrado por categoría a través de la tabla intermedia
-    const include = [
+    // Include base
+    const includeBase = [
       {
         model: Categoria,
         as: "categorias",
@@ -93,61 +107,119 @@ const obtenerProductos = async (req, res) => {
         through: {
           model: REL_ProductoCategoria,
           as: "relaciones",
-          attributes: [], // No necesitamos los datos de la tabla intermedia
+          attributes: [], // No necesitamos nada de la tabla pivote
         },
         ...(categoriaArray.length > 0 && {
           where: { id: { [Op.in]: categoriaArray } },
         }),
       },
+      {
+        // Incluir inventario para poder mostrar la cantidad
+        model: Inventario,
+        as: "inventario",
+        required: false, // LEFT JOIN (queremos ver también sin inventario)
+        ...(pvIdNum && {
+          where: {
+            punto_venta_fk: pvIdNum,
+          },
+        }),
+      },
     ];
 
-    // Consulta con paginación y relaciones
-    const { rows: productos, count: total } = await Producto.findAndCountAll({
+    // -- PASO 1: OBTENER TODOS LOS IDs DISTINTOS DE PRODUCTO (SIN ORDER, SIN PAGINACIÓN) --
+    const allDistinctIds = await Producto.findAll({
+      attributes: ["id"], // Solo necesitamos el ID
       where,
-      include,
-      limit,
-      offset,
+      include: includeBase,
+      distinct: true,
+      raw: true, // Retorna filas planas, no instancias
+      subQuery: false, // Evita subconsultas
     });
 
-    // Procesar productos, excluyendo "categoria" y agregando las categorías relacionadas
-    const productosProcesados = await Promise.all(
-      productos.map(async (producto) => {
-        const productoJSON = producto.toJSON();
+    // Extraer IDs en un array (los productos únicos que cumplen los filtros)
+    const productIds = allDistinctIds.map((row) => row.id);
 
-        // Generar URL firmada para la imagen
-        const urlFirmada = await generarURLFirmada(
-          productoJSON.imagen.split("/").pop(),
-          "r"
-        );
+    // total de productos distintos que cumplen la condición
+    const total = productIds.length;
 
-        return {
-          id: productoJSON.id,
-          nombre: productoJSON.nombre,
-          sku: productoJSON.sku,
-          precio: productoJSON.precio,
-          descripcion: productoJSON.descripcion,
-          imagen: urlFirmada || productoJSON.imagen,
-          es_activo: productoJSON.es_activo,
-          color: productoJSON.color,
-          talla: productoJSON.talla,
-          rating: productoJSON.rating,
-          categorias: productoJSON.categorias || [], // Asegurar que siempre haya un array de categorías
-        };
-      })
-    );
+    // Calcular las páginas
+    const totalPages = Math.ceil(total / limit);
 
-    // Respuesta serializada
-    res.json({
+    // IDs para esta página
+    const idsForPage = productIds.slice(offset, offset + limit);
+
+    // -- ORDEN --
+    // rating DESC, luego stock DESC, luego nombre ASC
+    // Para stock, usamos COALESCE("inventario"."cantidad", 0) y subQuery false
+    let order = [
+      ["rating", "DESC"],
+      ["nombre", "ASC"],
+    ];
+    if (pvIdNum) {
+      order = [
+        ["rating", "DESC"],
+        [Sequelize.literal('COALESCE("inventario"."cantidad", 0)'), "DESC"],
+        ["nombre", "ASC"],
+      ];
+    }
+
+    // -- PASO 2: CONSULTA FINAL PARA ESOS IDs --
+    const productos = await Producto.findAll({
+      where: {
+        id: { [Op.in]: idsForPage },
+      },
+      include: includeBase,
+      order,
+      subQuery: false, // Necesario para que no genere subconsulta con ORDER en PG
+      distinct: true, // Opcional. A veces lo mantenemos por precaución.
+    });
+
+    // Mapeo final: firmar URLS, calcular stock, etc.
+    const productosProcesados = [];
+    for (const producto of productos) {
+      const productoJSON = producto.toJSON();
+
+      // Generar URL firmada si usas Blob Azure
+      let urlFirmada = productoJSON.imagen;
+      if (productoJSON.imagen) {
+        const archivo = productoJSON.imagen.split("/").pop();
+        urlFirmada = await generarURLFirmada(archivo, "r");
+      }
+
+      // Calcular stock con base en inventario (puede haber 0 o 1 registros del array)
+      let stock = 0;
+      if (productoJSON.inventario && productoJSON.inventario.length > 0) {
+        stock = productoJSON.inventario[0].cantidad || 0;
+      }
+
+      productosProcesados.push({
+        id: productoJSON.id,
+        nombre: productoJSON.nombre,
+        sku: productoJSON.sku,
+        precio: productoJSON.precio,
+        descripcion: productoJSON.descripcion,
+        imagen: urlFirmada || productoJSON.imagen,
+        es_activo: productoJSON.es_activo,
+        color: productoJSON.color,
+        talla: productoJSON.talla,
+        rating: productoJSON.rating,
+        categorias: productoJSON.categorias || [],
+        stock,
+      });
+    }
+
+    // Respuesta final
+    return res.json({
       data: productosProcesados,
       pagination: {
         total,
-        page: Number(page),
-        pages: Math.ceil(total / limit),
+        page: currentPage,
+        pages: totalPages,
       },
     });
   } catch (error) {
     console.error("Error en obtenerProductos:", error);
-    res.status(500).json({ error: "Error al obtener los productos" });
+    return res.status(500).json({ error: "Error al obtener los productos" });
   }
 };
 

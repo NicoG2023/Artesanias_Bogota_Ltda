@@ -7,6 +7,7 @@ export async function obtenerProductosApi({
   color = null,
   minPrecio = 0,
   maxPrecio = 100000000,
+  puntoVentaId = null,
 }) {
   const baseUrl = `${API_SERVICIO_ADMIN}/api/productos`;
   const url = new URL(baseUrl);
@@ -16,6 +17,7 @@ export async function obtenerProductosApi({
   if (search) url.searchParams.set("search", search);
   if (categoria) url.searchParams.set("categoria", categoria);
   if (color) url.searchParams.set("color", color);
+  if (puntoVentaId) url.searchParams.set("puntoVentaId", puntoVentaId);
   if (minPrecio || maxPrecio) {
     url.searchParams.set("minPrecio", minPrecio);
     url.searchParams.set("maxPrecio", maxPrecio);
