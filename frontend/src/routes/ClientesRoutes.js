@@ -5,7 +5,7 @@ import PrivateRoutes from "./PrivateRoutes";
 
 const clientesRoutes = [
   {
-    path: "/Productos",
+    path: "/clientes-dashboard",
     element: (
       <ClientLayout>
         <PrivateRoutes allowedRoles={"admin, cliente, staff, superadmin"} />

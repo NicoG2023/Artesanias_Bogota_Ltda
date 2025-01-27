@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+package puntosventa;
+
+service PuntoVentaService {
+  rpc GetPuntosVentaByIds (GetPuntosVentaByIdsRequest) returns (GetPuntosVentaByIdsResponse);
+}
+
+message GetPuntosVentaByIdsRequest {
+  repeated int32 ids = 1;
+}
+
+message PuntoVenta {
+  int32 id = 1;
+  string nombre = 2;
+  string tipo = 3;         // "fisico" | "online"
+  string direccion = 4;    // ...
+}
+
+message GetPuntosVentaByIdsResponse {
+  repeated PuntoVenta puntos_venta = 1;
+}

@@ -11,42 +11,54 @@ export function SideMenu() {
 
   return (
     <div className="side-menu-admin">
+      {/* Solo visible para usuarios con rol "admin" */}
       <Menu vertical className="side">
-        <Menu.Item as={Link} to="/admin" active={pathname === "/admin"}>
-          <Icon name="home" /> Dashboard
-        </Menu.Item>
+        {auth.user.rol === "admin" && (
+          <>
+            <Menu.Item as={Link} to="/admin" active={pathname === "/admin"}>
+              <Icon name="home" /> Dashboard
+            </Menu.Item>
 
-        <Menu.Item
-          as={Link}
-          to="/admin-usuarios"
-          active={pathname === "/admin-usuarios"}
-        >
-          <Icon name="address book outline" /> Gestionar Usuarios
-        </Menu.Item>
+            <Menu.Item
+              as={Link}
+              to="/admin-usuarios"
+              active={pathname === "/admin-usuarios"}
+            >
+              <Icon name="address book outline" /> Gestionar Usuarios
+            </Menu.Item>
 
-        <Menu.Item
-          as={Link}
-          to="/admin-ordenes"
-          active={pathname === "/admin-ordenes"}
-        >
-          <Icon name="list alternate outline" /> Gestionar Órdenes
-        </Menu.Item>
+            <Menu.Item
+              as={Link}
+              to="/admin-ordenes"
+              active={pathname === "/admin-ordenes"}
+            >
+              <Icon name="list alternate outline" /> Gestionar Órdenes
+            </Menu.Item>
 
-        <Menu.Item
-          as={Link}
-          to="/admin-inventario"
-          active={pathname === "/admin-inventario"}
-        >
-          <Icon name="warehouse" /> Gestionar Inventario
-        </Menu.Item>
+            <Menu.Item
+              as={Link}
+              to="/admin-inventario"
+              active={pathname === "/admin-inventario"}
+            >
+              <Icon name="warehouse" /> Gestionar Inventario
+            </Menu.Item>
 
-        <Menu.Item
-          as={Link}
-          to="/admin-analiticas"
-          active={pathname === "/admin-analiticas"}
-        >
-          <Icon name="chart line" /> Analíticas
-        </Menu.Item>
+            <Menu.Item
+              as={Link}
+              to="/admin-analiticas"
+              active={pathname === "/admin-analiticas"}
+            >
+              <Icon name="chart line" /> Analíticas
+            </Menu.Item>
+            <Menu.Item
+              as={Link}
+              to="/admin-agregar-info"
+              active={pathname === "/admin-analiticas"}
+            >
+              <Icon name="upload" /> Agregar Información
+            </Menu.Item>
+          </>
+        )}
         {/* Solo visible para usuarios con rol "staff" */}
         {auth.user.rol === "staff" && (
           <Menu.Item

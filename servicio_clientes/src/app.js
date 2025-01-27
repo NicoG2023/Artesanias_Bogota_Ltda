@@ -9,6 +9,7 @@ const ordenesRoutes = require("./api/routes/ordenRoutes");
 const puntosVentaRoutes = require("./api/routes/puntoVentaRoutes");
 require("./userClientGrpc");
 require("./productClientGrpc");
+require("./grpcServer");
 
 // Configuración de CORS para permitir todas las solicitudes (solo para desarrollo, en producción CAMBIAR)s
 app.use(cors());

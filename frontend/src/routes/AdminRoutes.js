@@ -5,6 +5,7 @@ import {
   OrdenesAdmin,
   Inventario,
   Analiticas,
+  AgregarInfo,
 } from "../pages";
 import { AdminLayout } from "../layouts";
 import PrivateRoutes from "./PrivateRoutes";
@@ -75,6 +76,20 @@ const adminRoutes = [
         element: (
           <AdminLayout>
             <Analiticas />
+          </AdminLayout>
+        ),
+      },
+    ],
+  },
+  {
+    path: "/admin-agregar-info",
+    element: <PrivateRoutes allowedRoles={"admin"} />,
+    children: [
+      {
+        path: "",
+        element: (
+          <AdminLayout>
+            <AgregarInfo />
           </AdminLayout>
         ),
       },

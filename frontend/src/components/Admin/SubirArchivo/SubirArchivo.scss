@@ -1,0 +1,8 @@
+.subir-archivo {
+    .dropzone {
+      transition: background-color 0.2s ease;
+      &.active {
+        background-color: #f7ffe0;
+      }
+    }
+  }

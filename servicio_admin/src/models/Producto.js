@@ -66,7 +66,7 @@ const Producto = sequelize.define(
       { fields: ["talla"] },
     ],
     hooks: {
-      beforeCreate: async (producto) => {
+      beforeValidate: async (producto) => {
         if (
           !producto.sku ||
           producto.sku === null ||

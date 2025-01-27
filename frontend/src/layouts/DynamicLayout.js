@@ -10,14 +10,6 @@ import {
 } from "../layouts";
 import { Productos } from "../pages";
 
-console.log({
-  ClientLayout,
-  AdminLayout,
-  StaffLayout,
-  SuperAdminLayout,
-  BasicLayout,
-});
-
 export function DynamicLayout() {
   const { auth } = useAuth();
 
@@ -31,7 +23,7 @@ export function DynamicLayout() {
   }
 
   // Si está autenticado, selecciona el layout según el rol
-  switch (auth.user.rol) {
+  switch (auth?.user?.rol) {
     case "cliente":
       return (
         <ClientLayout>

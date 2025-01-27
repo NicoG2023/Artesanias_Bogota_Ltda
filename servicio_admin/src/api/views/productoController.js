@@ -16,6 +16,7 @@ const { v4: uuidv4 } = require("uuid");
 const { generarSKU } = require("../../models/Producto");
 const { Op, Sequelize } = require("sequelize");
 require("dotenv").config();
+const { getPuntosVentaByIds } = require("../../puntoVentaClientGrpc");
 
 // Cargar las credenciales desde el archivo .env
 const accountName = process.env.AZURE_ACCOUNT_NAME;
@@ -398,9 +399,180 @@ const desactivarProducto = async (req, res) => {
   }
 };
 
+async function agregarProductosBulk(req, res) {
+  try {
+    const { productos } = req.body;
+
+    if (!productos || !Array.isArray(productos) || productos.length === 0) {
+      return res.status(400).json({
+        error: "Debes enviar un arreglo de productos en 'productos'.",
+      });
+    }
+
+    // 1) Recolectar IDs de punto de venta
+    const pvIdsSet = new Set();
+    // 2) Recolectar IDs de categoría
+    const catIdsSet = new Set();
+
+    for (const p of productos) {
+      // Inventario
+      if (p.inventario && p.inventario.punto_venta_fk) {
+        pvIdsSet.add(p.inventario.punto_venta_fk);
+      }
+      // Categorías
+      if (Array.isArray(p.categorias)) {
+        for (const cId of p.categorias) {
+          catIdsSet.add(cId);
+        }
+      }
+    }
+
+    const puntoVentaIds = Array.from(pvIdsSet);
+    const categoriaIds = Array.from(catIdsSet);
+
+    // 2a) Validar puntos de venta por gRPC (si existen)
+    let dictPuntosVenta = {};
+    if (puntoVentaIds.length > 0) {
+      const puntosVentaRemotos = await getPuntosVentaByIds(puntoVentaIds);
+      for (const pv of puntosVentaRemotos) {
+        dictPuntosVenta[pv.id] = pv; // {id, nombre, tipo, direccion}
+      }
+    }
+
+    // 2b) Validar categorías en la tabla local "Categoria"
+    let dictCategorias = {};
+    if (categoriaIds.length > 0) {
+      const categoriasEncontradas = await Categoria.findAll({
+        where: { id: categoriaIds },
+      });
+      for (const cat of categoriasEncontradas) {
+        dictCategorias[cat.id] = cat; // { id, nombre, ... }
+      }
+    }
+
+    // 3) Crear productos y relaciones
+    const resultados = [];
+
+    for (const prodData of productos) {
+      const {
+        nombre,
+        precio,
+        descripcion,
+        es_activo,
+        color,
+        talla,
+        imagenBase64,
+        inventario,
+        categorias, // array de IDs
+      } = prodData;
+
+      // Subir imagen (si existe)
+      let imagenUrl = "https://.../default-product.webp";
+      if (imagenBase64) {
+        const base64Regex = /^data:.*;base64,(.*)$/;
+        const match = imagenBase64.match(base64Regex);
+        if (!match) {
+          throw new Error(
+            `Formato de imagenBase64 inválido para el producto: ${nombre}`
+          );
+        }
+        const base64Data = match[1];
+        const buffer = Buffer.from(base64Data, "base64");
+
+        const extension = ".png";
+        const blobName = `${uuidv4()}${extension}`;
+        const blockBlobClient = containerClient.getBlockBlobClient(blobName);
+
+        await blockBlobClient.uploadData(buffer, {
+          blobHTTPHeaders: { blobContentType: "image/png" },
+        });
+
+        imagenUrl = blockBlobClient.url;
+      }
+
+      // Crear producto
+      const nuevoProducto = await Producto.create({
+        nombre,
+        precio,
+        descripcion,
+        es_activo: es_activo != null ? es_activo : true,
+        color,
+        talla,
+        imagen: imagenUrl,
+      });
+
+      // Manejo de inventario
+      if (inventario) {
+        const { punto_venta_fk, nombre_punto_venta, cantidad } = inventario;
+        if (!punto_venta_fk || !nombre_punto_venta || !cantidad) {
+          throw new Error(
+            `Datos incompletos de inventario para producto: ${nombre}`
+          );
+        }
+
+        // Validar pv
+        const pvRemoto = dictPuntosVenta[punto_venta_fk];
+        if (!pvRemoto) {
+          throw new Error(
+            `El punto de venta con ID ${punto_venta_fk} no existe (producto: ${nombre}).`
+          );
+        }
+
+        // Opcional: corregir el nombre si difiere
+        if (nombre_punto_venta !== pvRemoto.nombre) {
+          //   // Podríamos rechazar o corregir
+          throw new Error(
+            `El nombre del PV no coincide con la base (producto: ${nombre}).`
+          );
+          //   inventario.nombre_punto_venta = pvRemoto.nombre;
+        }
+
+        // O corregir el nombre de PV si difiere, etc.
+        await Inventario.create({
+          producto_fk: nuevoProducto.id,
+          punto_venta_fk,
+          nombre_punto_venta,
+          cantidad,
+        });
+      }
+
+      // Manejo de categorías
+      if (Array.isArray(categorias) && categorias.length > 0) {
+        for (const catId of categorias) {
+          const catObj = dictCategorias[catId];
+          if (!catObj) {
+            throw new Error(
+              `La categoría con ID ${catId} no existe (producto: ${nombre}).`
+            );
+          }
+          // Crear la relación
+          await REL_ProductoCategoria.create({
+            categoria_fk: catId,
+            producto_fk: nuevoProducto.id,
+          });
+        }
+      }
+
+      resultados.push(nuevoProducto);
+    }
+
+    return res.status(201).json({
+      message: "Productos creados correctamente",
+      data: resultados,
+    });
+  } catch (error) {
+    console.error("Error en agregarProductosBulk:", error);
+    return res.status(500).json({
+      error: "Error al crear productos en lote",
+      detalle: error.message || error,
+    });
+  }
+}
+
 module.exports = {
   obtenerProductos,
   agregarProducto,
   editarProducto,
   desactivarProducto,
+  agregarProductosBulk,
 };

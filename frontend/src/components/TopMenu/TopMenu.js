@@ -1,7 +1,7 @@
 import React from "react";
 import { Menu, Image, Container, Button, Dropdown } from "semantic-ui-react";
 import { useAuth } from "../../hooks";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import "./TopMenu.scss";
 
 export function TopMenu() {
@@ -10,14 +10,14 @@ export function TopMenu() {
 
   const handleLogout = () => {
     logout(); // Llamar la función de logout
-    navigate("/"); // Redirigir al home
+    navigate("/productos"); // Redirigir al home
   };
 
   return (
     <Menu borderless className="top-menu">
       <Container fluid className="top-menu__container">
         <Menu.Item className="top-menu__button">
-          <Button as="a" href="/" className="brand">
+          <Button as={Link} to="/productos" className="brand">
             Artesanías Bogotá Ltda.
           </Button>
         </Menu.Item>
@@ -40,7 +40,7 @@ export function TopMenu() {
               <Dropdown.Item
                 text="Perfil"
                 icon="user"
-                onClick={() => (window.location.href = "/perfil")}
+                onClick={() => navigate("/perfil")}
               />
 
               {/* Solo visible si rol es "cliente" */}
@@ -48,7 +48,7 @@ export function TopMenu() {
                 <Dropdown.Item
                   text="Mis Órdenes"
                   icon="shopping cart"
-                  onClick={() => (window.location.href = "/ordenes-cliente")}
+                  onClick={() => navigate("/ordenes-cliente")}
                 />
               )}
 
