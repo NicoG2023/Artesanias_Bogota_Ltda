@@ -6,6 +6,8 @@ const cors = require("cors");
 const swaggerUi = require("swagger-ui-express");
 const swaggerSpec = require("./config/swagger");
 const productoRoutes = require("./api/routes/productoRoutes");
+const carritoRoutes = require("./api/routes/carritoRoutes");
+const inventarioRoutes = require("./api/routes/inventarioRoutes");
 const categoriaRoutes = require("./api/routes/categoriaRoutes");
 require("./grpcServer");
 require("./puntoVentaClientGrpc");
@@ -19,6 +21,8 @@ app.use(express.urlencoded({ limit: "10mb", extended: true }));
 
 // Rutas
 app.use("/api", productoRoutes);
+app.use("/api", carritoRoutes);
+app.use("/api", inventarioRoutes);
 app.use("/api", categoriaRoutes);
 
 // Ruta para la documentación de Swagger

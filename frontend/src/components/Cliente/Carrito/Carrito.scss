@@ -1,0 +1,73 @@
+.carrito {
+    padding: 20px;
+    background-color: #f9f9f9;
+  
+    .carrito__vacio {
+      text-align: center;
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: #888;
+      margin-top: 50px;
+    }
+  
+    .ui.table {
+      background-color: #fff;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  
+      th {
+        background-color: #f5f5f5;
+        color: #333;
+        text-transform: uppercase;
+        font-size: 0.85rem;
+        font-weight: bold;
+      }
+  
+      td {
+        vertical-align: middle;
+        font-size: 1rem;
+      }
+  
+      .ui.button {
+        margin: 0;
+        padding: 8px 12px;
+  
+        &.red {
+          background-color: #e74c3c !important;
+          color: #fff !important;
+  
+          &:hover {
+            background-color: #c0392b !important;
+          }
+        }
+      }
+    }
+  
+    .ui.table tfoot {
+      font-size: 1.1rem;
+      font-weight: bold;
+  
+      td {
+        background-color: #f5f5f5;
+      }
+  
+      .ui.button.red {
+        font-size: 1rem;
+      }
+    }
+  
+    .ui.icon.button {
+      background: transparent !important;
+      color: #e74c3c !important;
+  
+      &:hover {
+        background: rgba(231, 76, 60, 0.1) !important;
+      }
+  
+      i {
+        margin: 0;
+      }
+    }
+  }
+  

@@ -1,17 +1,32 @@
-import React from "react";
-import { Menu, Image, Container, Button, Dropdown } from "semantic-ui-react";
+import React, { useState } from "react";
+import {
+  Menu,
+  Image,
+  Container,
+  Button,
+  Dropdown,
+  Modal,
+  Icon,
+} from "semantic-ui-react";
 import { useAuth } from "../../hooks";
 import { useNavigate, Link } from "react-router-dom";
+import { Carrito } from "../Cliente/Carrito";
+import { useCarrito } from "../../hooks/useCarrito";
 import "./TopMenu.scss";
 
 export function TopMenu() {
   const { auth, logout } = useAuth();
   const navigate = useNavigate();
+  const { carrito } = useCarrito(); // Usamos el hook para obtener el carrito
+  const [open, setOpen] = useState(false); // Estado para el modal del carrito
 
   const handleLogout = () => {
     logout(); // Llamar la función de logout
     navigate("/productos"); // Redirigir al home
   };
+
+  const handleOpen = () => setOpen(true); // Abre el modal
+  const handleClose = () => setOpen(false); // Cierra el modal
 
   return (
     <Menu borderless className="top-menu">
@@ -29,6 +44,12 @@ export function TopMenu() {
             fluid
             className="banner-image"
           />
+        </Menu.Item>
+
+        {/* Carrito de compras */}
+        <Menu.Item className="top-menu__cart">
+          <Icon name="shopping cart" size="large" link onClick={handleOpen} />
+          {/* Este es el ícono del carrito, al hacer click se abrirá el modal */}
         </Menu.Item>
 
         <Menu.Item className="top-menu__button">
@@ -61,6 +82,21 @@ export function TopMenu() {
           </Dropdown>
         </Menu.Item>
       </Container>
+
+      {/* Modal del Carrito */}
+      <Modal open={open} onClose={handleClose} size="large">
+        <Modal.Header>Carrito de Compras</Modal.Header>
+        <Modal.Content>
+          {/* El componente Carrito recibe el carrito actualizado */}
+          <Carrito carrito={carrito} showTotal={true} />{" "}
+          {/* Pasamos el carrito actualizado */}
+        </Modal.Content>
+        <Modal.Actions>
+          <Button color="red" onClick={handleClose}>
+            Cerrar
+          </Button>
+        </Modal.Actions>
+      </Modal>
     </Menu>
   );
 }

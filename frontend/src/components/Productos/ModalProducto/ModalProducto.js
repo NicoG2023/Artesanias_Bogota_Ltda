@@ -1,13 +1,24 @@
 import React from "react";
 import { Modal, Button, Icon, Message } from "semantic-ui-react";
+import { useCarrito } from "../../../hooks/useCarrito";
 import "./ModalProducto.scss";
 
 export function ModalProducto({ open, onClose, producto }) {
+  const { agregarProducto } = useCarrito();
+
   if (!producto) return null;
 
-  const handleAddToCart = () => {
-    console.log("Agregar al carrito:", producto);
+  const handleAddToCart = async () => {
     // Lógica para agregar al carrito
+    try {
+      // Agregar el producto al carrito con una cantidad fija (por ejemplo, 1)
+      console.log("Agregar al carrito:", producto);
+      await agregarProducto(producto.id, 1);
+      console.log("Producto agregado al carrito:", producto);
+      onClose(); // Cierra el modal después de agregar al carrito
+    } catch (error) {
+      console.error("Error al agregar el producto al carrito:", error.message);
+    }
   };
 
   const renderRating = () => {
