@@ -6,15 +6,6 @@
     min-height: 100vh; 
     background-color: #F7F2E7; /* color base */
   
-    /* Encabezado */
-    &__topmenu {
-      /* Si quieres que el topmenu tenga un z-index mayor que el menú,
-         puedes poner algo como:
-           z-index: 10;
-         Pero no debería ser necesario si usas layout normal.
-       */
-    }
-  
     /* Contenedor para side menu + main content en la misma fila */
     &__content {
       display: flex;       /* layout horizontal */
@@ -32,18 +23,12 @@
   
     /* Contenido principal */
     &__main-content {
-      flex-grow: 1;        /* ocupa el resto del espacio */
+      flex-grow: 1;
       padding: 2rem 1rem;
-  
-      main {
-        max-width: 1200px;
-        margin: 0 auto;
-      }
+      overflow-y: auto;
+      background-color: #F7F2E7;
+      text-align: center;
     }
   
-    /* Footer al final */
-    &__footer {
-      /* margin-top: auto; Si quieres que se pegue al final en pantallas pequeñas */
-    }
   }
   

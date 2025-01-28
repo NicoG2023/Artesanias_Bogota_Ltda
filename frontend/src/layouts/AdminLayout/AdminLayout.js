@@ -1,7 +1,7 @@
 // AdminLayout.jsx
 import React from "react";
 import { useAuth } from "../../hooks";
-import { Login } from "../../pages";
+import { AdminDashboard, Login } from "../../pages";
 import { TopMenu, Footer, SideMenu } from "../../components";
 import "./AdminLayout.scss";
 
@@ -25,7 +25,7 @@ export function AdminLayout({ children }) {
         </div>
 
         {/* Contenido principal */}
-        <div className="admin-layout__main-content">{children}</div>
+        <div className="admin-layout__main-content">{children || <AdminDashboard />}</div>
       </div>
 
       {/* Footer */}

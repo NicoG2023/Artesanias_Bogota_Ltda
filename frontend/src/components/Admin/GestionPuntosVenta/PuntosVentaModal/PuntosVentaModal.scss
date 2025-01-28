@@ -1,0 +1,94 @@
+.modal-form-puntoVenta {
+  .ui.modal {
+    max-width: 80%;
+    height: auto !important;
+    min-height: 200px;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    overflow: visible !important; // Importante para el dropdown
+
+    & > .header {
+      text-align: center;
+      font-size: 1.5em;
+      font-weight: bold;
+      color: #333;
+      width: 100%;
+      margin: 0;
+      padding: 10px 0;
+    }
+
+    & > .content {
+      overflow: visible !important; // Importante para el dropdown
+      padding: 20px;
+    }
+  }
+
+  .header-title {
+    text-align: center;
+  }
+
+  .close-button {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: none;
+    border: none;
+    font-size: 1.5em;
+    cursor: pointer;
+    color: #555;
+
+    &:hover {
+      color: #800a0a;
+    }
+  }
+
+  .contenedor-modal {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: stretch;
+    width: 100%;
+    height: 100%;
+    overflow: visible !important; // Importante para el dropdown
+
+    form {
+      width: 100%;
+      max-width: none;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+  }
+}
+
+// Estilos para el dropdown
+.ui.dropdown .menu {
+  z-index: 2000 !important;
+}
+
+.modalSelectPortal {
+  z-index: 2000 !important;
+  position: absolute;
+
+  .menu {
+    max-height: 200px !important;
+    overflow-y: auto !important;
+  }
+}
+
+// Asegurarse de que el dropdown esté visible
+.ui.selection.dropdown {
+  position: relative !important;
+  overflow: visible !important;
+
+  .menu {
+    position: absolute !important;
+    z-index: 2000 !important;
+  }
+}
+
+.address-input-container {
+  position: relative !important;
+  overflow: visible !important;
+}

@@ -5,6 +5,7 @@ import {
   OrdenesAdmin,
   Inventario,
   Analiticas,
+  PuntosVenta,
   AgregarInfo,
 } from "../pages";
 import { AdminLayout } from "../layouts";
@@ -76,6 +77,20 @@ const adminRoutes = [
         element: (
           <AdminLayout>
             <Analiticas />
+          </AdminLayout>
+        ),
+      },
+    ],
+  },
+  {
+    path: "/admin-puntos-venta",
+    element: <PrivateRoutes allowedRoles={"admin"} />,
+    children: [
+      {
+        path: "",
+        element: (
+          <AdminLayout>
+            <PuntosVenta />
           </AdminLayout>
         ),
       },

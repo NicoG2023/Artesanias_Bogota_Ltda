@@ -45,6 +45,14 @@ export function SideMenu() {
 
             <Menu.Item
               as={Link}
+              to="/admin-puntos-venta"
+              active={pathname === "/admin-puntos-venta"}
+            >
+              <Icon name="shop" /> Gestionar Puntos de Venta
+            </Menu.Item>
+
+            <Menu.Item
+              as={Link}
               to="/admin-analiticas"
               active={pathname === "/admin-analiticas"}
             >

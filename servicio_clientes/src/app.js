@@ -6,7 +6,7 @@ const cors = require("cors");
 const swaggerUi = require("swagger-ui-express");
 const swaggerSpec = require("./config/swagger");
 const ordenesRoutes = require("./api/routes/ordenRoutes");
-const puntosVentaRoutes = require("./api/routes/puntoVentaRoutes");
+const puntoVentaRoutes = require("./api/routes/puntoVentaRoutes");
 require("./userClientGrpc");
 require("./productClientGrpc");
 require("./grpcServer");
@@ -18,7 +18,7 @@ app.use(cors());
 app.use(express.json());
 
 app.use("/api", ordenesRoutes);
-app.use("/api", puntosVentaRoutes);
+app.use("/api", puntoVentaRoutes);
 
 // Ruta de ejemplo
 app.get("/", (req, res) => {
