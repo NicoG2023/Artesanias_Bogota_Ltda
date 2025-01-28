@@ -1,5 +1,4 @@
 const { Producto, Categoria } = require("../../models");
-const express = require("express");
 const sequelize = require("../../config/database");
 const { Op } = require("sequelize");
 
@@ -29,4 +28,34 @@ const obtenerFiltros = async (req, res) => {
   }
 };
 
-module.exports = { obtenerFiltros };
+const agregarCategorias = async (req, res) => {
+  try {
+    const { categorias } = req.body;
+
+    // Validación básica
+    if (!categorias || !Array.isArray(categorias) || categorias.length === 0) {
+      return res.status(400).json({
+        error:
+          "Debes enviar un arreglo de categorías en el campo 'categorias'.",
+      });
+    }
+
+    // Crear categorías en lote
+    // bulkCreate insertará todas las filas de una sola vez
+    // Si 'nombre' es único y hay duplicados, lanzará un error que atrapamos en el catch
+    const nuevasCategorias = await Categoria.bulkCreate(categorias);
+
+    return res.status(201).json({
+      message: "Categorías agregadas correctamente",
+      data: nuevasCategorias,
+    });
+  } catch (error) {
+    console.error("Error al agregar categorías:", error);
+    return res.status(500).json({
+      error: "Ocurrió un error al agregar las categorías",
+      detalle: error.message || error,
+    });
+  }
+};
+
+module.exports = { obtenerFiltros, agregarCategorias };

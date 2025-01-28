@@ -6,8 +6,10 @@ const cors = require("cors");
 const swaggerUi = require("swagger-ui-express");
 const swaggerSpec = require("./config/swagger");
 const ordenesRoutes = require("./api/routes/ordenRoutes");
+const puntoVentaRoutes = require("./api/routes/puntoVentaRoutes");
 require("./userClientGrpc");
 require("./productClientGrpc");
+require("./grpcServer");
 
 // Configuración de CORS para permitir todas las solicitudes (solo para desarrollo, en producción CAMBIAR)s
 app.use(cors());
@@ -16,6 +18,7 @@ app.use(cors());
 app.use(express.json());
 
 app.use("/api", ordenesRoutes);
+app.use("/api", puntoVentaRoutes);
 
 // Ruta de ejemplo
 app.get("/", (req, res) => {

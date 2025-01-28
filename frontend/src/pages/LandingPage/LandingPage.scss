@@ -1,0 +1,43 @@
+.landing-page {
+  font-family: "Arial", sans-serif;
+  color: #333;
+
+  .hero-section {
+    position: relative;
+    padding: 6rem 0;
+    text-align: center;
+    color: #fff;
+    overflow: hidden;
+
+    .hero-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5); // Negro semitransparente
+      z-index: 1;
+    }
+
+    > .ui.container {
+      position: relative;
+      z-index: 2; // Elevar el contenido sobre el overlay
+      color: #fff; // Letras totalmente blancas
+    }
+
+    .hero-title {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+    }
+
+    .hero-subtitle {
+      font-size: 1.3rem;
+      margin-bottom: 2rem;
+      color: #fefefe; // Asegurar un blanco puro
+    }
+
+    .ui.button {
+      z-index: 2; // Asegurar que el botón también esté por encima
+    }
+  }
+}

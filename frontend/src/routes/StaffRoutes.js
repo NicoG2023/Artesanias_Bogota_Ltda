@@ -1,7 +1,7 @@
 import React from "react";
 import PrivateRoutes from "./PrivateRoutes";
 import { StaffLayout } from "../layouts";
-import { Pagos, Ordenes, Informes } from "../pages";
+import { Pagos, Ordenes, Informes, ProductosStaff } from "../pages";
 
 const staffRoutes = [
   {
@@ -44,6 +44,21 @@ const staffRoutes = [
         element: (
           <StaffLayout>
             <Informes />
+          </StaffLayout>
+        ),
+      },
+    ],
+  },
+  {
+    path: "/productos-staff",
+    layout: StaffLayout,
+    element: <PrivateRoutes allowedRoles={"staff, admin, superadmin"} />,
+    children: [
+      {
+        path: "",
+        element: (
+          <StaffLayout>
+            <ProductosStaff />
           </StaffLayout>
         ),
       },

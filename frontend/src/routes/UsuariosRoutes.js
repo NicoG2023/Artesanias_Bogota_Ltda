@@ -1,12 +1,19 @@
 import React from "react";
 import { BasicLayout } from "../layouts";
-import { Login, OlvidarPassword, Registro } from "../pages";
+import { Login, OlvidarPassword, Registro, LandingPage } from "../pages";
 import { DynamicLayout } from "../layouts/DynamicLayout";
 
 const usuariosRoutes = [
   {
+    path: "/",
+    element: (
+      <BasicLayout>
+        <LandingPage />
+      </BasicLayout>
+    ),
+  },
+  {
     path: "/Login",
-    layout: BasicLayout,
     element: (
       <BasicLayout>
         <Login />
@@ -15,7 +22,6 @@ const usuariosRoutes = [
   },
   {
     path: "/Registro",
-    layout: BasicLayout,
     element: (
       <BasicLayout>
         <Registro />
@@ -24,7 +30,6 @@ const usuariosRoutes = [
   },
   {
     path: "/OlvidoContraseña",
-    layout: BasicLayout,
     element: (
       <BasicLayout>
         <OlvidarPassword />
@@ -32,7 +37,7 @@ const usuariosRoutes = [
     ),
   },
   {
-    path: "/",
+    path: "/productos",
     element: <DynamicLayout />,
   },
 ];

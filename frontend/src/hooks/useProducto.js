@@ -1,7 +1,9 @@
 import { useState, useEffect } from "react";
 import { obtenerProductosApi, obtenerFiltrosApi } from "../api/productos";
+import { useAuth } from "./useAuth";
 
 export function useProductos() {
+  const { auth } = useAuth();
   const [productos, setProductos] = useState([]);
   const [pagination, setPagination] = useState({});
   const [loading, setLoading] = useState(false);
@@ -61,11 +63,15 @@ export function useProductos() {
 
   // Función para actualizar los filtros
   const updateFilters = (newFilters) => {
-    const updatedFilters = {
+    // Combinar con los existentes
+    let updatedFilters = {
       ...filters,
       ...newFilters,
     };
-    setFilters(updatedFilters); // Esto debería disparar el useEffect
+    if (auth?.user?.rol === "cliente") {
+      updatedFilters.puntoVentaId = 1;
+    }
+    setFilters(updatedFilters);
   };
 
   return {
