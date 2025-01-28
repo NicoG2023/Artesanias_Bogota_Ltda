@@ -1,0 +1,62 @@
+.modal-form-usuario {
+    .header-title {
+      text-align: center;
+      margin-bottom: 1rem;
+    }
+  
+    .modal-container {
+      text-align: center;
+      padding: 2rem 1rem;
+      
+  
+      .buttons-options {
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+        margin-top: 1.5rem;
+  
+        .afirmative-option,
+        .cancel-option {
+          padding: 0.8rem 2rem;
+          font-size: 1rem;
+          border-radius: 8px;
+          transition: all 0.3s ease;
+  
+          &.afirmative-option {
+            background-color: #e74c3c;
+            color: white;
+  
+            &:hover {
+              background-color: #c0392b;
+            }
+          }
+  
+          &.cancel-option {
+            background-color: #bdc3c7;
+            color: #333;
+  
+            &:hover {
+              background-color: #95a5a6;
+            }
+          }
+        }
+      }
+    }
+  
+    .close-button {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: transparent;
+      border: none;
+      font-size: 1.5rem;
+      cursor: pointer;
+      color: #333;
+  
+      &:hover {
+        color: #e74c3c;
+      }
+    }
+}
+  
+  
