@@ -26,21 +26,22 @@ export function Carrito() {
     return <p>Error al cargar el carrito: {error}</p>;
   }
 
-  if (!carrito || carrito.length === 0) {
+  if (!carrito.productos || carrito.productos.length === 0) {
     return <p className="carrito__vacio">El carrito está vacío</p>;
   }
 
+  //esto es lo que aún no funciona
   const handleEliminar = (id) => {
     eliminarProducto(id);
   };
-
+  //y esto tampoco
   const handleActualizarCantidad = (id, nuevaCantidad) => {
     if (nuevaCantidad > 0) {
       actualizarProducto(id, nuevaCantidad);
     }
   };
-
-  const total = carrito.reduce(
+  //aun no calcula el total
+  const total = carrito.productos.reduce(
     (acc, item) => acc + item.precio * item.cantidad,
     0
   );
@@ -59,7 +60,7 @@ export function Carrito() {
         </Table.Header>
 
         <Table.Body>
-          {carrito.map((producto) => (
+          {carrito.productos.map((producto) => (
             <Table.Row key={producto.id}>
               <Table.Cell>{producto.nombre}</Table.Cell>
               <Table.Cell>

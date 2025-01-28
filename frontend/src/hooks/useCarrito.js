@@ -10,7 +10,10 @@ import { useAuth } from "./useAuth";
 
 export function useCarrito() {
   const [loading, setLoading] = useState(false);
-  const [carrito, setCarrito] = useState([]);
+  const [carrito, setCarrito] = useState({id: null, // id del carrito
+    usuario_fk: null, // id del usuario
+    productos: [] // Inicializar productos como un array vacío
+  });
   const [error, setError] = useState(null);
   const { auth } = useAuth();
 
@@ -21,8 +24,18 @@ export function useCarrito() {
   const cargarCarrito = async () => {
     try {
       setLoading(true);
+      // Verificar si auth.token y auth.user.id están definidos
+      if (!auth?.token || !auth?.user?.id) {
+        throw new Error("Token de usuario o ID no disponible");
+      }
       const data = await obtenerCarritoApi(auth.token, auth?.user?.id);
-      setCarrito(Array.isArray(data) ? data : []); // Actualizamos el carrito global
+      // Verificar si la respuesta es válida y contiene los datos del carrito
+      if (data && Array.isArray(data.productos)) {
+        // Actualizamos el estado del carrito
+        setCarrito(data);
+      } else {
+        setError("No se pudo cargar el carrito");
+      }
     } catch (err) {
       setError(err.message);
     } finally {
@@ -38,13 +51,23 @@ export function useCarrito() {
         productoId,
         cantidad
       );
-      setCarrito((prev) => {
-        if (Array.isArray(prev)) {
-          return [...prev, nuevoProducto]; // Usar prev solo si es un array
-        } else {
-          return [nuevoProducto]; // Si no es un array, retorna solo el nuevo producto
-        }
+      //verificación
+      console.log("Estado actual del carrito:", carrito);  // Cambié 'prev' por 'carrito' para mostrar el estado actual
+
+      // Verifica si 'nuevoProducto' tiene los datos correctos
+      console.log("Producto nuevo:", nuevoProducto);
+
+       // Asegúrate de que 'nuevoProducto' tiene los datos correctos
+      setCarrito((prevCarrito) => {
+        // Si ya existen productos, agregamos el nuevo, sino inicializamos el array
+        const nuevosProductos = prevCarrito.productos
+          ? [...prevCarrito.productos, { ...nuevoProducto, cantidad }]
+          : [{ ...nuevoProducto, cantidad }];
+  
+        return { ...prevCarrito, productos: nuevosProductos };
       });
+      //verificación
+      console.log(carrito);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -75,7 +98,7 @@ export function useCarrito() {
   const eliminarProducto = async (itemId) => {
     try {
       setLoading(true);
-      await eliminarDelCarritoApi(auth.token, itemId);
+      await eliminarDelCarritoApi(auth.token, auth.user.id, itemId);
       setCarrito((prev) => prev.filter((item) => item.id !== itemId));
     } catch (err) {
       setError(err.message);

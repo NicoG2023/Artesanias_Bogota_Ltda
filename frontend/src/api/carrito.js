@@ -17,6 +17,7 @@ export async function obtenerCarritoApi(token, userId) {
       throw new Error(`Error al obtener el carrito: ${response.statusText}`);
     }
     const data = await response.json();
+    console.log("Respuesta de la API:", data); // Muestra la respuesta de la API
     return data;
   } catch (error) {
     console.error("Error en obtenerCarritoApi", error.message);
@@ -82,7 +83,8 @@ export async function actualizarCantidadCarritoApi(token, itemId, cantidad) {
 
 // Eliminar un producto del carrito
 export async function eliminarDelCarritoApi(token, itemId) {
-  const url = `${API_SERVICIO_ADMIN}/api/carrito/${itemId}`;
+  const url = `${API_SERVICIO_ADMIN}/api/carrito/producto/${itemId}`; //ruta editada, no concuerda con la del backend
+  console.log("URL de eliminación:", url);  // Verificar la URL construida
 
   try {
     const response = await fetch(url, {

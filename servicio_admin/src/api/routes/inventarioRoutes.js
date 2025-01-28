@@ -11,7 +11,7 @@ const {
 // Obtener todos los productos en el inventario
 /**
  * @swagger
- * /api/inventario:
+ * /inventario:
  *   get:
  *     summary: Obtiene todos los productos en el inventario
  *     description: Retorna todos los productos disponibles en el inventario con su cantidad y ubicación.
@@ -39,12 +39,12 @@ const {
  *       500:
  *         description: Error al obtener el inventario
  */
-router.get("/", obtenerInventario);
+router.get("/inventario", obtenerInventario);
 
 // Agregar un nuevo producto al inventario
 /**
  * @swagger
- * /api/inventario:
+ * /inventario:
  *   post:
  *     summary: Agrega un nuevo producto al inventario
  *     description: Permite agregar un nuevo producto con su cantidad inicial al inventario.
@@ -69,12 +69,12 @@ router.get("/", obtenerInventario);
  *       500:
  *         description: Error al agregar el producto
  */
-router.post("/", agregarProductoInventario);
+router.post("/inventario", agregarProductoInventario);
 
 // Actualizar la cantidad de un producto en el inventario
 /**
  * @swagger
- * /api/inventario/{inventarioId}:
+ * /inventario/{inventarioId}:
  *   put:
  *     summary: Actualiza la cantidad de un producto en el inventario
  *     description: Permite actualizar la cantidad de un producto existente en el inventario, ya sea por venta o reabastecimiento.
@@ -114,7 +114,7 @@ router.put("/:inventarioId", actualizarStock);
 // Eliminar un producto del inventario
 /**
  * @swagger
- * /api/inventario/{inventarioId}:
+ * /inventario/{inventarioId}:
  *   delete:
  *     summary: Elimina un producto del inventario
  *     description: Permite eliminar un producto del inventario.
@@ -138,7 +138,7 @@ router.delete("/:inventarioId", eliminarProductoInventario);
 // Revisar el stock de un producto
 /**
  * @swagger
- * /api/inventario/stock/{productoId}:
+ * /inventario/stock/{productoId}:
  *   get:
  *     summary: Revisa el stock de un producto específico
  *     description: Permite obtener el stock total de un producto específico en todas las ubicaciones.

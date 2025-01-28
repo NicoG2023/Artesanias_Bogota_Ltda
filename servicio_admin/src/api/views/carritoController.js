@@ -113,17 +113,28 @@ const actualizarCantidad = async (req, res) => {
 // Eliminar un producto del carrito
 const eliminarDelCarrito = async (req, res) => {
   const { itemId } = req.params; // itemId = ID de la fila en REL_CarritoProducto
-
+  const { userId } = req.user;  // Obtener el userId desde el token
+  //edité esta parte, no esta funcional aun
   try {
-    // 1) Buscar la relación pivote
-    const itemCarrito = await REL_CarritoProducto.findByPk(itemId);
+    // 1) Buscar el carrito del usuario
+    const carrito = await Carrito.findOne({ where: { usuario_fk: userId } });
+    if (!carrito) {
+      return res.status(404).json({ error: "Carrito no encontrado para este usuario" });
+    }
+    // 2) Buscar la relación pivote
+    const itemCarrito = await REL_CarritoProducto.findOne({
+      where: {
+        carritoId: carrito.id,
+        itemId: itemId,
+      },
+    });
     if (!itemCarrito) {
       return res
         .status(404)
         .json({ error: "Producto no encontrado en el carrito" });
     }
 
-    // 2) Eliminar la fila (relación) de la tabla pivote
+    // 3) Eliminar la fila (relación) de la tabla pivote
     await itemCarrito.destroy();
     return res.status(200).json({ message: "Producto eliminado del carrito" });
   } catch (error) {
