@@ -1,6 +1,8 @@
 import React from "react";
 import { Button, Icon, Grid, Card, Header, Container } from "semantic-ui-react";
+import { MapaLanding } from "../../components/LandingPage/MapaLanding";
 import { useNavigate } from "react-router-dom";
+import artesaniaImg from "../../assets/artesanias-landing-page.png";
 import "./LandingPage.scss";
 
 export function LandingPage() {
@@ -45,7 +47,13 @@ export function LandingPage() {
   return (
     <div className="landing-page">
       {/* Sección Hero */}
-      <div className="hero-section">
+      <div
+        className="hero-section"
+        style={{
+          background: `url(${artesaniaImg}) center/cover no-repeat`,
+        }}
+      >
+        <div className="hero-overlay"></div>
         <Container>
           <h1 className="hero-title">Encuentra la belleza de lo artesanal</h1>
           <p className="hero-subtitle">
@@ -77,7 +85,7 @@ export function LandingPage() {
       {/* Sección de best sellers */}
       <Container className="bestsellers-section">
         <Header as="h2" textAlign="center" className="section-title">
-          Nuestros más vendidos
+          Nuestros productos más vendidos
         </Header>
         <Card.Group itemsPerRow={3} stackable>
           {bestSellers.map((item) => (
@@ -94,6 +102,10 @@ export function LandingPage() {
             </Card>
           ))}
         </Card.Group>
+      </Container>
+
+      <Container className="mapa-section">
+        <MapaLanding />
       </Container>
 
       {/* Sección CTA final */}

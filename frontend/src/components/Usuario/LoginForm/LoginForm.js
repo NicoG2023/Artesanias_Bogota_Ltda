@@ -25,7 +25,7 @@ export function LoginForm() {
         // Redirige según el rol del usuario
         const roleToRoute = {
           admin: "/admin",
-          cliente: "/",
+          cliente: "/productos",
           staff: "/Pagos",
           superadmin: "/UsuariosSuperAdmin",
         };

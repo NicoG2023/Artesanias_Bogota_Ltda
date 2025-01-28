@@ -24,7 +24,7 @@ export function TopMenu() {
 
         <Menu.Item className="top-menu__banner">
           <Image
-            src="../../../images/artesanias-banner.png"
+            src="/images/artesanias-banner.png"
             alt="Artesanías Banner"
             fluid
             className="banner-image"
