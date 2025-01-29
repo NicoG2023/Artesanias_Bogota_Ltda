@@ -1,4 +1,8 @@
 const { PuntoVenta } = require("../../models");
+const {
+  deleteInventariosAndProductsByPuntoVentaId,
+} = require("../../grpc/adminClientGrpc");
+const { sendMessage } = require("../../kafka/kafkaProducer");
 
 // Crear un nuevo punto de venta
 const crearPuntoDeVenta = async (req, res) => {
@@ -28,12 +32,10 @@ const crearPuntoDeVenta = async (req, res) => {
     res.status(201).json(nuevoPuntoVenta);
   } catch (error) {
     console.error("Error al crear el punto de venta:", error);
-    res
-      .status(500)
-      .json({
-        message: "Error al crear el punto de venta",
-        error: error.message || error,
-      });
+    res.status(500).json({
+      message: "Error al crear el punto de venta",
+      error: error.message || error,
+    });
   }
 };
 
@@ -62,12 +64,10 @@ const obtenerPuntoDeVentaPorId = async (req, res) => {
     res.status(200).json(puntoVenta);
   } catch (error) {
     console.error("Error al obtener el punto de venta:", error);
-    res
-      .status(500)
-      .json({
-        message: "Error al obtener el punto de venta",
-        error: error.message || error,
-      });
+    res.status(500).json({
+      message: "Error al obtener el punto de venta",
+      error: error.message || error,
+    });
   }
 };
 
@@ -93,11 +93,9 @@ const obtenerPuntosDeVentaPages = async (req, res) => {
     });
   } catch (error) {
     console.error("Error al obtener los puntos de venta:", error);
-    res
-      .status(400)
-      .json({
-        message: "Error al obtener los puntos de venta: " + error.message,
-      });
+    res.status(400).json({
+      message: "Error al obtener los puntos de venta: " + error.message,
+    });
   }
 };
 
@@ -124,12 +122,10 @@ const actualizarPuntoDeVenta = async (req, res) => {
     res.status(200).json(puntoVenta);
   } catch (error) {
     console.error("Error al actualizar el punto de venta:", error);
-    res
-      .status(500)
-      .json({
-        message: "Error al actualizar el punto de venta",
-        error: error.message || error,
-      });
+    res.status(500).json({
+      message: "Error al actualizar el punto de venta",
+      error: error.message || error,
+    });
   }
 };
 
@@ -143,17 +139,31 @@ const eliminarPuntoDeVenta = async (req, res) => {
       return res.status(404).json({ message: "Punto de venta no encontrado" });
     }
 
-    // Eliminar el punto de venta
+    // Eliminar el punto de venta en la BD local
     await puntoVenta.destroy();
-    res.status(200).json({ message: "Punto de venta eliminado correctamente" });
+
+    // **Publicar evento a Kafka**:
+    const topic = "puntos-de-venta-events";
+    const eventKey = "punto_de_venta_eliminado"; // para particionar o etiquetar
+    const eventData = {
+      eventType: "PUNTO_DE_VENTA_ELIMINADO",
+      payload: {
+        id: parseInt(id, 10),
+        nombre: puntoVenta.nombre,
+      },
+      timestamp: new Date().toISOString(),
+    };
+    await sendMessage(topic, eventKey, eventData);
+
+    return res
+      .status(200)
+      .json({ message: "Punto de venta eliminado correctamente" });
   } catch (error) {
     console.error("Error al eliminar el punto de venta:", error);
-    res
-      .status(500)
-      .json({
-        message: "Error al eliminar el punto de venta",
-        error: error.message || error,
-      });
+    return res.status(500).json({
+      message: "Error al eliminar el punto de venta",
+      error: error.message || error,
+    });
   }
 };
 

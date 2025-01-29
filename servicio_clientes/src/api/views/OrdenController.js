@@ -5,8 +5,11 @@ const {
   REL_Orden_Producto,
   sequelize,
 } = require("../../models");
-const { getUsersByIds, searchUsersByTerm } = require("../../userClientGrpc");
-const { getProductsByIds } = require("../../productClientGrpc");
+const {
+  getUsersByIds,
+  searchUsersByTerm,
+} = require("../../grpc/userClientGrpc");
+const { getProductsByIds } = require("../../grpc/productClientGrpc");
 const { containerClient } = require("../../config/blob-storage");
 const {
   generateBlobSASQueryParameters,

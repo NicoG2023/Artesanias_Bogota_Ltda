@@ -57,7 +57,7 @@ export function CuadriculaProductos({ productosHook }) {
             />
             <div className="product-info">
               <h3>{producto.nombre}</h3>
-              <p className="price">${producto.precio.toFixed(2)}</p>
+              <p className="price">${producto.precio}</p>
               <div className="rating">
                 {[...Array(5)].map((_, i) => (
                   <span

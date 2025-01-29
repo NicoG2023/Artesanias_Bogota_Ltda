@@ -47,10 +47,19 @@ export function TopMenu() {
         </Menu.Item>
 
         {/* Carrito de compras */}
-        <Menu.Item className="top-menu__cart">
-          <Icon name="shopping cart" size="large" link onClick={handleOpen} />
-          {/* Este es el ícono del carrito, al hacer click se abrirá el modal */}
-        </Menu.Item>
+        {auth.user.rol === "cliente" && (
+          <>
+            <Menu.Item className="top-menu__cart">
+              <Icon
+                name="shopping cart"
+                size="large"
+                link
+                onClick={handleOpen}
+              />
+              {/* Este es el ícono del carrito, al hacer click se abrirá el modal */}
+            </Menu.Item>
+          </>
+        )}
 
         <Menu.Item className="top-menu__button">
           <Dropdown
@@ -84,19 +93,23 @@ export function TopMenu() {
       </Container>
 
       {/* Modal del Carrito */}
-      <Modal open={open} onClose={handleClose} size="large">
-        <Modal.Header>Carrito de Compras</Modal.Header>
-        <Modal.Content>
-          {/* El componente Carrito recibe el carrito actualizado */}
-          <Carrito carrito={carrito} showTotal={true} />{" "}
-          {/* Pasamos el carrito actualizado */}
-        </Modal.Content>
-        <Modal.Actions>
-          <Button color="red" onClick={handleClose}>
-            Cerrar
-          </Button>
-        </Modal.Actions>
-      </Modal>
+      {auth.user.rol === "cliente" && (
+        <>
+          <Modal open={open} onClose={handleClose} size="large">
+            <Modal.Header>Carrito de Compras</Modal.Header>
+            <Modal.Content>
+              {/* El componente Carrito recibe el carrito actualizado */}
+              <Carrito carrito={carrito} showTotal={true} />{" "}
+              {/* Pasamos el carrito actualizado */}
+            </Modal.Content>
+            <Modal.Actions>
+              <Button color="red" onClick={handleClose}>
+                Cerrar
+              </Button>
+            </Modal.Actions>
+          </Modal>
+        </>
+      )}
     </Menu>
   );
 }

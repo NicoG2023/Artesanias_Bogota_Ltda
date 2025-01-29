@@ -33,6 +33,13 @@ const Inventario = sequelize.define(
   {
     tableName: "inventario",
     timestamps: false,
+    indexes: [
+      {
+        unique: true, // Índice único compuesto
+        fields: ["producto_fk", "punto_venta_fk"],
+        name: "unique_producto_punto_venta",
+      },
+    ],
   }
 );
 

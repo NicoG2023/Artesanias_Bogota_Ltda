@@ -131,7 +131,7 @@ router.post("/carrito", verifyToken, agregarAlCarrito);
  *         description: Error al editar la cantidad del producto
  */
 router.put(
-  "/carrito/:usuarioId/producto/:productoId",
+  "/carrito/:userId/producto/:productoId",
   verifyToken,
   actualizarCantidad
 );

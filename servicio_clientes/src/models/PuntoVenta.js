@@ -25,6 +25,17 @@ const PuntoVenta = sequelize.define(
   {
     tableName: "puntos_venta",
     timestamps: false,
+    hooks: {
+      beforeCreate: (PuntoVenta) => {
+        if (
+          PuntoVenta.tipo === "fisico" &&
+          PuntoVenta.direccion &&
+          !PuntoVenta.direccion.includes("Bogotá, Colombia")
+        ) {
+          PuntoVenta.direccion = `${PuntoVenta.direccion}, Bogotá, Colombia`;
+        }
+      },
+    },
   }
 );
 
