@@ -1,5 +1,9 @@
 import { useState, useEffect } from "react";
-import { obtenerProductosApi, obtenerFiltrosApi } from "../api/productos";
+import {
+  obtenerProductosApi,
+  obtenerFiltrosApi,
+  obtenerProductosCarouselApi,
+} from "../api/productos";
 import { useAuth } from "./useAuth";
 
 export function useProductos() {
@@ -73,6 +77,24 @@ export function useProductos() {
     }
     setFilters(updatedFilters);
   };
+
+  useEffect(() => {
+    const fetchProductosCarousel = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const data = await obtenerProductosCarouselApi();
+        setProductos(data.data); // Guardamos los productos en el estado
+      } catch (error) {
+        console.error("Error al obtener productos del carousel:", error);
+        setError(error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProductosCarousel();
+  }, []);
 
   return {
     productos,

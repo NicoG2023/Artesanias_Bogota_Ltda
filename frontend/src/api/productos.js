@@ -98,3 +98,19 @@ export async function descargarPlantillaProductoApi() {
     throw error;
   }
 }
+
+export async function obtenerProductosCarouselApi() {
+  const baseUrl = `${API_SERVICIO_ADMIN}/api/productos/carousel`;
+
+  try {
+    const response = await fetch(baseUrl);
+    if (!response.ok) {
+      throw new Error(`Error al obtener los productos: ${response.statusText}`);
+    }
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error en obtenerProductosApi", error.message);
+    throw error;
+  }
+}

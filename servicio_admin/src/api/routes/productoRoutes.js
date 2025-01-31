@@ -5,6 +5,7 @@ const {
   editarProducto,
   desactivarProducto,
   agregarProductosBulk,
+  obtenerProductosCarousel,
 } = require("../views/productoController");
 const { obtenerFiltros } = require("../views/categoriaController");
 const { verifyToken, authorizeRoles } = require("../../middleware/auth");
@@ -80,6 +81,8 @@ const router = express.Router();
  *         description: Error al obtener los productos
  */
 router.get("/productos", obtenerProductos);
+
+router.get("/productos/carousel", obtenerProductosCarousel);
 
 /**
  * @swagger

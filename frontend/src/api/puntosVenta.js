@@ -1,12 +1,11 @@
 import { API_SERVICIO_CLIENTES } from "../utils/constants";
 
-export async function obtenerPuntosDeVentaApi(token) {
+export async function obtenerPuntosDeVentaApi() {
   try {
     const url = `${API_SERVICIO_CLIENTES}/api/puntos-venta`;
     const params = {
       method: "GET",
       headers: {
-        Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
       },
     };

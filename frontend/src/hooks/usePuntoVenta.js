@@ -10,20 +10,18 @@ export function usePuntoVenta() {
   const { auth } = useAuth();
 
   const getPuntosVenta = useCallback(async () => {
-    if (!auth?.token) return;
-
     setLoading(true);
     setError(null);
 
     try {
-      const response = await obtenerPuntosDeVentaApi(auth.token);
+      const response = await obtenerPuntosDeVentaApi();
       setPuntosVenta(response || []);
     } catch (err) {
       setError(err);
     } finally {
       setLoading(false);
     }
-  }, [auth]);
+  }, []);
 
   return { puntosVenta, loading, error, getPuntosVenta };
 }

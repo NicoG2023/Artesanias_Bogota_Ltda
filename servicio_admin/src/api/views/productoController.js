@@ -54,6 +54,94 @@ const generarURLFirmada = (blobName, permisos, expiracionEnHoras = 5) => {
   }
 };
 
+//Vista para obtener 9 productos más vendidos y con mejor rating
+const obtenerProductosCarousel = async (req, res) => {
+  try {
+    const limit = 9; // Solo queremos 9 productos
+    const offset = 0; // No paginamos, solo la primera página
+
+    // -- PASO 1: OBTENER IDs DISTINTOS DE LOS PRODUCTOS CON MEJOR RATING --
+    const allDistinctIds = await Producto.findAll({
+      attributes: ["id"],
+      where: { es_activo: true }, // Solo productos activos
+      include: [
+        {
+          model: Inventario,
+          as: "inventario",
+          required: false, // LEFT JOIN para obtener stock si existe
+        },
+      ],
+      order: [["rating", "DESC"]],
+      limit, // Tomamos solo los primeros 9 productos con mejor rating
+      raw: true,
+      subQuery: false,
+    });
+
+    // Extraer IDs únicos
+    const productIds = allDistinctIds.map((row) => row.id);
+
+    // -- PASO 2: OBTENER LA INFORMACIÓN DETALLADA DE ESOS PRODUCTOS --
+    const productos = await Producto.findAll({
+      where: {
+        id: { [Op.in]: productIds },
+      },
+      include: [
+        {
+          model: Inventario,
+          as: "inventario",
+          required: false,
+        },
+      ],
+      order: [["rating", "DESC"]],
+      subQuery: false,
+    });
+
+    // -- PASO 3: PROCESAR DATOS --
+    const productosProcesados = productos.map((producto) => {
+      const productoJSON = producto.toJSON();
+
+      // Generar URL firmada si usas Blob Azure
+      let urlFirmada = productoJSON.imagen;
+      if (productoJSON.imagen) {
+        const archivo = productoJSON.imagen.split("/").pop();
+        urlFirmada = generarURLFirmada(archivo, "r");
+      }
+
+      // Calcular stock total basado en el inventario
+      let stock = 0;
+      if (productoJSON.inventario && productoJSON.inventario.length > 0) {
+        stock = productoJSON.inventario.reduce(
+          (total, item) => total + item.cantidad,
+          0
+        );
+      }
+
+      return {
+        id: productoJSON.id,
+        nombre: productoJSON.nombre,
+        sku: productoJSON.sku,
+        precio: productoJSON.precio,
+        descripcion: productoJSON.descripcion,
+        imagen: productoJSON.imagen,
+        es_activo: productoJSON.es_activo,
+        color: productoJSON.color,
+        talla: productoJSON.talla,
+        rating: productoJSON.rating,
+        stock,
+      };
+    });
+
+    return res.json({
+      data: productosProcesados,
+    });
+  } catch (error) {
+    console.error("Error en obtenerProductosCarousel:", error);
+    return res
+      .status(500)
+      .json({ error: "Error al obtener los productos del carousel" });
+  }
+};
+
 //Vista para obtener productos con paginación y filtrado
 const obtenerProductos = async (req, res) => {
   try {
@@ -633,4 +721,5 @@ module.exports = {
   editarProducto,
   desactivarProducto,
   agregarProductosBulk,
+  obtenerProductosCarousel,
 };
