@@ -2,7 +2,7 @@
 const path = require("path");
 const grpc = require("@grpc/grpc-js");
 const protoLoader = require("@grpc/proto-loader");
-const { Producto } = require("./models"); // tu modelo sequelize
+const { Producto } = require("../models"); // tu modelo sequelize
 
 const PROTO_PATH = path.join(__dirname, "proto", "products.proto");
 

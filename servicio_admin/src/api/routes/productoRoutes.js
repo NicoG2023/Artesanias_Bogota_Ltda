@@ -5,6 +5,7 @@ const {
   editarProducto,
   desactivarProducto,
   agregarProductosBulk,
+  obtenerProductosCarousel,
 } = require("../views/productoController");
 const { obtenerFiltros } = require("../views/categoriaController");
 const { verifyToken, authorizeRoles } = require("../../middleware/auth");
@@ -80,6 +81,8 @@ const router = express.Router();
  *         description: Error al obtener los productos
  */
 router.get("/productos", obtenerProductos);
+
+router.get("/productos/carousel", obtenerProductosCarousel);
 
 /**
  * @swagger
@@ -258,18 +261,27 @@ router.get("/productos/plantilla", (req, res) => {
     productos: [
       {
         nombre: "Ejemplo de producto",
-        precio: 59.99,
+        precio: "50.000",
         descripcion: "Descripción",
         es_activo: true,
         color: "Azul",
         talla: "M",
         imagenBase64: null,
+        rating: 4.5,
         categorias: [1, 2], // IDs de categorías
-        inventario: {
-          punto_venta_fk: 2,
-          nombre_punto_venta: "Punto Físico Chapinero",
-          cantidad: 10,
-        },
+        inventarios: [
+          // Ahora es un arreglo
+          {
+            punto_venta_fk: 2,
+            nombre_punto_venta: "Punto Físico Chapinero",
+            cantidad: 10,
+          },
+          {
+            punto_venta_fk: 3,
+            nombre_punto_venta: "Punto Físico Centro",
+            cantidad: 5,
+          },
+        ],
       },
     ],
   };

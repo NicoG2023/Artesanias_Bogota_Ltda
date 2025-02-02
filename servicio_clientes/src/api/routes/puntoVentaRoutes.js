@@ -77,12 +77,7 @@ router.post(
  *       500:
  *         description: Error al obtener los puntos de venta
  */
-router.get(
-  "/puntos-venta",
-  verifyToken,
-  authorizeRoles("staff", "admin", "superadmin"),
-  obtenerPuntosDeVenta
-); // Obtener puntos de venta
+router.get("/puntos-venta", obtenerPuntosDeVenta); // Obtener puntos de venta
 
 /**
  * @swagger

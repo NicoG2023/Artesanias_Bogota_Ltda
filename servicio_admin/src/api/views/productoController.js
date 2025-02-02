@@ -16,7 +16,9 @@ const { v4: uuidv4 } = require("uuid");
 const { generarSKU } = require("../../models/Producto");
 const { Op, Sequelize } = require("sequelize");
 require("dotenv").config();
-const { getPuntosVentaByIds } = require("../../puntoVentaClientGrpc");
+const { getPuntosVentaByIds } = require("../../grpc/puntoVentaClientGrpc");
+const sequelize = require("../../config/database");
+const { getSignedUrl } = require("../../utils/cacheUtils");
 
 // Cargar las credenciales desde el archivo .env
 const accountName = process.env.AZURE_ACCOUNT_NAME;
@@ -33,23 +35,91 @@ const sharedKeyCredential = new StorageSharedKeyCredential(
   accountKey
 );
 
-const generarURLFirmada = (blobName, permisos, expiracionEnHoras = 5) => {
+//Vista para obtener 9 productos más vendidos y con mejor rating
+const obtenerProductosCarousel = async (req, res) => {
   try {
-    const sasOptions = {
-      containerName: containerClient.containerName,
-      blobName,
-      permissions: permisos,
-      expiresOn: new Date(new Date().valueOf() + 3600 * 5000), //Expira en 5 horas
-    };
+    const limit = 9; // Solo queremos 9 productos
+    const offset = 0; // No paginamos, solo la primera página
 
-    const sasToken = generateBlobSASQueryParameters(
-      sasOptions,
-      sharedKeyCredential
-    ).toString();
-    return `https://${accountName}.blob.core.windows.net/${containerClient.containerName}/${blobName}?${sasToken}`;
+    // -- PASO 1: OBTENER IDs DISTINTOS DE LOS PRODUCTOS CON MEJOR RATING --
+    const allDistinctIds = await Producto.findAll({
+      attributes: ["id"],
+      where: { es_activo: true }, // Solo productos activos
+      include: [
+        {
+          model: Inventario,
+          as: "inventario",
+          required: false, // LEFT JOIN para obtener stock si existe
+        },
+      ],
+      order: [["rating", "DESC"]],
+      limit, // Tomamos solo los primeros 9 productos con mejor rating
+      raw: true,
+      subQuery: false,
+    });
+
+    // Extraer IDs únicos
+    const productIds = allDistinctIds.map((row) => row.id);
+
+    // -- PASO 2: OBTENER LA INFORMACIÓN DETALLADA DE ESOS PRODUCTOS --
+    const productos = await Producto.findAll({
+      where: {
+        id: { [Op.in]: productIds },
+      },
+      include: [
+        {
+          model: Inventario,
+          as: "inventario",
+          required: false,
+        },
+      ],
+      order: [["rating", "DESC"]],
+      subQuery: false,
+    });
+
+    // -- PASO 3: PROCESAR DATOS --
+    const productosProcesados = productos.map((producto) => {
+      const productoJSON = producto.toJSON();
+
+      // Generar URL firmada si usas Blob Azure
+      let urlFirmada = productoJSON.imagen;
+      if (productoJSON.imagen) {
+        const archivo = productoJSON.imagen.split("/").pop();
+        urlFirmada = getSignedUrl(archivo, "r");
+      }
+
+      // Calcular stock total basado en el inventario
+      let stock = 0;
+      if (productoJSON.inventario && productoJSON.inventario.length > 0) {
+        stock = productoJSON.inventario.reduce(
+          (total, item) => total + item.cantidad,
+          0
+        );
+      }
+
+      return {
+        id: productoJSON.id,
+        nombre: productoJSON.nombre,
+        sku: productoJSON.sku,
+        precio: productoJSON.precio,
+        descripcion: productoJSON.descripcion,
+        imagen: productoJSON.imagen,
+        es_activo: productoJSON.es_activo,
+        color: productoJSON.color,
+        talla: productoJSON.talla,
+        rating: productoJSON.rating,
+        stock,
+      };
+    });
+
+    return res.json({
+      data: productosProcesados,
+    });
   } catch (error) {
-    console.error("Error al generar URL firmada:", error.message);
-    return null;
+    console.error("Error en obtenerProductosCarousel:", error);
+    return res
+      .status(500)
+      .json({ error: "Error al obtener los productos del carousel" });
   }
 };
 
@@ -184,7 +254,7 @@ const obtenerProductos = async (req, res) => {
       let urlFirmada = productoJSON.imagen;
       if (productoJSON.imagen) {
         const archivo = productoJSON.imagen.split("/").pop();
-        urlFirmada = await generarURLFirmada(archivo, "r");
+        urlFirmada = await getSignedUrl(archivo, "r");
       }
 
       // Calcular stock con base en inventario (puede haber 0 o 1 registros del array)
@@ -400,10 +470,13 @@ const desactivarProducto = async (req, res) => {
 };
 
 async function agregarProductosBulk(req, res) {
+  const transaction = await sequelize.transaction();
   try {
     const { productos } = req.body;
 
     if (!productos || !Array.isArray(productos) || productos.length === 0) {
+      console.error("Error en agregarProductosBulk: no hay productos");
+      await transaction.rollback();
       return res.status(400).json({
         error: "Debes enviar un arreglo de productos en 'productos'.",
       });
@@ -415,9 +488,13 @@ async function agregarProductosBulk(req, res) {
     const catIdsSet = new Set();
 
     for (const p of productos) {
-      // Inventario
-      if (p.inventario && p.inventario.punto_venta_fk) {
-        pvIdsSet.add(p.inventario.punto_venta_fk);
+      // Inventarios
+      if (Array.isArray(p.inventarios)) {
+        for (const inv of p.inventarios) {
+          if (inv.punto_venta_fk) {
+            pvIdsSet.add(inv.punto_venta_fk);
+          }
+        }
       }
       // Categorías
       if (Array.isArray(p.categorias)) {
@@ -444,6 +521,7 @@ async function agregarProductosBulk(req, res) {
     if (categoriaIds.length > 0) {
       const categoriasEncontradas = await Categoria.findAll({
         where: { id: categoriaIds },
+        transaction,
       });
       for (const cat of categoriasEncontradas) {
         dictCategorias[cat.id] = cat; // { id, nombre, ... }
@@ -456,15 +534,36 @@ async function agregarProductosBulk(req, res) {
     for (const prodData of productos) {
       const {
         nombre,
-        precio,
+        precio: precioString,
         descripcion,
         es_activo,
         color,
         talla,
         imagenBase64,
-        inventario,
+        rating,
+        inventarios,
         categorias, // array de IDs
       } = prodData;
+
+      //validar y convertir el precio
+      const precio = parsePrecioColombiano(precioString);
+
+      if (isNaN(precio) || precio < 0) {
+        console.error("Precio inválido para el producto:", nombre);
+        await transaction.rollback();
+        return res.status(400).json({
+          error: `Precio inválido para el producto: ${nombre}. Debe ser un valor positivo en formato colombiano (ej: 50.000).`,
+        });
+      }
+
+      // Validar el rating
+      if (rating !== undefined && (rating < 0 || rating > 5)) {
+        console.error("Rating inválido para el producto:", nombre);
+        await transaction.rollback();
+        return res.status(400).json({
+          error: `Rating inválido para el producto: ${nombre}. Debe ser un valor entre 0 y 5.`,
+        });
+      }
 
       // Subir imagen (si existe)
       let imagenUrl = "https://.../default-product.webp";
@@ -472,6 +571,7 @@ async function agregarProductosBulk(req, res) {
         const base64Regex = /^data:.*;base64,(.*)$/;
         const match = imagenBase64.match(base64Regex);
         if (!match) {
+          await transaction.rollback();
           throw new Error(
             `Formato de imagenBase64 inválido para el producto: ${nombre}`
           );
@@ -491,69 +591,82 @@ async function agregarProductosBulk(req, res) {
       }
 
       // Crear producto
-      const nuevoProducto = await Producto.create({
-        nombre,
-        precio,
-        descripcion,
-        es_activo: es_activo != null ? es_activo : true,
-        color,
-        talla,
-        imagen: imagenUrl,
-      });
+      const nuevoProducto = await Producto.create(
+        {
+          nombre,
+          precio,
+          descripcion,
+          es_activo: es_activo != null ? es_activo : true,
+          color,
+          talla,
+          imagen: imagenUrl,
+          rating: rating || 0,
+        },
+        { transaction }
+      );
 
-      // Manejo de inventario
-      if (inventario) {
-        const { punto_venta_fk, nombre_punto_venta, cantidad } = inventario;
-        if (!punto_venta_fk || !nombre_punto_venta || !cantidad) {
-          throw new Error(
-            `Datos incompletos de inventario para producto: ${nombre}`
-          );
-        }
-
-        // Validar pv
-        const pvRemoto = dictPuntosVenta[punto_venta_fk];
-        if (!pvRemoto) {
-          throw new Error(
-            `El punto de venta con ID ${punto_venta_fk} no existe (producto: ${nombre}).`
-          );
-        }
-
-        // Opcional: corregir el nombre si difiere
-        if (nombre_punto_venta !== pvRemoto.nombre) {
-          //   // Podríamos rechazar o corregir
-          throw new Error(
-            `El nombre del PV no coincide con la base (producto: ${nombre}).`
-          );
-          //   inventario.nombre_punto_venta = pvRemoto.nombre;
-        }
-
-        // O corregir el nombre de PV si difiere, etc.
-        await Inventario.create({
-          producto_fk: nuevoProducto.id,
-          punto_venta_fk,
-          nombre_punto_venta,
-          cantidad,
-        });
+      if (!nuevoProducto || !nuevoProducto.id) {
+        await transaction.rollback();
+        throw new Error(`No se pudo obtener el ID del producto ${nombre}`);
       }
 
-      // Manejo de categorías
-      if (Array.isArray(categorias) && categorias.length > 0) {
-        for (const catId of categorias) {
-          const catObj = dictCategorias[catId];
-          if (!catObj) {
+      console.log(`Producto creado con ID: ${nuevoProducto.id}`);
+
+      // Manejo de inventario
+      if (Array.isArray(inventarios) && inventarios.length > 0) {
+        for (const inv of inventarios) {
+          const { punto_venta_fk, nombre_punto_venta, cantidad } = inv;
+
+          // Validar punto de venta
+          const pvRemoto = dictPuntosVenta[punto_venta_fk];
+          if (!pvRemoto) {
+            await transaction.rollback();
             throw new Error(
-              `La categoría con ID ${catId} no existe (producto: ${nombre}).`
+              `El punto de venta con ID ${punto_venta_fk} no existe (producto: ${nombre}).`
             );
           }
-          // Crear la relación
+          if (nombre_punto_venta !== pvRemoto.nombre) {
+            console.error("El nombre del PV no coincide con la base");
+            await transaction.rollback();
+            throw new Error(
+              `El nombre del PV no coincide con la base (producto: ${nombre}).`
+            );
+          }
+
+          // Crear registro de inventario
+          await Inventario.create(
+            {
+              producto_fk: nuevoProducto.id,
+              punto_venta_fk,
+              nombre_punto_venta,
+              cantidad,
+            },
+            { transaction }
+          );
+        }
+      }
+
+      resultados.push(nuevoProducto);
+    }
+    await transaction.commit();
+
+    for (const nuevoProducto of resultados) {
+      if (
+        Array.isArray(nuevoProducto.categorias) &&
+        nuevoProducto.categorias.length > 0
+      ) {
+        for (const catId of nuevoProducto.categorias) {
+          const catObj = dictCategorias[catId];
+          if (!catObj) {
+            console.error(`La categoría con ID ${catId} no existe.`);
+            continue;
+          }
           await REL_ProductoCategoria.create({
             categoria_fk: catId,
             producto_fk: nuevoProducto.id,
           });
         }
       }
-
-      resultados.push(nuevoProducto);
     }
 
     return res.status(201).json({
@@ -561,6 +674,7 @@ async function agregarProductosBulk(req, res) {
       data: resultados,
     });
   } catch (error) {
+    await transaction.rollback();
     console.error("Error en agregarProductosBulk:", error);
     return res.status(500).json({
       error: "Error al crear productos en lote",
@@ -569,10 +683,24 @@ async function agregarProductosBulk(req, res) {
   }
 }
 
+// Función para convertir precios en formato colombiano a número
+function parsePrecioColombiano(precioString) {
+  if (typeof precioString !== "string") {
+    throw new Error("El precio debe ser un string.");
+  }
+  const precioLimpio = precioString.replace(/\./g, ""); // Elimina los puntos
+  const precioEntero = parseInt(precioLimpio, 10) * 100; // Multiplica por 100 para convertir a centavos
+  if (isNaN(precioEntero)) {
+    throw new Error("Formato de precio inválido.");
+  }
+  return precioEntero;
+}
+
 module.exports = {
   obtenerProductos,
   agregarProducto,
   editarProducto,
   desactivarProducto,
   agregarProductosBulk,
+  obtenerProductosCarousel,
 };

@@ -9,8 +9,9 @@ const productoRoutes = require("./api/routes/productoRoutes");
 const carritoRoutes = require("./api/routes/carritoRoutes");
 const inventarioRoutes = require("./api/routes/inventarioRoutes");
 const categoriaRoutes = require("./api/routes/categoriaRoutes");
-require("./grpcServer");
-require("./puntoVentaClientGrpc");
+require("./grpc/grpcServer");
+require("./grpc/puntoVentaClientGrpc");
+const { connectConsumer } = require("./kafka/kafkaConsumer");
 
 // Configuración de CORS para permitir todas las solicitudes (solo para desarrollo, en producción CAMBIAR)
 app.use(cors());
@@ -29,8 +30,9 @@ app.use("/api", categoriaRoutes);
 app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // Servidor escuchando en el puerto especificado
-app.listen(PORT, () => {
+app.listen(PORT, async () => {
   console.log(`Servidor escuchando en el puerto ${PORT}`);
+  await connectConsumer();
 });
 
 sequelize

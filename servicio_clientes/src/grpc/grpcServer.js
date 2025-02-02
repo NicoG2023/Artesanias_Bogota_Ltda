@@ -1,7 +1,7 @@
 const path = require("path");
 const grpc = require("@grpc/grpc-js");
 const protoLoader = require("@grpc/proto-loader");
-const { PuntoVenta } = require("./models"); // tu modelo sequelize en microservicio clientes
+const { PuntoVenta } = require("../models"); // tu modelo sequelize en microservicio clientes
 
 const PROTO_PATH = path.join(__dirname, "proto", "puntos_venta.proto");
 
@@ -50,7 +50,7 @@ function main() {
     GetPuntosVentaByIds,
   });
 
-  const address = "0.0.0.0:50053"; // Docker: se llamará "clientes-service:50053"
+  const address = "0.0.0.0:50053";
   server.bindAsync(
     address,
     grpc.ServerCredentials.createInsecure(),

@@ -1,0 +1,17 @@
+// admin/proto/admin.proto
+syntax = "proto3";
+
+package admin;
+
+service AdminService {
+  // Elimina inventarios de un punto de venta y, si un producto se queda sin inventarios, lo elimina también.
+  rpc DeleteInventariosAndProductsByPuntoVentaId (DeleteRequest) returns (DeleteResponse);
+}
+
+message DeleteRequest {
+  int32 punto_venta_id = 1;
+}
+
+message DeleteResponse {
+  string message = 1;
+}

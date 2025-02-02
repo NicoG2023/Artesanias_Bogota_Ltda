@@ -131,7 +131,7 @@ router.post("/carrito", verifyToken, agregarAlCarrito);
  *         description: Error al editar la cantidad del producto
  */
 router.put(
-  "/carrito/:usuarioId/producto/:productoId",
+  "/carrito/:userId/producto/:productoId",
   verifyToken,
   actualizarCantidad
 );
@@ -164,7 +164,7 @@ router.put(
  *         description: Error al eliminar el producto del carrito
  */
 router.delete(
-  "/carrito/:usuarioId/producto/:productoId",
+  "/carrito/:userId/producto/:productoId",
   verifyToken,
   eliminarDelCarrito
 );

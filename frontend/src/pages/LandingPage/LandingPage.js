@@ -1,13 +1,17 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Button, Icon, Grid, Card, Header, Container } from "semantic-ui-react";
-import { MapaLanding } from "../../components/LandingPage/MapaLanding";
+import { MapaLanding, CartaProducto } from "../../components";
 import { useNavigate } from "react-router-dom";
+import { Carousel } from "primereact/carousel";
 import artesaniaImg from "../../assets/artesanias-landing-page.png";
+import { usePuntoVenta } from "../../hooks";
+import { useProductos } from "../../hooks";
 import "./LandingPage.scss";
 
 export function LandingPage() {
   const navigate = useNavigate();
-  // Ejemplo de productos y categorías “mock”
+  const puntoVentaHook = usePuntoVenta();
+  const { productos, loading, error } = useProductos();
 
   const handleExploraClick = () => {
     navigate("/productos");
@@ -16,6 +20,8 @@ export function LandingPage() {
   const handleRegistroClick = () => {
     navigate("/registro");
   };
+
+  const productTemplate = (producto) => <CartaProducto producto={producto} />;
 
   const categorias = [
     { id: 1, nombre: "Cerámica", icono: "gem" },
@@ -87,25 +93,27 @@ export function LandingPage() {
         <Header as="h2" textAlign="center" className="section-title">
           Nuestros productos más vendidos
         </Header>
-        <Card.Group itemsPerRow={3} stackable>
-          {bestSellers.map((item) => (
-            <Card key={item.id} className="best-seller-card">
-              <img
-                src={item.imagen}
-                alt={item.nombre}
-                className="best-seller-image"
-              />
-              <Card.Content>
-                <Card.Header>{item.nombre}</Card.Header>
-                <Card.Meta>${item.precio.toFixed(2)}</Card.Meta>
-              </Card.Content>
-            </Card>
-          ))}
-        </Card.Group>
+        {loading && <p>Cargando productos...</p>}
+        {error && <p>Error al cargar productos</p>}
+        {!loading && !error && (
+          <Carousel
+            value={productos}
+            itemTemplate={productTemplate}
+            numVisible={3}
+            numScroll={1}
+            responsiveOptions={[
+              { breakpoint: "1024px", numVisible: 3, numScroll: 1 },
+              { breakpoint: "768px", numVisible: 2, numScroll: 1 },
+              { breakpoint: "560px", numVisible: 1, numScroll: 1 },
+            ]}
+            circular
+            autoplayInterval={3000}
+          />
+        )}
       </Container>
 
       <Container className="mapa-section">
-        <MapaLanding />
+        <MapaLanding puntoVentaHook={puntoVentaHook} />
       </Container>
 
       {/* Sección CTA final */}

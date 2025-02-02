@@ -1,5 +1,4 @@
-// useCarrito.js
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   obtenerCarritoApi,
   agregarAlCarritoApi,
@@ -9,29 +8,34 @@ import {
 import { useAuth } from "./useAuth";
 
 export function useCarrito() {
+  const hasFetched = useRef(false);
   const [loading, setLoading] = useState(false);
-  const [carrito, setCarrito] = useState({id: null, // id del carrito
-    usuario_fk: null, // id del usuario
-    productos: [] // Inicializar productos como un array vacío
+  const [carrito, setCarrito] = useState({
+    id: null,
+    usuario_fk: null,
+    productos: [],
   });
   const [error, setError] = useState(null);
   const { auth } = useAuth();
 
   useEffect(() => {
-    cargarCarrito();
-  }, [auth?.token]);
+    if (auth?.token && auth?.user?.id && !hasFetched.current) {
+      console.log("Cargando carrito...");
+      hasFetched.current = true;
+      cargarCarrito();
+    }
+  }, [auth?.token, auth?.user?.id]);
+
+  const limpiarError = () => setError(null);
 
   const cargarCarrito = async () => {
     try {
       setLoading(true);
-      // Verificar si auth.token y auth.user.id están definidos
-      if (!auth?.token || !auth?.user?.id) {
-        throw new Error("Token de usuario o ID no disponible");
-      }
-      const data = await obtenerCarritoApi(auth.token, auth?.user?.id);
-      // Verificar si la respuesta es válida y contiene los datos del carrito
+      limpiarError();
+      if (!auth?.token || !auth?.user?.id)
+        throw new Error("Usuario no autenticado");
+      const data = await obtenerCarritoApi(auth.token, auth.user.id);
       if (data && Array.isArray(data.productos)) {
-        // Actualizamos el estado del carrito
         setCarrito(data);
       } else {
         setError("No se pudo cargar el carrito");
@@ -46,28 +50,27 @@ export function useCarrito() {
   const agregarProducto = async (productoId, cantidad) => {
     try {
       setLoading(true);
+      limpiarError();
       const nuevoProducto = await agregarAlCarritoApi(
         auth.token,
         productoId,
         cantidad
       );
-      //verificación
-      console.log("Estado actual del carrito:", carrito);  // Cambié 'prev' por 'carrito' para mostrar el estado actual
 
-      // Verifica si 'nuevoProducto' tiene los datos correctos
-      console.log("Producto nuevo:", nuevoProducto);
-
-       // Asegúrate de que 'nuevoProducto' tiene los datos correctos
       setCarrito((prevCarrito) => {
-        // Si ya existen productos, agregamos el nuevo, sino inicializamos el array
-        const nuevosProductos = prevCarrito.productos
-          ? [...prevCarrito.productos, { ...nuevoProducto, cantidad }]
-          : [{ ...nuevoProducto, cantidad }];
-  
+        const productoExistente = prevCarrito.productos.find(
+          (p) => p.id === nuevoProducto.id
+        );
+        const nuevosProductos = productoExistente
+          ? prevCarrito.productos.map((p) =>
+              p.id === nuevoProducto.id
+                ? { ...p, cantidad: p.cantidad + cantidad }
+                : p
+            )
+          : [...prevCarrito.productos, { ...nuevoProducto, cantidad }];
+
         return { ...prevCarrito, productos: nuevosProductos };
       });
-      //verificación
-      console.log(carrito);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -78,16 +81,20 @@ export function useCarrito() {
   const actualizarProducto = async (itemId, cantidad) => {
     try {
       setLoading(true);
-      const productoActualizado = await actualizarCantidadCarritoApi(
+      limpiarError();
+      await actualizarCantidadCarritoApi(
         auth.token,
+        auth.user.id,
         itemId,
         cantidad
       );
-      setCarrito((prev) =>
-        prev.map((item) =>
-          item.id === itemId ? { ...item, ...productoActualizado } : item
-        )
-      );
+
+      setCarrito((prevCarrito) => ({
+        ...prevCarrito,
+        productos: prevCarrito.productos.map((item) =>
+          item.id === itemId ? { ...item, cantidad } : item
+        ),
+      }));
     } catch (err) {
       setError(err.message);
     } finally {
@@ -98,8 +105,13 @@ export function useCarrito() {
   const eliminarProducto = async (itemId) => {
     try {
       setLoading(true);
+      limpiarError();
       await eliminarDelCarritoApi(auth.token, auth.user.id, itemId);
-      setCarrito((prev) => prev.filter((item) => item.id !== itemId));
+
+      setCarrito((prevCarrito) => ({
+        ...prevCarrito,
+        productos: prevCarrito.productos.filter((item) => item.id !== itemId),
+      }));
     } catch (err) {
       setError(err.message);
     } finally {
@@ -115,5 +127,6 @@ export function useCarrito() {
     actualizarProducto,
     eliminarProducto,
     cargarCarrito,
+    limpiarError,
   };
 }

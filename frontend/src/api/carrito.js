@@ -10,7 +10,7 @@ export async function obtenerCarritoApi(token, userId) {
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
-        'Cache-Control': 'no-cache',
+        "Cache-Control": "no-cache",
       },
     });
     if (!response.ok) {
@@ -54,8 +54,13 @@ export async function agregarAlCarritoApi(token, productoId, cantidad) {
 }
 
 // Actualizar la cantidad de un producto en el carrito
-export async function actualizarCantidadCarritoApi(token, itemId, cantidad) {
-  const url = `${API_SERVICIO_ADMIN}/api/carrito/${itemId}`;
+export async function actualizarCantidadCarritoApi(
+  token,
+  userId,
+  productoId,
+  cantidad
+) {
+  const url = `${API_SERVICIO_ADMIN}/api/carrito/${userId}/producto/${productoId}`;
 
   try {
     const response = await fetch(url, {
@@ -73,8 +78,7 @@ export async function actualizarCantidadCarritoApi(token, itemId, cantidad) {
       );
     }
 
-    const data = await response.json();
-    return data;
+    return await response.json();
   } catch (error) {
     console.error("Error en actualizarCantidadCarritoApi", error.message);
     throw error;
@@ -82,14 +86,18 @@ export async function actualizarCantidadCarritoApi(token, itemId, cantidad) {
 }
 
 // Eliminar un producto del carrito
-export async function eliminarDelCarritoApi(token, itemId) {
-  const url = `${API_SERVICIO_ADMIN}/api/carrito/producto/${itemId}`; //ruta editada, no concuerda con la del backend
-  console.log("URL de eliminación:", url);  // Verificar la URL construida
+export async function eliminarDelCarritoApi(token, userId, productoId) {
+  const url = `${API_SERVICIO_ADMIN}/api/carrito/${userId}/producto/${productoId}`;
+
+  console.log("URL de eliminación:", url); // Debugging
 
   try {
     const response = await fetch(url, {
       method: "DELETE",
-      Authorization: `Bearer ${token}`,
+      headers: {
+        // Faltaba el objeto `headers`
+        Authorization: `Bearer ${token}`,
+      },
     });
 
     if (!response.ok) {
@@ -98,8 +106,7 @@ export async function eliminarDelCarritoApi(token, itemId) {
       );
     }
 
-    const data = await response.json();
-    return data;
+    return await response.json();
   } catch (error) {
     console.error("Error en eliminarDelCarritoApi", error.message);
     throw error;

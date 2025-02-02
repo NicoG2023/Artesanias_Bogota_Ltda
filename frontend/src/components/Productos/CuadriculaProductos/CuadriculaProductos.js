@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Pagination } from "semantic-ui-react";
 import { ModalProducto } from "../ModalProducto/ModalProducto";
+import { CartaProducto } from "../CartaProducto/CartaProducto";
 import "./CuadriculaProductos.scss";
 
 export function CuadriculaProductos({ productosHook }) {
@@ -41,35 +42,13 @@ export function CuadriculaProductos({ productosHook }) {
 
   return (
     <div className="product-grid">
-      {productos.map((producto) => {
-        // Chequeo de stock
-        const isOutOfStock = producto.stock === 0;
-        return (
-          <div
-            key={producto.id}
-            className={`product-card ${isOutOfStock ? "no-stock" : ""}`}
-            onClick={() => handleOpenModal(producto)}
-          >
-            <img
-              src={producto.imagen}
-              alt={producto.nombre}
-              className="product-image"
-            />
-            <div className="product-info">
-              <h3>{producto.nombre}</h3>
-              <p className="price">${producto.precio.toFixed(2)}</p>
-              <div className="rating">
-                {[...Array(5)].map((_, i) => (
-                  <span
-                    key={i}
-                    className={`star ${i < producto.rating ? "filled" : ""}`}
-                  />
-                ))}
-              </div>
-            </div>
-          </div>
-        );
-      })}
+      {productos.map((producto) => (
+        <CartaProducto
+          key={producto.id}
+          producto={producto}
+          onClick={handleOpenModal}
+        />
+      ))}
 
       <div className="pagination-container">
         {totalPages > 1 && (
