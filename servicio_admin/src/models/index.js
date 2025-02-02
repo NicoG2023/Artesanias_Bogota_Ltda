@@ -39,6 +39,7 @@ Carrito.belongsToMany(Producto, {
   foreignKey: "carrito_fk",
   otherKey: "producto_fk",
   as: "productos",
+  onDelete: "CASCADE",
 });
 
 Producto.belongsToMany(Carrito, {

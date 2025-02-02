@@ -164,7 +164,7 @@ router.put(
  *         description: Error al eliminar el producto del carrito
  */
 router.delete(
-  "/carrito/:usuarioId/producto/:productoId",
+  "/carrito/:userId/producto/:productoId",
   verifyToken,
   eliminarDelCarrito
 );

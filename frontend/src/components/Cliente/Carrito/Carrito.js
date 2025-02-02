@@ -1,21 +1,24 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import { Table, Button, Icon, Loader } from "semantic-ui-react";
-import { useCarrito } from "../../../hooks/useCarrito";
+import { useNavigate } from "react-router-dom";
 import "./Carrito.scss";
 
-export function Carrito() {
-  const {
-    carrito,
-    loading,
-    error,
-    cargarCarrito,
-    eliminarProducto,
-    actualizarProducto,
-  } = useCarrito();
+export function Carrito({
+  carrito,
+  loading,
+  error,
+  eliminarProducto,
+  actualizarProducto,
+  cargarCarrito,
+}) {
+  const hasFetched = useRef(false);
+  const navigate = useNavigate();
 
-  // Cargar el carrito al montar el componente
   useEffect(() => {
-    cargarCarrito();
+    if (!hasFetched.current) {
+      cargarCarrito();
+      hasFetched.current = true;
+    }
   }, []);
 
   if (loading) {
@@ -30,19 +33,30 @@ export function Carrito() {
     return <p className="carrito__vacio">El carrito está vacío</p>;
   }
 
-  //esto es lo que aún no funciona
-  const handleEliminar = (id) => {
-    eliminarProducto(id);
+  const handleEliminar = async (id) => {
+    await eliminarProducto(id);
+    await cargarCarrito();
   };
-  //y esto tampoco
-  const handleActualizarCantidad = (id, nuevaCantidad) => {
+
+  const handleActualizarCantidad = async (id, nuevaCantidad) => {
     if (nuevaCantidad > 0) {
-      actualizarProducto(id, nuevaCantidad);
+      await actualizarProducto(id, nuevaCantidad);
+      await cargarCarrito();
     }
   };
-  //aun no calcula el total
-  const total = carrito.productos.reduce(
-    (acc, item) => acc + item.precio * item.cantidad,
+
+  const handleIrAPagar = () => {
+    navigate("/resumen-orden");
+  };
+
+  const formatoColombiano = (valor) => {
+    return new Intl.NumberFormat("es-CO").format(valor);
+  };
+
+  const subTotal = carrito.productos.reduce(
+    (acc, item) =>
+      acc +
+      Number(item.precio.replace(".", "")) * item.REL_CarritoProducto.cantidad,
     0
   );
 
@@ -54,7 +68,7 @@ export function Carrito() {
             <Table.HeaderCell>Producto</Table.HeaderCell>
             <Table.HeaderCell>Cantidad</Table.HeaderCell>
             <Table.HeaderCell>Precio</Table.HeaderCell>
-            <Table.HeaderCell>Total</Table.HeaderCell>
+            <Table.HeaderCell>Sub Total</Table.HeaderCell>
             <Table.HeaderCell>Acciones</Table.HeaderCell>
           </Table.Row>
         </Table.Header>
@@ -69,31 +83,39 @@ export function Carrito() {
                   onClick={() =>
                     handleActualizarCantidad(
                       producto.id,
-                      producto.cantidad - 1
+                      producto.REL_CarritoProducto.cantidad - 1
                     )
                   }
-                  disabled={producto.cantidad === 1}
+                  disabled={
+                    producto.REL_CarritoProducto.cantidad === 1 || loading
+                  }
                 />
-                {producto.cantidad}
+                {producto.REL_CarritoProducto.cantidad}
                 <Button
                   icon="plus"
                   onClick={() =>
                     handleActualizarCantidad(
                       producto.id,
-                      producto.cantidad + 1
+                      producto.REL_CarritoProducto.cantidad + 1
                     )
                   }
+                  disabled={loading}
                 />
               </Table.Cell>
-              <Table.Cell>${producto.precio.toFixed(2)}</Table.Cell>
+              <Table.Cell>${producto.precio}</Table.Cell>
               <Table.Cell>
-                ${(producto.precio * producto.cantidad).toFixed(2)}
+                $
+                {formatoColombiano(
+                  Number(producto.precio.replace(".", "")) *
+                    producto.REL_CarritoProducto.cantidad
+                )}
               </Table.Cell>
               <Table.Cell>
                 <Button
                   color="red"
                   icon
                   onClick={() => handleEliminar(producto.id)}
+                  disabled={loading}
                 >
                   <Icon name="trash" />
                 </Button>
@@ -104,12 +126,17 @@ export function Carrito() {
 
         <Table.Footer>
           <Table.Row>
-            <Table.HeaderCell colSpan="3">Total</Table.HeaderCell>
-            <Table.HeaderCell>${total.toFixed(2)}</Table.HeaderCell>
+            <Table.HeaderCell colSpan="3">Sub Total</Table.HeaderCell>
+            <Table.HeaderCell>${formatoColombiano(subTotal)}</Table.HeaderCell>
             <Table.HeaderCell />
           </Table.Row>
         </Table.Footer>
       </Table>
+      <div className="carrito__pago-container">
+        <Button color="green" size="large" onClick={handleIrAPagar}>
+          Ir a Pagar
+        </Button>
+      </div>
     </div>
   );
 }

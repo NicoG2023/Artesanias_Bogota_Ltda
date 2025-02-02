@@ -1,5 +1,10 @@
 import React from "react";
-import { ClientesDashboard, Carrito, OrdenesCliente } from "../pages";
+import {
+  ClientesDashboard,
+  Carrito,
+  OrdenesCliente,
+  ResumenOrden,
+} from "../pages";
 import { ClientLayout } from "../layouts";
 import PrivateRoutes from "./PrivateRoutes";
 
@@ -52,6 +57,20 @@ const clientesRoutes = [
       {
         path: "",
         element: <OrdenesCliente />,
+      },
+    ],
+  },
+  {
+    path: "/resumen-orden",
+    element: (
+      <ClientLayout>
+        <PrivateRoutes allowedRoles={"admin, cliente, staff, superadmin"} />
+      </ClientLayout>
+    ),
+    children: [
+      {
+        path: "",
+        element: <ResumenOrden />,
       },
     ],
   },

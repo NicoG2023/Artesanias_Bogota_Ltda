@@ -18,6 +18,7 @@ const { Op, Sequelize } = require("sequelize");
 require("dotenv").config();
 const { getPuntosVentaByIds } = require("../../grpc/puntoVentaClientGrpc");
 const sequelize = require("../../config/database");
+const { getSignedUrl } = require("../../utils/cacheUtils");
 
 // Cargar las credenciales desde el archivo .env
 const accountName = process.env.AZURE_ACCOUNT_NAME;
@@ -33,26 +34,6 @@ const sharedKeyCredential = new StorageSharedKeyCredential(
   accountName,
   accountKey
 );
-
-const generarURLFirmada = (blobName, permisos, expiracionEnHoras = 5) => {
-  try {
-    const sasOptions = {
-      containerName: containerClient.containerName,
-      blobName,
-      permissions: permisos,
-      expiresOn: new Date(new Date().valueOf() + 3600 * 5000), //Expira en 5 horas
-    };
-
-    const sasToken = generateBlobSASQueryParameters(
-      sasOptions,
-      sharedKeyCredential
-    ).toString();
-    return `https://${accountName}.blob.core.windows.net/${containerClient.containerName}/${blobName}?${sasToken}`;
-  } catch (error) {
-    console.error("Error al generar URL firmada:", error.message);
-    return null;
-  }
-};
 
 //Vista para obtener 9 productos más vendidos y con mejor rating
 const obtenerProductosCarousel = async (req, res) => {
@@ -104,7 +85,7 @@ const obtenerProductosCarousel = async (req, res) => {
       let urlFirmada = productoJSON.imagen;
       if (productoJSON.imagen) {
         const archivo = productoJSON.imagen.split("/").pop();
-        urlFirmada = generarURLFirmada(archivo, "r");
+        urlFirmada = getSignedUrl(archivo, "r");
       }
 
       // Calcular stock total basado en el inventario
@@ -273,7 +254,7 @@ const obtenerProductos = async (req, res) => {
       let urlFirmada = productoJSON.imagen;
       if (productoJSON.imagen) {
         const archivo = productoJSON.imagen.split("/").pop();
-        urlFirmada = await generarURLFirmada(archivo, "r");
+        urlFirmada = await getSignedUrl(archivo, "r");
       }
 
       // Calcular stock con base en inventario (puede haber 0 o 1 registros del array)

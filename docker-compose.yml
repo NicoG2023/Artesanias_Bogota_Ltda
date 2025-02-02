@@ -83,6 +83,8 @@ services:
       DATABASE_PASSWORD: ${POSTGRES_PASSWORD}
       DATABASE_NAME: ${ADMINS_DB}
       DATABASE_PORT: 5432
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
     depends_on:
       - admins-db
     networks:
@@ -131,6 +133,15 @@ services:
       - zookeeper
     networks:
       - app-network
+  # Servicio de Redis para cacheo de imágenes
+  redis:
+    image: redis:latest
+    ports:
+      - "6377:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - app-network
 
   # Servicio Frontend (React)
   frontend:
@@ -164,6 +175,7 @@ volumes:
   users-db-data:
   admins-db-data:
   clients-db-data:
+  redis-data:
 
 networks:
   app-network:

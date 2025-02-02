@@ -4,6 +4,7 @@ import { AuthProvider } from "./context";
 import { ToastContainer } from "react-toastify";
 import { PrimeReactProvider } from "primereact/api";
 import "semantic-ui-css/semantic.min.css";
+import "primeicons/primeicons.css";
 
 function App() {
   return (
