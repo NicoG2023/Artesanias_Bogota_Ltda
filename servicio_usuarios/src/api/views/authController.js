@@ -1,4 +1,5 @@
 const Usuario = require("../../models/Usuario");
+const Direccion = require("../../models/Direccion");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 
@@ -51,12 +52,10 @@ const register = async (req, res) => {
       email,
       password,
     });
-    res
-      .status(201)
-      .json({
-        message: "Usuario registrado exitosamente",
-        user: { id: newUsuario.id, nombre: newUsuario.nombre },
-      });
+    res.status(201).json({
+      message: "Usuario registrado exitosamente",
+      user: { id: newUsuario.id, nombre: newUsuario.nombre },
+    });
   } catch (error) {
     res
       .status(500)
@@ -77,6 +76,21 @@ const getMe = async (req, res) => {
         "puntos_descuento",
         "rol",
       ],
+      include: [
+        {
+          model: Direccion, // Asegúrate de importar el modelo Direccion
+          as: "direcciones",
+          attributes: [
+            "id",
+            "direccion",
+            "ciudad",
+            "departamento",
+            "codigo_postal",
+            "pais",
+            "info_adicional",
+          ],
+        },
+      ],
     });
 
     if (!usuario) {
@@ -86,7 +100,10 @@ const getMe = async (req, res) => {
     res.status(200).json(usuario);
   } catch (error) {
     console.error("Error en getMe:", error);
-    res.status(500).json({ message: "Error al obtener datos del usuario" });
+    res.status(500).json({
+      message: "Error al obtener datos del usuario",
+      error: error.message,
+    });
   }
 };
 
