@@ -12,6 +12,7 @@ const {
   obtenerOrdenes,
   obtenerOrdenesPorUsuario,
   updateEstadoOrden,
+  obtenerOrdenPorId,
 } = require("../views/OrdenController");
 const { verifyToken, authorizeRoles } = require("../../middleware/auth");
 
@@ -64,7 +65,12 @@ const { verifyToken, authorizeRoles } = require("../../middleware/auth");
  *       500:
  *         description: Error al crear la orden
  */
-router.post("/", verifyToken, authorizeRoles("cliente"), crearOrden);
+router.post(
+  "/ordenes/crear-orden",
+  verifyToken,
+  authorizeRoles("cliente"),
+  crearOrden
+);
 
 /**
  * @swagger
@@ -149,5 +155,7 @@ router.put(
   authorizeRoles("admin", "superadmin"),
   updateEstadoOrden
 );
+
+router.get("/ordenes/:id", obtenerOrdenPorId);
 
 module.exports = router;
