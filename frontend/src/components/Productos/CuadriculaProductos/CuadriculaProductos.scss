@@ -72,6 +72,26 @@
           }
         }
       }
+      .admin-buttons {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 1rem;
+    
+        .edit-button {
+          background-color: #4caf50; // Verde para editar
+          color: #ffffff;
+          border: none;
+          padding: 0.5rem 1rem;
+          cursor: pointer;
+          transition: background-color 0.3s ease;
+          margin-left: auto; // Empuja el botón de editar hacia la derecha
+      
+          &:hover {
+            background-color: #45a049;
+          }
+        }
+    
+      }
     }
   
     .pagination-container {
