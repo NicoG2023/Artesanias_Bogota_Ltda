@@ -19,10 +19,14 @@ const Producto = sequelize.define(
       unique: true,
     },
     precio: {
-      type: DataTypes.DOUBLE,
+      type: DataTypes.INTEGER,
       allowNull: false,
       validate: {
         min: 0,
+      },
+      get() {
+        const rawValue = this.getDataValue("precio");
+        return new Intl.NumberFormat("es-CO").format(rawValue / 100);
       },
     },
     descripcion: {
@@ -66,7 +70,7 @@ const Producto = sequelize.define(
       { fields: ["talla"] },
     ],
     hooks: {
-      beforeCreate: async (producto) => {
+      beforeValidate: async (producto) => {
         if (
           !producto.sku ||
           producto.sku === null ||

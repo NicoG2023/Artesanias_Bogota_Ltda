@@ -13,6 +13,7 @@ export function OrdenesAdmin() {
     getOrdenes,
     goToPage,
     onChangeSearchTerm,
+    updateEstadoOrden,
   } = useOrdenes();
 
   useEffect(() => {
@@ -32,6 +33,7 @@ export function OrdenesAdmin() {
           pagination,
           searchTerm: "",
           setSearchTerm: onChangeSearchTerm,
+          updateEstadoOrden,
         }}
       />
     </div>

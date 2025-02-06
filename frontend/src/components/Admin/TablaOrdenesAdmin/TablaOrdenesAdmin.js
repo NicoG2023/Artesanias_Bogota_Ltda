@@ -10,6 +10,7 @@ import {
 } from "semantic-ui-react";
 import { map } from "lodash";
 import { ModalOrden } from "../ModalOrden";
+import { ModalCambioEstadoOrden } from "../ModalCambioEstadoOrden";
 
 function formatDate(dateString) {
   if (!dateString) return "";
@@ -34,10 +35,13 @@ export function TablaOrdenesAdmin({ ordenesHook }) {
     pagination,
     searchTerm,
     setSearchTerm,
+    updateEstadoOrden,
   } = ordenesHook;
   // Estado local para el modal
   const [selectedOrden, setSelectedOrden] = useState(null);
   const [openModal, setOpenModal] = useState(false);
+  const [openCambioEstadoModal, setOpenCambioEstadoModal] = useState(false);
+  const [ordenParaCambioEstado, setOrdenParaCambioEstado] = useState(null);
 
   if (loading) {
     return <Loader active inline="centered" content="Cargando órdenes..." />;
@@ -103,6 +107,17 @@ export function TablaOrdenesAdmin({ ordenesHook }) {
                 <Button icon onClick={() => mostrarInfoOrden(orden)}>
                   <Icon name="address card" />
                 </Button>
+                {/* Botón para cambiar estado */}
+                <Button
+                  icon
+                  color="blue"
+                  onClick={() => {
+                    setOrdenParaCambioEstado(orden);
+                    setOpenCambioEstadoModal(true);
+                  }}
+                >
+                  <Icon name="refresh" />
+                </Button>
               </Table.Cell>
             </Table.Row>
           ))}
@@ -131,6 +146,21 @@ export function TablaOrdenesAdmin({ ordenesHook }) {
         open={openModal}
         onClose={onCloseModal}
         orden={selectedOrden}
+      />
+      <ModalCambioEstadoOrden
+        open={openCambioEstadoModal}
+        onClose={() => {
+          setOpenCambioEstadoModal(false);
+          setOrdenParaCambioEstado(null);
+        }}
+        orden={ordenParaCambioEstado}
+        // Aquí llamas la función que haga el update, la cual
+        // probablemente venga del hook useOrdenes:
+        onUpdateEstado={async (ordenId, nuevoEstado) => {
+          // Ejemplo: si en tu hook se llama "updateEstadoOrden"
+          // y lo tienes dentro de `ordenesHook`, haz:
+          await updateEstadoOrden(ordenId, nuevoEstado);
+        }}
       />
     </div>
   );

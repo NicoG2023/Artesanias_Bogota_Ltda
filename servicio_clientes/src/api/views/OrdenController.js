@@ -5,8 +5,11 @@ const {
   REL_Orden_Producto,
   sequelize,
 } = require("../../models");
-const { getUsersByIds, searchUsersByTerm } = require("../../userClientGrpc");
-const { getProductsByIds } = require("../../productClientGrpc");
+const {
+  getUsersByIds,
+  searchUsersByTerm,
+} = require("../../grpc/userClientGrpc");
+const { getProductsByIds } = require("../../grpc/productClientGrpc");
 const { containerClient } = require("../../config/blob-storage");
 const {
   generateBlobSASQueryParameters,
@@ -20,7 +23,7 @@ const crearOrden = async (req, res) => {
 
   try {
     const {
-      usuraio_fk,
+      usuario_fk,
       lugar_compra_fk,
       estado,
       pago_fk,
@@ -30,7 +33,7 @@ const crearOrden = async (req, res) => {
 
     const nuevaOrden = await Orden.create(
       {
-        usuraio_fk,
+        usuario_fk,
         lugar_compra_fk,
         estado,
         pago_fk,

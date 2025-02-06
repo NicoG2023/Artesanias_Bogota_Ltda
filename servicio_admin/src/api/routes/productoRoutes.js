@@ -4,8 +4,11 @@ const {
   agregarProducto,
   editarProducto,
   desactivarProducto,
+  agregarProductosBulk,
+  obtenerProductosCarousel,
 } = require("../views/productoController");
 const { obtenerFiltros } = require("../views/categoriaController");
+const { verifyToken, authorizeRoles } = require("../../middleware/auth");
 
 const router = express.Router();
 
@@ -78,6 +81,8 @@ const router = express.Router();
  *         description: Error al obtener los productos
  */
 router.get("/productos", obtenerProductos);
+
+router.get("/productos/carousel", obtenerProductosCarousel);
 
 /**
  * @swagger
@@ -235,5 +240,54 @@ router.put("/productos/:id/desactivar", desactivarProducto);
  *         description: Error al obtener categorías y colores únicos
  */
 router.get("/productos/filtros", obtenerFiltros);
+
+router.post(
+  "/productos/bulk",
+  verifyToken,
+  authorizeRoles("admin", "superadmin"),
+  agregarProductosBulk
+);
+
+router.get("/productos/plantilla", (req, res) => {
+  // Cabeceras para forzar la descarga
+  res.setHeader(
+    "Content-Disposition",
+    'attachment; filename="plantilla_producto.json"'
+  );
+  res.setHeader("Content-Type", "application/json");
+
+  // Plantilla de ejemplo, con un solo producto o incluso varios
+  const plantilla = {
+    productos: [
+      {
+        nombre: "Ejemplo de producto",
+        precio: "50.000",
+        descripcion: "Descripción",
+        es_activo: true,
+        color: "Azul",
+        talla: "M",
+        imagenBase64: null,
+        rating: 4.5,
+        categorias: [1, 2], // IDs de categorías
+        inventarios: [
+          // Ahora es un arreglo
+          {
+            punto_venta_fk: 2,
+            nombre_punto_venta: "Punto Físico Chapinero",
+            cantidad: 10,
+          },
+          {
+            punto_venta_fk: 3,
+            nombre_punto_venta: "Punto Físico Centro",
+            cantidad: 5,
+          },
+        ],
+      },
+    ],
+  };
+
+  // Responder con el JSON
+  res.status(200).json(plantilla);
+});
 
 module.exports = router;

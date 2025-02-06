@@ -6,8 +6,11 @@ const cors = require("cors");
 const swaggerUi = require("swagger-ui-express");
 const swaggerSpec = require("./config/swagger");
 const ordenesRoutes = require("./api/routes/ordenRoutes");
-require("./userClientGrpc");
-require("./productClientGrpc");
+const puntoVentaRoutes = require("./api/routes/puntoVentaRoutes");
+require("./grpc/userClientGrpc");
+require("./grpc/productClientGrpc");
+require("./grpc/grpcServer");
+const { connectProducer } = require("./kafka/kafkaProducer");
 
 // Configuración de CORS para permitir todas las solicitudes (solo para desarrollo, en producción CAMBIAR)s
 app.use(cors());
@@ -16,6 +19,7 @@ app.use(cors());
 app.use(express.json());
 
 app.use("/api", ordenesRoutes);
+app.use("/api", puntoVentaRoutes);
 
 // Ruta de ejemplo
 app.get("/", (req, res) => {
@@ -40,6 +44,8 @@ sequelize
   });
 
 // Servidor escuchando en el puerto especificado
-app.listen(PORT, () => {
+app.listen(PORT, async () => {
   console.log(`Servidor escuchando en el puerto ${PORT}`);
+
+  await connectProducer();
 });

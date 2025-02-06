@@ -83,6 +83,8 @@ services:
       DATABASE_PASSWORD: ${POSTGRES_PASSWORD}
       DATABASE_NAME: ${ADMINS_DB}
       DATABASE_PORT: 5432
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
     depends_on:
       - admins-db
     networks:
@@ -131,6 +133,15 @@ services:
       - zookeeper
     networks:
       - app-network
+  # Servicio de Redis para cacheo de imágenes
+  redis:
+    image: redis:latest
+    ports:
+      - "6377:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - app-network
 
   # Servicio Frontend (React)
   frontend:
@@ -141,14 +152,15 @@ services:
       - "3000:3000"
     environment:
       CHOKIDAR_USEPOLLING: "true"
-      CHOKIDAR_INTERVAL: "500"
+      CHOKIDAR_INTERVAL: "100"
+      NODE_ENV: "development"
       REACT_APP_USERS_SERVICE_URL: ${REACT_APP_USERS_SERVICE_URL}
       REACT_APP_ADMINS_SERVICE_URL: ${REACT_APP_ADMINS_SERVICE_URL}
       REACT_APP_CLIENTS_SERVICE_URL: ${REACT_APP_CLIENTS_SERVICE_URL}
+      REACT_APP_GOOGLE_MAPS_API: ${REACT_APP_GOOGLE_MAPS_API}
     volumes:
-      - ./frontend:/app
-      # Montar un volumen distinto para node_modules
-      - /app/node_modules
+      - ./frontend/src:/app/src
+      - ./frontend/public:/app/public
     depends_on:
       - users-service
       - admins-service
@@ -157,11 +169,13 @@ services:
       - app-network
     stdin_open: true
     tty: true
+    command: ["npm", "start"]
 
 volumes:
   users-db-data:
   admins-db-data:
   clients-db-data:
+  redis-data:
 
 networks:
   app-network:
