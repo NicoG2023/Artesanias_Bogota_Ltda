@@ -1,6 +1,6 @@
 import React from "react";
 import { BasicLayout } from "../layouts";
-import { Login, OlvidarPassword, Registro, LandingPage } from "../pages";
+import { Login, OlvidarPassword, Registro, LandingPage, Perfil } from "../pages";
 import { DynamicLayout } from "../layouts/DynamicLayout";
 
 const usuariosRoutes = [
@@ -39,6 +39,14 @@ const usuariosRoutes = [
   {
     path: "/productos",
     element: <DynamicLayout />,
+  },
+  {
+    path: "/perfil",
+    element: (
+      <BasicLayout>
+        <Perfil />
+      </BasicLayout>
+    ),
   },
 ];
 
