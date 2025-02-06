@@ -22,7 +22,6 @@ export function ProductosStaff() {
   const handleSearch = (searchTerm) => {
     // Llamamos al hook para actualizar el "search" en nuestros filtros
     productosHook.updateFilters({ search: searchTerm, page: 1 });
-    // Nota: también puedes resetear la paginación a 1 (page: 1) si lo deseas
   };
 
   return (

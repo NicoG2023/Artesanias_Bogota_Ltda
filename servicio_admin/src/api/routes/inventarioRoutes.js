@@ -1,12 +1,14 @@
 const express = require("express");
 const router = express.Router();
-const { 
-    obtenerInventario,
-    agregarProductoInventario,
-    actualizarStock,
-    eliminarProductoInventario,
-    revisarStock,
+const {
+  obtenerInventario,
+  agregarProductoInventario,
+  actualizarStock,
+  eliminarProductoInventario,
+  revisarStock,
+  obtenerProductosNoVinculados,
 } = require("../views/inventarioController");
+const { verifyToken, authorizeRoles } = require("../../middleware/auth");
 
 // Obtener todos los productos en el inventario
 /**
@@ -39,7 +41,7 @@ const {
  *       500:
  *         description: Error al obtener el inventario
  */
-router.get("/inventario", obtenerInventario);
+router.get("/inventario", verifyToken, obtenerInventario);
 
 // Agregar un nuevo producto al inventario
 /**
@@ -69,7 +71,7 @@ router.get("/inventario", obtenerInventario);
  *       500:
  *         description: Error al agregar el producto
  */
-router.post("/inventario", agregarProductoInventario);
+router.post("/inventario", verifyToken, agregarProductoInventario);
 
 // Actualizar la cantidad de un producto en el inventario
 /**
@@ -109,7 +111,7 @@ router.post("/inventario", agregarProductoInventario);
  *       500:
  *         description: Error al actualizar la cantidad
  */
-router.put("/:inventarioId", actualizarStock);
+router.put("/inventario/:sku", verifyToken, actualizarStock);
 
 // Eliminar un producto del inventario
 /**
@@ -133,7 +135,11 @@ router.put("/:inventarioId", actualizarStock);
  *       500:
  *         description: Error al eliminar el producto
  */
-router.delete("/:inventarioId", eliminarProductoInventario);
+router.delete(
+  "/inventario/:inventarioId",
+  verifyToken,
+  eliminarProductoInventario
+);
 
 // Revisar el stock de un producto
 /**
@@ -168,6 +174,12 @@ router.delete("/:inventarioId", eliminarProductoInventario);
  *       500:
  *         description: Error al revisar el stock
  */
-router.get("/stock/:productoId", revisarStock);
+router.get("/stock/:productoId", verifyToken, revisarStock);
+
+router.get(
+  "/inventario/productos-disponibles",
+  verifyToken,
+  obtenerProductosNoVinculados
+);
 
 module.exports = router;

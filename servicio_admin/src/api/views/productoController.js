@@ -175,11 +175,8 @@ const obtenerProductos = async (req, res) => {
         model: Categoria,
         as: "categorias",
         attributes: ["id", "nombre"],
-        through: {
-          model: REL_ProductoCategoria,
-          as: "relaciones",
-          attributes: [], // No necesitamos nada de la tabla pivote
-        },
+        through: { attributes: [] },
+        required: false,
         ...(categoriaArray.length > 0 && {
           where: { id: { [Op.in]: categoriaArray } },
         }),
@@ -482,9 +479,8 @@ async function agregarProductosBulk(req, res) {
       });
     }
 
-    // 1) Recolectar IDs de punto de venta
+    // 1) Recolectar IDs de punto de venta y de categoría
     const pvIdsSet = new Set();
-    // 2) Recolectar IDs de categoría
     const catIdsSet = new Set();
 
     for (const p of productos) {
@@ -542,21 +538,20 @@ async function agregarProductosBulk(req, res) {
         imagenBase64,
         rating,
         inventarios,
-        categorias, // array de IDs
+        categorias, // array de IDs de categorías
       } = prodData;
 
-      //validar y convertir el precio
+      // Validar y convertir el precio a centavos
       const precio = parsePrecioColombiano(precioString);
-
       if (isNaN(precio) || precio < 0) {
         console.error("Precio inválido para el producto:", nombre);
         await transaction.rollback();
         return res.status(400).json({
-          error: `Precio inválido para el producto: ${nombre}. Debe ser un valor positivo en formato colombiano (ej: 50.000).`,
+          error: `Precio inválido para el producto: ${nombre}. Debe ser positivo en formato colombiano (ej: 50.000).`,
         });
       }
 
-      // Validar el rating
+      // Validar rating
       if (rating !== undefined && (rating < 0 || rating > 5)) {
         console.error("Rating inválido para el producto:", nombre);
         await transaction.rollback();
@@ -620,7 +615,6 @@ async function agregarProductosBulk(req, res) {
           // Validar punto de venta
           const pvRemoto = dictPuntosVenta[punto_venta_fk];
           if (!pvRemoto) {
-            await transaction.rollback();
             throw new Error(
               `El punto de venta con ID ${punto_venta_fk} no existe (producto: ${nombre}).`
             );
@@ -646,34 +640,40 @@ async function agregarProductosBulk(req, res) {
         }
       }
 
-      resultados.push(nuevoProducto);
-    }
-    await transaction.commit();
-
-    for (const nuevoProducto of resultados) {
-      if (
-        Array.isArray(nuevoProducto.categorias) &&
-        nuevoProducto.categorias.length > 0
-      ) {
-        for (const catId of nuevoProducto.categorias) {
-          const catObj = dictCategorias[catId];
-          if (!catObj) {
-            console.error(`La categoría con ID ${catId} no existe.`);
+      // Vincular el producto con sus categorías en la tabla intermedia
+      if (Array.isArray(categorias) && categorias.length > 0) {
+        for (const catId of categorias) {
+          // Verificamos que la categoría exista en dictCategorias
+          if (!dictCategorias[catId]) {
+            console.error(
+              `La categoría con ID ${catId} no existe en la base. (Producto: ${nombre})`
+            );
             continue;
           }
-          await REL_ProductoCategoria.create({
-            categoria_fk: catId,
-            producto_fk: nuevoProducto.id,
-          });
+
+          // Crear registro en rel_producto_categoria
+          await REL_ProductoCategoria.create(
+            {
+              categoria_fk: catId,
+              producto_fk: nuevoProducto.id,
+            },
+            { transaction }
+          );
         }
       }
+
+      resultados.push(nuevoProducto);
     }
+
+    // Si todo va bien, hacemos commit
+    await transaction.commit();
 
     return res.status(201).json({
       message: "Productos creados correctamente",
       data: resultados,
     });
   } catch (error) {
+    // Si algo falla, rollback
     await transaction.rollback();
     console.error("Error en agregarProductosBulk:", error);
     return res.status(500).json({
