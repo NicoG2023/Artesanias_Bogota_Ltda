@@ -188,6 +188,21 @@
       border-color: #cbd5e1;
     }
   }
+
+  .detalle-orden__place {
+    padding: 1rem 0;
+    
+    h3 {
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+  
+    p {
+      color: #666;
+      font-size: 0.9rem;
+    }
+  }
+  
   
   .p-card {
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);

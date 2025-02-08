@@ -21,6 +21,7 @@ export function useProductos() {
     color: null,
     minPrecio: 0,
     maxPrecio: 100000000,
+    puntoVentaId: 1,
   });
 
   // Función para cargar productos
@@ -30,6 +31,8 @@ export function useProductos() {
 
     try {
       const data = await obtenerProductosApi(filters);
+      console.log("data productos obtenerProductosApi", data);
+      console.log("filters", filters);
       setProductos([...data.data]); // Asegura inmutabilidad
       setPagination({ ...data.pagination }); // Asegura inmutabilidad
     } catch (error) {

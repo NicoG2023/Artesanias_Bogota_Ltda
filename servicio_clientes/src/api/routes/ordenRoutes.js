@@ -13,6 +13,7 @@ const {
   obtenerOrdenesPorUsuario,
   updateEstadoOrden,
   obtenerOrdenPorId,
+  obtenerOrdenPorSessionId,
 } = require("../views/OrdenController");
 const { verifyToken, authorizeRoles } = require("../../middleware/auth");
 
@@ -157,5 +158,11 @@ router.put(
 );
 
 router.get("/ordenes/:id", obtenerOrdenPorId);
+
+router.get(
+  "/ordenes/session/:sessionId",
+  verifyToken,
+  obtenerOrdenPorSessionId
+);
 
 module.exports = router;

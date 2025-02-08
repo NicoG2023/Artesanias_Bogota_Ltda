@@ -4,6 +4,7 @@ import {
   Carrito,
   OrdenesCliente,
   ResumenOrden,
+  DetalleOrdenEnvio,
 } from "../pages";
 import { ClientLayout } from "../layouts";
 import PrivateRoutes from "./PrivateRoutes";
@@ -63,14 +64,32 @@ const clientesRoutes = [
   {
     path: "/resumen-orden",
     element: (
-      <ClientLayout>
-        <PrivateRoutes allowedRoles={"admin, cliente, staff, superadmin"} />
-      </ClientLayout>
+      <PrivateRoutes allowedRoles={"admin, cliente, staff, superadmin"} />
     ),
     children: [
       {
         path: "",
-        element: <ResumenOrden />,
+        element: (
+          <ClientLayout>
+            <ResumenOrden />
+          </ClientLayout>
+        ),
+      },
+    ],
+  },
+  {
+    path: "/detalle-orden",
+    element: (
+      <PrivateRoutes allowedRoles={"admin, cliente, staff, superadmin"} />
+    ),
+    children: [
+      {
+        path: "",
+        element: (
+          <ClientLayout>
+            <DetalleOrdenEnvio />
+          </ClientLayout>
+        ),
       },
     ],
   },

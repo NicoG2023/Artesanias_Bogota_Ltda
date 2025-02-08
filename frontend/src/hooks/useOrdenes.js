@@ -5,11 +5,13 @@ import {
   obtenerOrdenesPorUsuarioApi,
   obtenerOrdenesApi,
   updateEstadoOrdenApi,
+  obtenerOrdenPorSessionApi,
 } from "../api/ordenes";
 import { useAuth } from "./useAuth";
 
 export function useOrdenes() {
   const [ordenes, setOrdenes] = useState([]);
+  const [orden, setOrden] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
@@ -163,9 +165,38 @@ export function useOrdenes() {
     [auth, page, searchTerm, getOrdenes]
   );
 
+  /**
+   * Obtener la orden recién creada según sessionId de Stripe
+   */
+  const getOrdenPorSessionId = useCallback(
+    async (sessionId) => {
+      console.log("sessionId useOrdenes", sessionId);
+      if (!auth?.token) return;
+
+      setLoading(true);
+      setError(null);
+
+      try {
+        const response = await obtenerOrdenPorSessionApi(auth.token, sessionId);
+        // response = { message: "Orden encontrada", data: { ...orden... } }
+        if (response.data) {
+          setOrden(response.data);
+        } else {
+          setOrden(null);
+        }
+      } catch (err) {
+        setError(err);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [auth?.token]
+  );
+
   return {
     // Estados comunes
     ordenes,
+    orden,
     loading,
     error,
     page,
@@ -179,5 +210,6 @@ export function useOrdenes() {
     goToPageForUser, // Cambiar página para órdenes del usuario
     onChangeSearchTerm, // Cambiar término de búsqueda
     updateEstadoOrden,
+    getOrdenPorSessionId,
   };
 }

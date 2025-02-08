@@ -8,21 +8,36 @@ const swaggerUi = require("swagger-ui-express");
 const swaggerSpec = require("./config/swagger");
 const ordenesRoutes = require("./api/routes/ordenRoutes");
 const puntoVentaRoutes = require("./api/routes/puntoVentaRoutes");
+const pagosRoutes = require("./api/routes/pagosRoutes");
 require("./grpc/userClientGrpc");
 require("./grpc/productClientGrpc");
 require("./grpc/grpcServer");
 const { connectProducer } = require("./kafka/kafkaProducer");
+const { stripeWebhookHandler } = require("./api/views/PagosController");
 
 const PORT = process.env.PORT || 3000;
 
 // Configuración de CORS para permitir todas las solicitudes (solo para desarrollo, en producción CAMBIAR)s
 app.use(cors());
 
-// Middleware básico
-app.use(express.json());
+app.use(
+  express.json({
+    verify: (req, res, buf) => {
+      if (req.originalUrl.startsWith("/webhook/stripe")) {
+        req.rawBody = buf.toString();
+      }
+    },
+  })
+);
 
 app.use("/api", ordenesRoutes);
 app.use("/api", puntoVentaRoutes);
+app.use("/api", pagosRoutes);
+app.post(
+  "/webhook/stripe",
+  express.raw({ type: "application/json" }),
+  stripeWebhookHandler
+);
 
 // Ruta de ejemplo
 app.get("/", (req, res) => {

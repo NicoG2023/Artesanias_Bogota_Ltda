@@ -14,35 +14,83 @@ const { getDireccionById } = require("../../grpc/userClientGrpc");
 const { getSignedUrl } = require("../../utils/cacheUtils");
 
 //Controlador para crear Orden
-const crearOrden = async (req, res) => {
-  const t = await sequelize.transaction();
-
+async function crearOrden(req, res) {
   try {
     const {
       usuario_fk,
       lugar_compra_fk,
-      // estado,  // El usuario no necesita enviarlo, lo forzamos a "CREADA"
       pago_fk,
       total,
       direccion_fk,
       productos = [],
     } = req.body;
 
-    // Forzamos la orden a crearse con estado "CREADA"
+    const nuevaOrden = await createOrderTransaction({
+      usuario_fk,
+      lugar_compra_fk,
+      pago_fk,
+      total,
+      direccion_fk,
+      productos,
+    });
+
+    return res.status(201).json({
+      message: "Orden creada exitosamente",
+      data: nuevaOrden,
+    });
+  } catch (error) {
+    console.error("Error al crear la orden:", error);
+    return res.status(500).json({
+      message: "Error al crear la orden",
+      error: error.message || error,
+    });
+  }
+}
+
+/**
+ * Crea una orden con estado "CREADA" y sus productos relacionados.
+ * Hace commit/rollback en caso de error.
+ *
+ * @param {object} data Objeto con los campos necesarios
+ * @param {number} data.usuario_fk
+ * @param {number|null} data.lugar_compra_fk
+ * @param {number} data.pago_fk
+ * @param {number} data.total
+ * @param {number} data.direccion_fk
+ * @param {Array}  data.productos - Array de objetos { producto_fk, cantidad }
+ *
+ * @returns {Orden} La instancia de la orden creada
+ */
+async function createOrderTransaction({
+  usuario_fk,
+  lugar_compra_fk,
+  pago_fk,
+  total,
+  direccion_fk,
+  productos = [],
+  stripe_session_id,
+  descuento_aplicado,
+}) {
+  const t = await sequelize.transaction();
+
+  try {
+    // 1) Crear la Orden
     const nuevaOrden = await Orden.create(
       {
         usuario_fk,
         lugar_compra_fk,
-        estado: "CREADA", // <-- Aquí forzamos a "CREADA"
+        estado: "CREADA", // Forzamos a "CREADA"
         pago_fk,
         total,
         direccion_fk,
         fecha_orden: new Date(),
+        stripe_session_id,
+        descuento_aplicado,
       },
       { transaction: t }
     );
 
-    // ... resto de la lógica de productos
+    // 2) Insertar los productos en rel_orden_producto
     if (productos.length > 0) {
       const rels = productos.map((prod) => ({
         orden_fk: nuevaOrden.id,
@@ -52,24 +100,19 @@ const crearOrden = async (req, res) => {
       await REL_Orden_Producto.bulkCreate(rels, { transaction: t });
     }
 
+    // 3) Confirmamos la transacción
     await t.commit();
 
-    // Disparamos la simulación
+    // 4) Puedes disparar la simulación de envío (si procede)
     simularEnvioOrden(nuevaOrden.id);
 
-    return res.status(201).json({
-      message: "Orden creada exitosamente",
-      data: nuevaOrden,
-    });
+    return nuevaOrden;
   } catch (error) {
+    // En caso de error, rollback
     await t.rollback();
-    console.error("Error al crear la orden:", error);
-    return res.status(500).json({
-      message: "Error al crear la orden",
-      error: error.message || error,
-    });
+    throw error;
   }
-};
+}
 
 //Funcion para simular los cambios de estado
 async function simularEnvioOrden(ordenId) {
@@ -456,11 +499,79 @@ const obtenerOrdenPorId = async (req, res) => {
   }
 };
 
-// Exportar la nueva función
-module.exports = {
-  // ...otros controladores
-  obtenerOrdenPorId,
-};
+async function obtenerOrdenPorSessionId(req, res) {
+  console.log("req.query", req.params);
+  const { sessionId } = req.params;
+  console.log("sessionId", sessionId);
+
+  const orden = await Orden.findOne({
+    where: { stripe_session_id: sessionId },
+    include: [
+      {
+        model: Pago,
+        as: "pago",
+      },
+      {
+        model: PuntoVenta,
+        as: "puntoVenta",
+      },
+      {
+        model: REL_Orden_Producto,
+        as: "productosOrden",
+      },
+    ],
+  });
+  if (!orden) {
+    return res.status(404).json({ message: "Orden no encontrada" });
+  }
+
+  const productIds = new Set();
+  orden.productosOrden.forEach((rel) => {
+    productIds.add(rel.producto_fk);
+  });
+
+  // 3) Recolectar ID de dirección
+  let direccionId = orden.direccion_fk;
+
+  // 4) Obtener info de productos vía gRPC
+  const products = await getProductsByIds([...productIds]);
+  console.log("obtiene products");
+  const dictProductos = {};
+  products.forEach((p) => {
+    // Podrías firmar la imagen si así lo requieres
+    dictProductos[p.id] = p;
+  });
+  console.log("llena dictProductos");
+
+  // 5) Obtener la dirección por gRPC (si aplica)
+  let direccionData = null;
+  if (direccionId) {
+    // Suponiendo que la orden tiene un usuario_fk
+    direccionData = await getDireccionById(direccionId, orden.usuario_fk);
+  }
+
+  // 6) Enriquecer los productos en la orden
+  const ordenJSON = orden.toJSON();
+  ordenJSON.productosOrden = ordenJSON.productosOrden.map((rel) => {
+    const pData = dictProductos[rel.producto_fk];
+    return {
+      ...rel,
+      productoNombre: pData?.nombre || null,
+      productoImagen: pData?.imagen || null,
+      productoPrecio: pData?.precio || null,
+    };
+  });
+
+  // 7) Agregar la dirección
+  ordenJSON.direccion = direccionData || null;
+
+  // 8) Responder con la orden enriquecida
+  console.log("orden encontrada");
+  return res.json({
+    message: "Orden encontrada",
+    data: ordenJSON,
+  });
+}
 
 module.exports = {
   crearOrden,
@@ -468,4 +579,6 @@ module.exports = {
   updateEstadoOrden,
   obtenerOrdenesPorUsuario,
   obtenerOrdenPorId,
+  createOrderTransaction,
+  obtenerOrdenPorSessionId,
 };

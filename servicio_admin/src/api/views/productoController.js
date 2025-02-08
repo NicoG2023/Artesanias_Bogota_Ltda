@@ -19,6 +19,7 @@ require("dotenv").config();
 const { getPuntosVentaByIds } = require("../../grpc/puntoVentaClientGrpc");
 const sequelize = require("../../config/database");
 const { getSignedUrl } = require("../../utils/cacheUtils");
+const stripe = require("../../config/stripe");
 
 // Cargar las credenciales desde el archivo .env
 const accountName = process.env.AZURE_ACCOUNT_NAME;
@@ -133,7 +134,6 @@ const obtenerProductos = async (req, res) => {
       color = null,
       minPrecio = 0,
       maxPrecio = 100000000,
-      // Nuevo query param para filtrar por punto de venta
       puntoVentaId = null,
     } = req.query;
 
@@ -541,7 +541,7 @@ async function agregarProductosBulk(req, res) {
         categorias, // array de IDs de categorías
       } = prodData;
 
-      // Validar y convertir el precio a centavos
+      // Validar y convertir el precio a centavos (formato "xx.xxx" -> entero * 100)
       const precio = parsePrecioColombiano(precioString);
       if (isNaN(precio) || precio < 0) {
         console.error("Precio inválido para el producto:", nombre);
@@ -585,11 +585,11 @@ async function agregarProductosBulk(req, res) {
         imagenUrl = blockBlobClient.url;
       }
 
-      // Crear producto
+      // Crear producto en la DB local
       const nuevoProducto = await Producto.create(
         {
           nombre,
-          precio,
+          precio, // Almacenas en centavos
           descripcion,
           es_activo: es_activo != null ? es_activo : true,
           color,
@@ -605,7 +605,33 @@ async function agregarProductosBulk(req, res) {
         throw new Error(`No se pudo obtener el ID del producto ${nombre}`);
       }
 
-      console.log(`Producto creado con ID: ${nuevoProducto.id}`);
+      // 4) Crear el producto en Stripe
+      const stripeProduct = await stripe.products.create({
+        name: nuevoProducto.nombre,
+        description: nuevoProducto.descripcion,
+        images: [nuevoProducto.imagen], // Podrías usar un array vacío si no tienes imágenes
+        // Optional: metadata para relacionar datos internos
+        // metadata: {
+        //   local_id: nuevoProducto.id,
+        //   sku: nuevoProducto.sku
+        // }
+      });
+
+      // 5) Crear el Price en Stripe
+      const stripePrice = await stripe.prices.create({
+        unit_amount: precio, // centavos
+        currency: "COP", // Stripe debe soportar COP en tu cuenta
+        product: stripeProduct.id,
+      });
+
+      // 6) Actualizar tu producto local con los IDs de Stripe
+      await nuevoProducto.update(
+        {
+          stripe_product_id: stripeProduct.id,
+          stripe_price_id: stripePrice.id,
+        },
+        { transaction }
+      );
 
       // Manejo de inventario
       if (Array.isArray(inventarios) && inventarios.length > 0) {
@@ -673,7 +699,6 @@ async function agregarProductosBulk(req, res) {
       data: resultados,
     });
   } catch (error) {
-    // Si algo falla, rollback
     await transaction.rollback();
     console.error("Error en agregarProductosBulk:", error);
     return res.status(500).json({
@@ -683,13 +708,13 @@ async function agregarProductosBulk(req, res) {
   }
 }
 
-// Función para convertir precios en formato colombiano a número
+// Función para convertir precios en formato colombiano a número (en centavos)
 function parsePrecioColombiano(precioString) {
   if (typeof precioString !== "string") {
     throw new Error("El precio debe ser un string.");
   }
-  const precioLimpio = precioString.replace(/\./g, ""); // Elimina los puntos
-  const precioEntero = parseInt(precioLimpio, 10) * 100; // Multiplica por 100 para convertir a centavos
+  const precioLimpio = precioString.replace(/\./g, "");
+  const precioEntero = parseInt(precioLimpio, 10) * 100;
   if (isNaN(precioEntero)) {
     throw new Error("Formato de precio inválido.");
   }

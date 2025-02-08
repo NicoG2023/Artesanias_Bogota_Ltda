@@ -11,7 +11,7 @@ const obtenerCarrito = async (req, res) => {
     if (!carrito) return res.status(200).json({ productos: [] });
 
     const productos = await carrito.getProductos({
-      attributes: ["id", "nombre", "precio", "imagen"],
+      attributes: ["id", "nombre", "precio", "imagen", "stripe_price_id"],
       joinTableAttributes: ["id", "cantidad"],
     });
 

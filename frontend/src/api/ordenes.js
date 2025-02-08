@@ -78,3 +78,24 @@ export async function updateEstadoOrdenApi(token, ordenId, nuevoEstado) {
     throw error;
   }
 }
+
+export async function obtenerOrdenPorSessionApi(token, sessionId) {
+  console.log("sessionId obtenerOrdenPorSessionApi", sessionId);
+  try {
+    const url = `${API_SERVICIO_CLIENTES}/api/ordenes/session/${sessionId}`;
+    const response = await fetch(url, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    if (!response.ok) {
+      throw new Error(`Error al obtener la orden: ${response.statusText}`);
+    }
+    return await response.json();
+  } catch (error) {
+    console.error("Error en obtenerOrdenPorSessionApi", error.message);
+    throw error;
+  }
+}
