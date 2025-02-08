@@ -1,5 +1,5 @@
 const express = require("express");
-const { login, register, getMe } = require("../views/authController");
+const { login, register, getMe, verifyCurrentPassword } = require("../views/authController");
 const { verifyToken } = require("../../middleware/auth");
 const router = express.Router();
 /**
@@ -126,5 +126,47 @@ router.post("/auth/register", register);
  *         description: Usuario no encontrado
  */
 router.get("/auth/me", verifyToken, getMe);
+
+/**
+ * @swagger
+ * /auth/verify-password:
+ *   post:
+ *     summary: Verificar la contraseña actual del usuario
+ *     tags: [Auth]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               currentPassword:
+ *                 type: string
+ *                 description: Contraseña actual del usuario
+ *                 example: 12345678
+ *     responses:
+ *       200:
+ *         description: Contraseña verificada correctamente
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Contraseña verificada correctamente
+ *                 verified:
+ *                   type: boolean
+ *                   example: true
+ *       401:
+ *         description: Contraseña incorrecta
+ *       404:
+ *         description: Usuario no encontrado
+ *       500:
+ *         description: Error en el servidor
+ */
+router.post("/auth/verify-password", verifyToken, verifyCurrentPassword);
 
 module.exports = router;
