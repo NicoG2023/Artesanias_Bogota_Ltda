@@ -1,0 +1,93 @@
+.ui.modal.modal-product {
+  border-radius: 10px !important;   /* esquinas redondeadas en el modal */
+  .content {
+    padding: 0 !important;         /* removemos padding default */
+    border-radius: 10px !important;
+    max-height: 90vh;              /* altura máxima del modal */
+    overflow-y: auto;              /* agregar scrollbar vertical */
+    scrollbar-width: thin;         /* ancho del scrollbar */
+    scrollbar-color: #888 #f1f1f1; /* color del thumb y del track */
+    padding-right: 10px;           /* espacio para ver el borde redondeado */
+  }
+}
+
+.modal-product__content {
+  display: flex;
+  flex-direction: row;
+  max-height: 90vh;                /* más altura */
+  overflow: hidden;                /* oculta overflow que exceda */
+}
+
+.modal-product__image-container {
+  flex: 0 0 15%;                   /* hacer la imagen más pequeña */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #f7f2e7;       /* un color de fondo, si deseas */
+  border-top-left-radius: 10px;
+  border-bottom-left-radius: 10px;
+  border-right: 1px solid #ddd;    /* linea vertical divisoria */
+}
+
+.modal-product__image {
+  width: 300px;                    /* ancho fijo para la imagen */
+  height: 300px;                   /* altura fija para la imagen */
+  object-fit: cover;               /* mantener la proporción de la imagen */
+  border-radius: 4px;              /* si deseas redondear la imagen */
+}
+
+.modal-product__details {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 1.5rem;
+}
+
+.modal-product__title {
+  font-size: 1.5rem;
+  margin-bottom: 0.5rem;
+  color: #c64d34;  /* color principal */
+}
+
+.modal-product__price {
+  font-size: 1.25rem;
+  font-weight: bold;
+  margin-bottom: 1rem;
+  color: #6e6159;
+}
+
+.modal-product__description {
+  margin-bottom: 1rem;
+  color: #6e6159;
+}
+
+.modal-product__rating {
+  margin-bottom: 1rem;
+}
+
+.modal-product__footer {
+  margin-top: auto; /* empuja el footer al final */
+  display: flex;
+  justify-content: space-between; /* espacio entre los botones */
+  padding-top: 1rem;       /* espacio arriba del botón */
+  border-top: 1px solid #eee; /* si quieres una separación horizontal */
+}
+
+.modal-product__close-button {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 1.5rem;
+  color: #888;
+
+  &:hover {
+    color: #555;
+  }
+}
+
+.save-button {
+  margin-left: auto; /* Empuja el botón de guardar cambios hacia la derecha */
+}

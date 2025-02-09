@@ -1,8 +1,10 @@
 import React, { useState } from "react";
-import { Pagination } from "semantic-ui-react";
+import { Pagination, Button } from "semantic-ui-react";
 import { ModalProducto } from "../ModalProducto/ModalProducto";
+import { ModalProductoAdmin } from "../ModalProductoAdmin/ModalProductoAdmin";
 import { CartaProducto } from "../CartaProducto/CartaProducto";
 import "./CuadriculaProductos.scss";
+
 
 export function CuadriculaProductos({ productosHook, puntoVentaId }) {
   const {
@@ -65,7 +67,6 @@ export function CuadriculaProductos({ productosHook, puntoVentaId }) {
           />
         )}
       </div>
-
       <ModalProducto
         open={open}
         onClose={handleCloseModal}

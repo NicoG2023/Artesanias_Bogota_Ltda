@@ -5,9 +5,9 @@ import {
   Buscador,
 } from "../../../components";
 import { useProductos } from "../../../hooks/useProducto";
-import "./Productos.scss";
+import "./EditarProductos.scss";
 
-export function Productos() {
+export function EditarProductos() {
   const productosHook = useProductos();
 
   // Función que invocaremos desde el Buscador
@@ -25,11 +25,8 @@ export function Productos() {
       </div>
 
       <div className="main-content">
-        <aside className="sidebar">
-          <PanelFiltrado productosHook={productosHook} />
-        </aside>
         <main className="content">
-          <CuadriculaProductos productosHook={productosHook} context={"client"} />
+          <CuadriculaProductos productosHook={productosHook} context={"admin"}/>
         </main>
       </div>
     </div>
