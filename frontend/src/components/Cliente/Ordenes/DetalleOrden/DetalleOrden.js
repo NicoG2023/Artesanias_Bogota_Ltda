@@ -3,12 +3,13 @@ import { Button } from "primereact/button";
 import { Image } from "semantic-ui-react";
 import { Divider } from "semantic-ui-react";
 import { EnvioOrden } from "../EnvioOrden";
+import { useAuth } from "../../../../hooks";
 import "primeicons/primeicons.css";
 import "./DetalleOrden.scss";
 
 export function DetalleOrden({ order }) {
+  const { auth } = useAuth();
   if (!order) return <p>Cargando orden...</p>;
-
   const {
     id: orderNumber,
     estado,
@@ -77,7 +78,6 @@ export function DetalleOrden({ order }) {
             <span className="order-number">{formatDate(fecha_orden)}</span>
           </div>
           <div className="detalle-orden__actions">
-            <Button label="Detalles" className="p-button-outlined" />
             <Button
               label="Imprimir"
               className="p-button-outlined"
@@ -122,7 +122,7 @@ export function DetalleOrden({ order }) {
                 {direccion.info_adicional && <p>{direccion.info_adicional}</p>}
               </>
             ) : (
-              <p>Sin dirección</p>
+              <p>No aplica</p>
             )}
           </div>
 
@@ -156,7 +156,7 @@ export function DetalleOrden({ order }) {
                 <span>{formatoColombiano(subtotalVal)}</span>
               </div>
 
-              {descuentoVal > 0 && (
+              {descuentoVal > 0 && auth.user.rol === "cliente" && (
                 <div className="summary-row">
                   <span>Descuento ({descuentoVal}%)</span>
                   <span>- {formatoColombiano(discountAmount)}</span>
@@ -172,7 +172,9 @@ export function DetalleOrden({ order }) {
             </div>
           </Card>
         </div>
-        <EnvioOrden ordenId={orderNumber} currentEstado={estado} />
+        {auth.user.rol === "cliente" && (
+          <EnvioOrden ordenId={orderNumber} currentEstado={estado} />
+        )}
       </div>
     </Card>
   );

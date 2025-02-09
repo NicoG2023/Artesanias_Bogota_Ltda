@@ -77,13 +77,22 @@ export function SideMenu() {
         )}
         {/* Solo visible para usuarios con rol "staff" */}
         {auth.user.rol === "staff" && (
-          <Menu.Item
-            as={Link}
-            to="/productos-staff"
-            active={pathname === "/productos-staff"}
-          >
-            <Icon name="box" /> Productos Staff
-          </Menu.Item>
+          <>
+            <Menu.Item
+              as={Link}
+              to="/staff-dashboard"
+              active={pathname === "/staff-dashboard"}
+            >
+              <Icon name="home" /> Dashboard
+            </Menu.Item>
+            <Menu.Item
+              as={Link}
+              to="/productos-staff"
+              active={pathname === "/productos-staff"}
+            >
+              <Icon name="box" /> Productos Staff
+            </Menu.Item>
+          </>
         )}
       </Menu>
     </div>

@@ -127,6 +127,37 @@ async function GetDireccionById(call, callback) {
   }
 }
 
+async function GetUsersByVendedorFk(call, callback) {
+  try {
+    const vendedorFks = call.request.vendedor_fks || [];
+
+    if (vendedorFks.length === 0) {
+      return callback(null, { users: [] });
+    }
+
+    // Obtener usuarios con esos IDs
+    const usuarios = await Usuario.findAll({
+      attributes: ["id", "nombre", "apellido", "email"],
+      where: { id: { [Op.in]: vendedorFks } },
+    });
+
+    const users = usuarios.map((u) => ({
+      id: u.id,
+      nombre: u.nombre,
+      apellido: u.apellido,
+      email: u.email,
+    }));
+
+    callback(null, { users });
+  } catch (error) {
+    console.error("Error en GetUsersByVendedorFk gRPC:", error);
+    return callback({
+      code: grpc.status.INTERNAL,
+      message: error.message || "Error al obtener usuarios",
+    });
+  }
+}
+
 function main() {
   const server = new grpc.Server();
   // Registramos ambos métodos en el servicio
@@ -135,6 +166,7 @@ function main() {
     SearchUsers,
     GetDireccionById,
     GetUsuarioByEmail,
+    GetUsersByVendedorFk,
   });
 
   const address = "0.0.0.0:50051";

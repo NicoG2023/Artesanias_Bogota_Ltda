@@ -13,8 +13,8 @@ const Pago = sequelize.define(
       type: DataTypes.INTEGER,
       allowNull: false,
     },
-    cliente_id: {
-      type: DataTypes.STRING,
+    vendedor_fk: {
+      type: DataTypes.INTEGER,
       allowNull: true,
     },
     intencion_pago_id: {

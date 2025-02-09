@@ -26,7 +26,7 @@ export function LoginForm() {
         const roleToRoute = {
           admin: "/admin",
           cliente: "/productos",
-          staff: "/Pagos",
+          staff: "/staff-dashboard",
           superadmin: "/UsuariosSuperAdmin",
         };
         console.log("response.rol -->", roleToRoute[user.rol]);

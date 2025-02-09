@@ -82,9 +82,27 @@ function getUsuarioByEmail(email) {
   });
 }
 
+/**
+ * Función para obtener usuarios por vendedor_fk vía gRPC
+ * @param {number[]} vendedorFks - Array de IDs de vendedor
+ * @returns {Promise<Array<{ id, nombre, apellido, email }>>}
+ */
+function getUsersByVendedorFk(vendedorFks) {
+  return new Promise((resolve, reject) => {
+    userServiceClient.GetUsersByVendedorFk(
+      { vendedor_fks: vendedorFks },
+      (err, response) => {
+        if (err) return reject(err);
+        resolve(response.users); // Devuelve un array con los usuarios
+      }
+    );
+  });
+}
+
 module.exports = {
   getUsersByIds,
   searchUsersByTerm,
   getDireccionById,
   getUsuarioByEmail,
+  getUsersByVendedorFk,
 };
