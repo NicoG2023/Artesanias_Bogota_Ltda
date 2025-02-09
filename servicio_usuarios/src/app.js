@@ -8,7 +8,8 @@ const swaggerUi = require("swagger-ui-express");
 const swaggerSpec = require("./config/swagger");
 const usuarioRoutes = require("./api/routes/usuarioRoutes");
 const authRoutes = require("./api/routes/authRoutes");
-const perfilRoutes =require("./api/routes/perfilRoutes.js");
+const perfilRoutes = require("./api/routes/perfilRoutes.js");
+const direccionRoutes = require("./api/routes/direccionRoutes.js") 
 require("./grpcServer.js");
 
 // Configuración de CORS para permitir todas las solicitudes (solo para desarrollo, en producción CAMBIAR)
@@ -20,6 +21,7 @@ app.use(express.json());
 app.use("/api", usuarioRoutes);
 app.use("/api", authRoutes);
 app.use("/api", perfilRoutes);
+app.use("/api", direccionRoutes);
 
 app.get("/", (req, res) => {
   res.send("¡Servicio funcionando!");

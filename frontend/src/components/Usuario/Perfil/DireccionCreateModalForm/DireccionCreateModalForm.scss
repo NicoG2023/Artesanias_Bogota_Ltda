@@ -1,0 +1,87 @@
+.add-direccion-form {
+    padding: 20px;
+  
+    // Input fields styling
+    .field {
+      margin-bottom: 1rem;
+  
+      input, 
+      textarea,
+      .dropdown {
+        width: 100%;
+        margin-bottom: 0.5rem;
+      }
+  
+      .error {
+        color: #db2828;
+        font-size: 0.9em;
+      }
+    }
+  
+    // Textarea specific styling
+    textarea {
+      min-height: 100px;
+      resize: vertical;
+    }
+  }
+  
+  // Modal header styling to match the first modal
+  .ui.modal {
+    position: relative;
+  
+    // Close button styling to match the first modal
+    .close-button {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      background: none;
+      border: none;
+      color: rgba(0, 0, 0, 0.87);
+      cursor: pointer;
+      padding: 0;
+      z-index: 1;
+      
+      &:hover {
+        color: #000;
+      }
+  
+      i.icon {
+        font-size: 1.25rem;
+        margin: 0;
+      }
+    }
+  
+    // Center the modal header title
+    .header {
+      text-align: center !important;
+      padding: 1.25rem 2rem !important;
+      font-size: 1.28571429rem !important;
+      font-weight: bold !important;
+      border-bottom: 1px solid rgba(34, 36, 38, 0.15) !important;
+    }
+  
+    // Modal content spacing
+    .content {
+      padding: 1.5rem !important;
+    }
+  
+    // Modal actions (buttons) styling
+    .actions {
+      background: #f9fafb;
+      padding: 1rem;
+      border-top: 1px solid rgba(34, 36, 38, 0.15);
+      text-align: center !important; // Changed from right to center
+      
+      .button {
+        margin: 0 0.375rem !important; // Changed from margin-left to symmetric margins
+      }
+    }
+  }
+  
+  // Dropdown specific styling
+  .ui.dropdown {
+    .menu {
+      max-height: 200px;
+      overflow-y: auto;
+    }
+}

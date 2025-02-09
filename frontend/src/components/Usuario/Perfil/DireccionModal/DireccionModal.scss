@@ -1,0 +1,58 @@
+.modal-form-usuario {
+  .contenedor-tabla {
+    width: 100%;
+    overflow-x: auto; /* 📌 Permite desplazamiento horizontal */
+  }
+
+  .ui.table {
+    table-layout: fixed;
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 800px; /* 📌 Evita que las columnas se colapsen demasiado */
+  }
+
+  .ui.table th,
+  .ui.table td {
+    padding: 10px;
+    text-align: center;
+    vertical-align: middle;
+  }
+
+  /* 📌 Ajustes de ancho */
+  .ui.table th.codigo-postal,
+  .ui.table td.codigo-postal {
+    width: 100px;
+    min-width: 100px;
+  }
+
+  .ui.table th.pais,
+  .ui.table td.pais {
+    width: 120px;
+    min-width: 120px;
+  }
+
+  .ui.table th.acciones,
+  .ui.table td.acciones {
+    width: 220px;
+    min-width: 220px;
+    text-align: center;
+    white-space: nowrap;
+  }
+
+  .ui.table td.acciones button {
+    margin: 3px;
+    font-size: 14px;
+  }
+
+  /* 📌 "Información Adicional" centrada y con ajuste de palabras */
+  .ui.table th.info-adicional,
+  .ui.table td.info-adicional {
+    width: 250px;
+    min-width: 250px;
+    white-space: normal;
+    word-wrap: break-word;
+    text-align: center;
+  }
+}
+
+

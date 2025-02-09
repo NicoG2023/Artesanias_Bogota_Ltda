@@ -14,7 +14,7 @@ export function TarjetaPassword({ usuario }) {
         <>
             <Card fluid onClick={handleOpen} className="clickable-card">
                 <Card.Content textAlign="center">
-                    <Icon name="user circle" size="huge" />
+                    <Icon name="lock" size="huge" />
                     <Card.Header>{"Actualizar contraseña"}</Card.Header>
                     <Card.Meta></Card.Meta>
                     <Card.Description></Card.Description>

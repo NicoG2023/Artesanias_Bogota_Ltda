@@ -1,12 +1,11 @@
 import React from "react";
-import { Card, Icon } from "semantic-ui-react";
+import { Card } from "semantic-ui-react";
 import "./TarjetaPerfilDatos.scss";
 
 export function TarjetaPerfilDatos({ usuario }) {
     return (
         <Card fluid>
             <Card.Content textAlign="center">
-                <Icon name="user circle" size="huge" />
                 <Card.Header>{`${usuario.nombre} ${usuario.apellido}`}</Card.Header>
                 <Card.Meta>
                     <div className="id">ID {usuario.id}</div>

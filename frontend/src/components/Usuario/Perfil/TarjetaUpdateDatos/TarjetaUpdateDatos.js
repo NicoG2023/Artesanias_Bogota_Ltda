@@ -3,7 +3,7 @@ import { Card, Icon } from "semantic-ui-react";
 import { PerfilModal } from "../PerfilModal/PerfilModal";
 import "./TarjetaUpdateDatos.scss";
 
-export function TarjetaUpdateDatos({ usuario, titulo, onUpdate, Formulario }) {
+export function TarjetaUpdateDatos({ usuario, titulo, onUpdate, Formulario, icono }) {
     const [open, setOpen] = useState(false);
 
     const handleOpen = () => setOpen(true);
@@ -15,7 +15,7 @@ export function TarjetaUpdateDatos({ usuario, titulo, onUpdate, Formulario }) {
         <>
             <Card fluid onClick={handleOpen} className="clickable-card">
                 <Card.Content textAlign="center">
-                    <Icon name="user circle" size="huge" />
+                    <Icon name= {icono} size="huge" />
                     <Card.Header>{titulo}</Card.Header>
                     <Card.Meta></Card.Meta>
                     <Card.Description></Card.Description>
