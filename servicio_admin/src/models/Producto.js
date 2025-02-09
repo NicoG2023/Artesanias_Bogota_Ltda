@@ -59,6 +59,14 @@ const Producto = sequelize.define(
       },
       defaultValue: 0,
     },
+    stripe_product_id: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    stripe_price_id: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
   },
   {
     tableName: "productos",

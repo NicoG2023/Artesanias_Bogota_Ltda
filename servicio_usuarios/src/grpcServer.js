@@ -3,7 +3,7 @@ const path = require("path");
 const grpc = require("@grpc/grpc-js");
 const protoLoader = require("@grpc/proto-loader");
 const { Op } = require("sequelize");
-const { Usuario } = require("./models");
+const { Usuario, Direccion } = require("./models");
 
 const PROTO_PATH = path.join(__dirname, "proto", "users.proto");
 const packageDefinition = protoLoader.loadSync(PROTO_PATH, {
@@ -37,6 +37,28 @@ async function GetUsersByIds(call, callback) {
     return callback({
       code: grpc.status.INTERNAL,
       message: error.message || "Error al obtener usuarios",
+    });
+  }
+}
+
+async function GetUsuarioByEmail(call, callback) {
+  try {
+    const email = call.request.email;
+    const usuario = await Usuario.findOne({
+      where: { email },
+    });
+    if (!usuario) {
+      return callback({
+        code: grpc.status.NOT_FOUND,
+        message: "Usuario no encontrado",
+      });
+    }
+    callback(null, { usuario: usuario.toJSON() });
+  } catch (error) {
+    console.error("Error en GetUsuarioByEmail gRPC:", error);
+    return callback({
+      code: grpc.status.INTERNAL,
+      message: error.message || "Error al obtener usuario",
     });
   }
 }
@@ -79,12 +101,40 @@ async function SearchUsers(call, callback) {
   }
 }
 
+async function GetDireccionById(call, callback) {
+  try {
+    const { id, usuario_id } = call.request;
+    // Buscar la dirección y verificar que pertenezca al usuario
+    const direccion = await Direccion.findOne({
+      where: {
+        id,
+        usuario_fk: usuario_id,
+      },
+    });
+    if (!direccion) {
+      return callback({
+        code: grpc.status.NOT_FOUND,
+        message: "Dirección no encontrada o no pertenece al usuario",
+      });
+    }
+    callback(null, { direccion: direccion.toJSON() });
+  } catch (error) {
+    console.error("Error en GetDireccionById gRPC:", error);
+    callback({
+      code: grpc.status.INTERNAL,
+      message: error.message || "Error al obtener la dirección",
+    });
+  }
+}
+
 function main() {
   const server = new grpc.Server();
   // Registramos ambos métodos en el servicio
   server.addService(usersProto.UserService.service, {
     GetUsersByIds,
-    SearchUsers, // <-- método nuevo
+    SearchUsers,
+    GetDireccionById,
+    GetUsuarioByEmail,
   });
 
   const address = "0.0.0.0:50051";

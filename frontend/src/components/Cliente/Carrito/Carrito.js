@@ -75,8 +75,22 @@ export function Carrito({
 
         <Table.Body>
           {carrito.productos.map((producto) => (
-            <Table.Row key={producto.id}>
-              <Table.Cell>{producto.nombre}</Table.Cell>
+            <Table.Row
+              key={
+                producto.id +
+                "-" +
+                (producto.REL_CarritoProducto?.punto_venta_fk || "default")
+              }
+            >
+              <Table.Cell>
+                {producto.nombre}
+                <br />
+                {producto.puntoVenta && (
+                  <span className="punto-venta">
+                    Punto de venta: {producto.puntoVenta.nombre}
+                  </span>
+                )}
+              </Table.Cell>
               <Table.Cell>
                 <Button
                   icon="minus"

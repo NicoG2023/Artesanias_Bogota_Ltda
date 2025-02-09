@@ -100,31 +100,32 @@ export function TopMenu() {
       </Container>
 
       {/* Modal del Carrito */}
-      {auth.user.rol === "cliente" && (
-        <>
-          <Modal open={open} onClose={handleClose} size="large">
-            <Modal.Header>Carrito de Compras</Modal.Header>
-            <Modal.Content>
-              {/* El componente Carrito recibe el carrito actualizado */}
-              <Carrito
-                carrito={carrito}
-                loading={loading}
-                error={error}
-                eliminarProducto={eliminarProducto}
-                actualizarProducto={actualizarProducto}
-                cargarCarrito={cargarCarrito}
-                showTotal={true}
-              />{" "}
-              {/* Pasamos el carrito actualizado */}
-            </Modal.Content>
-            <Modal.Actions>
-              <Button color="red" onClick={handleClose}>
-                Cerrar
-              </Button>
-            </Modal.Actions>
-          </Modal>
-        </>
-      )}
+      {auth.user.rol === "cliente" ||
+        (auth.user.rol === "staff" && (
+          <>
+            <Modal open={open} onClose={handleClose} size="large">
+              <Modal.Header>Carrito de Compras</Modal.Header>
+              <Modal.Content>
+                {/* El componente Carrito recibe el carrito actualizado */}
+                <Carrito
+                  carrito={carrito}
+                  loading={loading}
+                  error={error}
+                  eliminarProducto={eliminarProducto}
+                  actualizarProducto={actualizarProducto}
+                  cargarCarrito={cargarCarrito}
+                  showTotal={true}
+                />{" "}
+                {/* Pasamos el carrito actualizado */}
+              </Modal.Content>
+              <Modal.Actions>
+                <Button color="red" onClick={handleClose}>
+                  Cerrar
+                </Button>
+              </Modal.Actions>
+            </Modal>
+          </>
+        ))}
     </Menu>
   );
 }

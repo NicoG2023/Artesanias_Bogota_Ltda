@@ -19,6 +19,7 @@ require("dotenv").config();
 const { getPuntosVentaByIds } = require("../../grpc/puntoVentaClientGrpc");
 const sequelize = require("../../config/database");
 const { getSignedUrl } = require("../../utils/cacheUtils");
+const stripe = require("../../config/stripe");
 
 // Cargar las credenciales desde el archivo .env
 const accountName = process.env.AZURE_ACCOUNT_NAME;
@@ -133,7 +134,6 @@ const obtenerProductos = async (req, res) => {
       color = null,
       minPrecio = 0,
       maxPrecio = 100000000,
-      // Nuevo query param para filtrar por punto de venta
       puntoVentaId = null,
     } = req.query;
 
@@ -175,11 +175,8 @@ const obtenerProductos = async (req, res) => {
         model: Categoria,
         as: "categorias",
         attributes: ["id", "nombre"],
-        through: {
-          model: REL_ProductoCategoria,
-          as: "relaciones",
-          attributes: [], // No necesitamos nada de la tabla pivote
-        },
+        through: { attributes: [] },
+        required: false,
         ...(categoriaArray.length > 0 && {
           where: { id: { [Op.in]: categoriaArray } },
         }),
@@ -482,9 +479,8 @@ async function agregarProductosBulk(req, res) {
       });
     }
 
-    // 1) Recolectar IDs de punto de venta
+    // 1) Recolectar IDs de punto de venta y de categoría
     const pvIdsSet = new Set();
-    // 2) Recolectar IDs de categoría
     const catIdsSet = new Set();
 
     for (const p of productos) {
@@ -542,21 +538,20 @@ async function agregarProductosBulk(req, res) {
         imagenBase64,
         rating,
         inventarios,
-        categorias, // array de IDs
+        categorias, // array de IDs de categorías
       } = prodData;
 
-      //validar y convertir el precio
+      // Validar y convertir el precio a centavos (formato "xx.xxx" -> entero * 100)
       const precio = parsePrecioColombiano(precioString);
-
       if (isNaN(precio) || precio < 0) {
         console.error("Precio inválido para el producto:", nombre);
         await transaction.rollback();
         return res.status(400).json({
-          error: `Precio inválido para el producto: ${nombre}. Debe ser un valor positivo en formato colombiano (ej: 50.000).`,
+          error: `Precio inválido para el producto: ${nombre}. Debe ser positivo en formato colombiano (ej: 50.000).`,
         });
       }
 
-      // Validar el rating
+      // Validar rating
       if (rating !== undefined && (rating < 0 || rating > 5)) {
         console.error("Rating inválido para el producto:", nombre);
         await transaction.rollback();
@@ -590,11 +585,11 @@ async function agregarProductosBulk(req, res) {
         imagenUrl = blockBlobClient.url;
       }
 
-      // Crear producto
+      // Crear producto en la DB local
       const nuevoProducto = await Producto.create(
         {
           nombre,
-          precio,
+          precio, // Almacenas en centavos
           descripcion,
           es_activo: es_activo != null ? es_activo : true,
           color,
@@ -610,7 +605,33 @@ async function agregarProductosBulk(req, res) {
         throw new Error(`No se pudo obtener el ID del producto ${nombre}`);
       }
 
-      console.log(`Producto creado con ID: ${nuevoProducto.id}`);
+      // 4) Crear el producto en Stripe
+      const stripeProduct = await stripe.products.create({
+        name: nuevoProducto.nombre,
+        description: nuevoProducto.descripcion,
+        images: [nuevoProducto.imagen], // Podrías usar un array vacío si no tienes imágenes
+        // Optional: metadata para relacionar datos internos
+        // metadata: {
+        //   local_id: nuevoProducto.id,
+        //   sku: nuevoProducto.sku
+        // }
+      });
+
+      // 5) Crear el Price en Stripe
+      const stripePrice = await stripe.prices.create({
+        unit_amount: precio, // centavos
+        currency: "COP", // Stripe debe soportar COP en tu cuenta
+        product: stripeProduct.id,
+      });
+
+      // 6) Actualizar tu producto local con los IDs de Stripe
+      await nuevoProducto.update(
+        {
+          stripe_product_id: stripeProduct.id,
+          stripe_price_id: stripePrice.id,
+        },
+        { transaction }
+      );
 
       // Manejo de inventario
       if (Array.isArray(inventarios) && inventarios.length > 0) {
@@ -620,7 +641,6 @@ async function agregarProductosBulk(req, res) {
           // Validar punto de venta
           const pvRemoto = dictPuntosVenta[punto_venta_fk];
           if (!pvRemoto) {
-            await transaction.rollback();
             throw new Error(
               `El punto de venta con ID ${punto_venta_fk} no existe (producto: ${nombre}).`
             );
@@ -646,28 +666,33 @@ async function agregarProductosBulk(req, res) {
         }
       }
 
-      resultados.push(nuevoProducto);
-    }
-    await transaction.commit();
-
-    for (const nuevoProducto of resultados) {
-      if (
-        Array.isArray(nuevoProducto.categorias) &&
-        nuevoProducto.categorias.length > 0
-      ) {
-        for (const catId of nuevoProducto.categorias) {
-          const catObj = dictCategorias[catId];
-          if (!catObj) {
-            console.error(`La categoría con ID ${catId} no existe.`);
+      // Vincular el producto con sus categorías en la tabla intermedia
+      if (Array.isArray(categorias) && categorias.length > 0) {
+        for (const catId of categorias) {
+          // Verificamos que la categoría exista en dictCategorias
+          if (!dictCategorias[catId]) {
+            console.error(
+              `La categoría con ID ${catId} no existe en la base. (Producto: ${nombre})`
+            );
             continue;
           }
-          await REL_ProductoCategoria.create({
-            categoria_fk: catId,
-            producto_fk: nuevoProducto.id,
-          });
+
+          // Crear registro en rel_producto_categoria
+          await REL_ProductoCategoria.create(
+            {
+              categoria_fk: catId,
+              producto_fk: nuevoProducto.id,
+            },
+            { transaction }
+          );
         }
       }
+
+      resultados.push(nuevoProducto);
     }
+
+    // Si todo va bien, hacemos commit
+    await transaction.commit();
 
     return res.status(201).json({
       message: "Productos creados correctamente",
@@ -683,13 +708,13 @@ async function agregarProductosBulk(req, res) {
   }
 }
 
-// Función para convertir precios en formato colombiano a número
+// Función para convertir precios en formato colombiano a número (en centavos)
 function parsePrecioColombiano(precioString) {
   if (typeof precioString !== "string") {
     throw new Error("El precio debe ser un string.");
   }
-  const precioLimpio = precioString.replace(/\./g, ""); // Elimina los puntos
-  const precioEntero = parseInt(precioLimpio, 10) * 100; // Multiplica por 100 para convertir a centavos
+  const precioLimpio = precioString.replace(/\./g, "");
+  const precioEntero = parseInt(precioLimpio, 10) * 100;
   if (isNaN(precioEntero)) {
     throw new Error("Formato de precio inválido.");
   }

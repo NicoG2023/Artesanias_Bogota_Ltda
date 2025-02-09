@@ -33,6 +33,7 @@ module.exports = {
         pago_fk: pago.id,
         total: pago.monto_transaccion, // Asegurar que el total coincida con el pago
         fecha_orden: faker.date.recent(),
+        direccion_fk: faker.number.int({ min: 1, max: 60 }),
       };
 
       ordenes.push(orden);

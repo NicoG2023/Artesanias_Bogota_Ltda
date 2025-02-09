@@ -27,6 +27,10 @@ const REL_CarritoProducto = sequelize.define(
         key: "id",
       },
     },
+    punto_venta_fk: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+    },
     cantidad: {
       type: DataTypes.INTEGER,
       allowNull: false,
@@ -39,6 +43,13 @@ const REL_CarritoProducto = sequelize.define(
   {
     tableName: "rel_carrito_producto",
     timestamps: false,
+    indexes: [
+      {
+        unique: true,
+        fields: ["carrito_fk", "producto_fk", "punto_venta_fk"],
+        name: "unique_carrito_producto_punto_venta",
+      },
+    ],
   }
 );
 

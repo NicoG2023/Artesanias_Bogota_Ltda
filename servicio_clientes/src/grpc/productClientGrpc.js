@@ -21,6 +21,7 @@ const productServiceClient = new productsProto.ProductService(
 );
 
 function getProductsByIds(productIds) {
+  console.log("Enviando productIds a gRPC:", productIds);
   return new Promise((resolve, reject) => {
     productServiceClient.GetProductsByIds(
       { product_ids: productIds },

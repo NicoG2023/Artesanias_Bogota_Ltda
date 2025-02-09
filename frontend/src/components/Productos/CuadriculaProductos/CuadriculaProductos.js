@@ -5,7 +5,8 @@ import { ModalProductoAdmin } from "../ModalProductoAdmin/ModalProductoAdmin";
 import { CartaProducto } from "../CartaProducto/CartaProducto";
 import "./CuadriculaProductos.scss";
 
-export function CuadriculaProductos({ productosHook, context }) {
+
+export function CuadriculaProductos({ productosHook, puntoVentaId }) {
   const {
     productos = [],
     loading,
@@ -66,21 +67,12 @@ export function CuadriculaProductos({ productosHook, context }) {
           />
         )}
       </div>
-
-      {context === "admin" && (
-        <ModalProductoAdmin 
+      <ModalProducto
         open={open}
         onClose={handleCloseModal}
         producto={selectedProduct}
-        />
-      )}
-      {context === "client" && (
-        <ModalProducto
-        open={open}
-        onClose={handleCloseModal}
-        producto={selectedProduct}
-        />
-      )}
+        puntoVentaId={puntoVentaId}
+      />
     </div>
   );
 }

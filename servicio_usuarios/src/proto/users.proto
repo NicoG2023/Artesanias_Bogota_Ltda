@@ -2,38 +2,75 @@ syntax = "proto3";
 
 package users;
 
-// Servicio para exponer métodos relacionados con usuarios
-service UserService {
-  rpc GetUsersByIds (GetUsersByIdsRequest) returns (GetUsersByIdsResponse);
-
-  // método para búsqueda de usuarios
-  rpc SearchUsers (SearchUsersRequest) returns (SearchUsersResponse);
-}
-
-// Mensaje de request: un array de IDs (método existente)
-message GetUsersByIdsRequest {
-  repeated int32 user_ids = 1;
+// Definición del mensaje para la dirección
+message Direccion {
+  int32 id = 1;
+  string direccion = 2;      // Dirección completa (ej.: "Calle 123 Bis")
+  string ciudad = 3;
+  string departamento = 4;
+  string codigo_postal = 5;
+  string pais = 6;
+  string info_adicional = 7; // Información adicional, opcional
 }
 
 // Modelo de usuario que exponemos (sin contraseña)
+// Incluimos las direcciones asociadas al usuario
 message User {
   int32 id = 1;
   string nombre = 2;
   string apellido = 3;
   string email = 4;
+  repeated Direccion direcciones = 5; // Direcciones asociadas
 }
 
-// Respuesta: varios usuarios (método existente)
+// Request para obtener usuarios por IDs
+message GetUsersByIdsRequest {
+  repeated int32 user_ids = 1;
+}
+
+// Respuesta con múltiples usuarios
 message GetUsersByIdsResponse {
   repeated User users = 1;
 }
 
-// Request para SearchUsers
+// Request para búsqueda de usuarios
 message SearchUsersRequest {
   string searchTerm = 1;
 }
 
-// Response para SearchUsers
+// Respuesta para búsqueda de usuarios
 message SearchUsersResponse {
   repeated User users = 1;
+}
+
+// Request para obtener una dirección por ID
+message GetDireccionByIdRequest {
+  int32 id = 1;
+  int32 usuario_id = 2;
+}
+
+// Response para obtener una dirección por ID
+message GetDireccionByIdResponse {
+  Direccion direccion = 1;
+}
+
+// === NUEVO: Obtener usuario por email ===
+
+// Request para obtener usuario por email
+message GetUsuarioByEmailRequest {
+  string email = 1;
+}
+
+// Response para obtener usuario por email
+message GetUsuarioByEmailResponse {
+  User usuario = 1;
+}
+
+// Servicio para exponer métodos relacionados con usuarios
+service UserService {
+  rpc GetUsersByIds (GetUsersByIdsRequest) returns (GetUsersByIdsResponse);
+  rpc SearchUsers (SearchUsersRequest) returns (SearchUsersResponse);
+  rpc GetDireccionById (GetDireccionByIdRequest) returns (GetDireccionByIdResponse);
+  // Método nuevo para obtener usuario por email
+  rpc GetUsuarioByEmail (GetUsuarioByEmailRequest) returns (GetUsuarioByEmailResponse);
 }

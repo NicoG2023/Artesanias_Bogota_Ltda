@@ -6,3 +6,4 @@ export * from "./ModalCambioEstadoOrden";
 export * from "./SubirArchivo";
 export * from "./SideMenu";
 export * from "./GestionUsuarios";
+export * from "./Inventario";
