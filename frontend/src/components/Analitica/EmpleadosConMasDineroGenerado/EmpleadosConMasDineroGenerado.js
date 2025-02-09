@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import { Bar } from "react-chartjs-2";
-import { Button, Dropdown, Segment, Header } from "semantic-ui-react";
+import { Button, Dropdown, Segment, Header, Checkbox } from "semantic-ui-react"; // 🔹 Agregamos Checkbox
 import { useAnalitica } from "../../../hooks";
+import { useAuth } from "../../../hooks/useAuth";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -11,7 +12,7 @@ import {
   Tooltip,
   Legend,
 } from "chart.js";
-import "./EmpleadosConMasVentas.scss";
+import "./EmpleadosConMasDineroGenerado.scss";
 
 ChartJS.register(
   CategoryScale,
@@ -22,23 +23,25 @@ ChartJS.register(
   Legend
 );
 
-export function EmpleadosConMasVentas() {
+export function EmpleadosConMasDineroGenerado() {
   const currentDate = new Date();
   const currentMonth = currentDate.getMonth() + 1;
   const currentYear = currentDate.getFullYear();
 
   const [month, setMonth] = useState(currentMonth);
   const [year, setYear] = useState(currentYear);
-  const [queryTriggered, setQueryTriggered] = useState(false); // 🔹 Nuevo estado
+  const [isAnnual, setIsAnnual] = useState(false); // 🔹 Nuevo estado para vista anual
+  const [queryTriggered, setQueryTriggered] = useState(false);
 
-  const { data, loading, error, getEmpleadosConMasVentas } = useAnalitica();
+  const { data, loading, error, getEmpleadosConMasDineroGenerado } =
+    useAnalitica();
+  const { auth } = useAuth();
 
   const handleFetchData = () => {
-    setQueryTriggered(true); // Marcar que se ha hecho una consulta
-    getEmpleadosConMasVentas(month, year);
+    setQueryTriggered(true);
+    getEmpleadosConMasDineroGenerado(isAnnual ? null : month, year);
   };
 
-  // Opciones de los selectores
   const monthOptions = [
     { key: 1, text: "Enero", value: 1 },
     { key: 2, text: "Febrero", value: 2 },
@@ -65,13 +68,25 @@ export function EmpleadosConMasVentas() {
         Analítica de Ventas del Staff
       </Header>
       <Segment className="selector-container">
-        <Dropdown
-          placeholder="Seleccionar mes"
-          selection
-          options={monthOptions}
-          value={month}
-          onChange={(e, { value }) => setMonth(value)}
+        {/* 🔹 Switch para activar/desactivar vista anual */}
+        <Checkbox
+          toggle
+          label="Ver Datos Anuales"
+          checked={isAnnual}
+          onChange={() => setIsAnnual(!isAnnual)}
         />
+
+        {/* 🔹 Mostrar mes solo si no es vista anual */}
+        {!isAnnual && (
+          <Dropdown
+            placeholder="Seleccionar mes"
+            selection
+            options={monthOptions}
+            value={month}
+            onChange={(e, { value }) => setMonth(value)}
+          />
+        )}
+
         <Dropdown
           placeholder="Seleccionar año"
           selection
@@ -79,10 +94,10 @@ export function EmpleadosConMasVentas() {
           value={year}
           onChange={(e, { value }) => setYear(value)}
         />
+
         <Button primary onClick={handleFetchData}>
           Consultar
-        </Button>{" "}
-        {/* 🔹 Nuevo botón */}
+        </Button>
       </Segment>
 
       {loading && <div className="loading">Cargando datos...</div>}
@@ -112,7 +127,9 @@ export function EmpleadosConMasVentas() {
                 legend: { position: "top" },
                 title: {
                   display: true,
-                  text: `Top Empleados - Ventas en ${month}/${year}`,
+                  text: `Top 5 Empleados - ${
+                    isAnnual ? `Año ${year}` : `${month}/${year}`
+                  }`,
                 },
               },
             }}

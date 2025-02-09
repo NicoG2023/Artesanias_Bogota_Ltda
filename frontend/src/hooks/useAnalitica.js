@@ -1,5 +1,8 @@
 import { useState, useCallback } from "react";
-import { getEmpleadosConMasVentasApi } from "../api/analitica";
+import {
+  getEmpleadosConMasDineroGeneradoApi,
+  getEmpleadosConMasVentasApi,
+} from "../api/analitica";
 import { useAuth } from "./useAuth";
 
 export function useAnalitica() {
@@ -7,6 +10,25 @@ export function useAnalitica() {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+
+  const getEmpleadosConMasDineroGenerado = useCallback(
+    async (month, year) => {
+      try {
+        setLoading(true);
+        const result = await getEmpleadosConMasDineroGeneradoApi(
+          auth.token,
+          month,
+          year
+        );
+        setData(result.data);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [auth.token]
+  );
 
   const getEmpleadosConMasVentas = useCallback(
     async (month, year) => {
@@ -31,6 +53,7 @@ export function useAnalitica() {
     data,
     loading,
     error,
+    getEmpleadosConMasDineroGenerado,
     getEmpleadosConMasVentas,
   };
 }

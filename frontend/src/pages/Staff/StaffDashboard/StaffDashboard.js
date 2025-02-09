@@ -1,11 +1,22 @@
 import React from "react";
-import { EmpleadosConMasVentas } from "../../../components";
+import {
+  EmpleadosConMasDineroGenerado,
+  EmpleadosConMasVentas,
+} from "../../../components";
+import "./StaffDashboard.scss";
 
 export function StaffDashboard() {
   return (
-    <div>
+    <div className="staff-dashboard">
       <h1>Dashboard de Staff</h1>
-      <EmpleadosConMasVentas />
+      <div className="dashboard-container">
+        <div className="panel">
+          <EmpleadosConMasDineroGenerado />
+        </div>
+        <div className="panel">
+          <EmpleadosConMasVentas />
+        </div>
+      </div>
     </div>
   );
 }
