@@ -29,7 +29,7 @@ export function Productos() {
           <PanelFiltrado productosHook={productosHook} />
         </aside>
         <main className="content">
-          <CuadriculaProductos productosHook={productosHook} />
+          <CuadriculaProductos productosHook={productosHook} puntoVentaId={1} />
         </main>
       </div>
     </div>

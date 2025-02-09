@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from "react";
 import { Table, Button, Icon, Loader } from "semantic-ui-react";
+import { useAuth } from "../../../hooks";
 import { useNavigate } from "react-router-dom";
 import "./Carrito.scss";
 
@@ -13,6 +14,7 @@ export function Carrito({
 }) {
   const hasFetched = useRef(false);
   const navigate = useNavigate();
+  const { auth } = useAuth();
 
   useEffect(() => {
     if (!hasFetched.current) {
@@ -85,7 +87,7 @@ export function Carrito({
               <Table.Cell>
                 {producto.nombre}
                 <br />
-                {producto.puntoVenta && (
+                {producto.puntoVenta && auth.user.rol === "staff" && (
                   <span className="punto-venta">
                     Punto de venta: {producto.puntoVenta.nombre}
                   </span>

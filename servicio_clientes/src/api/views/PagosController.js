@@ -20,7 +20,7 @@ async function createCheckoutSession(req, res) {
       userId,
     } = req.body;
     console.log("req.body", req.body);
-
+    console.log("items", items);
     const discounts = [];
 
     // Si se aplica descuento, crear cupón efímero
@@ -112,12 +112,20 @@ async function stripeWebhookHandler(req, res) {
     const amount = session.amount_total;
     console.log("Checkout session completed:", session.id);
 
+    // Obtener detalles adicionales del PaymentIntent
+    const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
+    const paymentMethodId = paymentIntent.payment_method;
+    const discountPercentage = Number(session.metadata.discountPercentage) || 0;
+
     // **Obtener el correo ingresado en Stripe**
     const customerEmail = session.customer_details?.email;
     let usuarioId = session.metadata.usuario_fk || null;
 
+    // Declarar la variable para el pago de forma que esté disponible en todo el bloque
+    let nuevoPago;
+
     if (customerEmail && session.metadata.rol === "staff") {
-      console.log("entra a vincular usuario");
+      console.log("Entra a vincular usuario");
       const getUsuario = {
         eventType: "VINCULAR_USUARIO",
         payload: {
@@ -125,41 +133,47 @@ async function stripeWebhookHandler(req, res) {
         },
       };
       await sendMessage("usuarios-events", "VincularUsuario", getUsuario);
-      console.log("Evento ACTUALIZAR_PUNTOS_USUARIO enviado a Kafka.");
+      console.log("Evento VINCULAR_USUARIO enviado a Kafka.");
 
       usuarioId = await getUsuarioByEmail(customerEmail);
       console.log("Usuario encontrado:", usuarioId);
+
+      // Para el staff, asignamos el vendedor_fk (usando, por ejemplo, el valor de session.metadata.usuario_fk)
+      nuevoPago = await Pago.create({
+        usuario_fk: Number(usuarioId),
+        vendedor_fk: session.metadata.usuario_fk,
+        intencion_pago_id: paymentIntentId,
+        metodo_pago_id: paymentMethodId,
+        monto_transaccion: (amount / 100).toFixed(2),
+        moneda_transaccion: session.currency.toUpperCase(),
+        estado: paymentStatus,
+        descripcion: "Compra en Stripe Checkout",
+      });
+    } else if (session.metadata.rol === "cliente") {
+      // Para el cliente, no hay vendedor asociado
+      nuevoPago = await Pago.create({
+        usuario_fk: Number(usuarioId),
+        vendedor_fk: null,
+        intencion_pago_id: paymentIntentId,
+        metodo_pago_id: paymentMethodId,
+        monto_transaccion: (amount / 100).toFixed(2),
+        moneda_transaccion: session.currency.toUpperCase(),
+        estado: paymentStatus,
+        descripcion: "Compra en Stripe Checkout",
+      });
     } else {
       console.warn(
         "No se encontró customer_details.email en la sesión de Stripe"
       );
     }
 
-    // Obtener detalles adicionales del PaymentIntent
-    const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
-    const paymentMethodId = paymentIntent.payment_method;
-
-    // Crear un pago en la DB usando el usuario obtenido/creado
-    const nuevoPago = await Pago.create({
-      usuario_fk: Number(usuarioId),
-      intencion_pago_id: paymentIntentId,
-      metodo_pago_id: paymentMethodId,
-      monto_transaccion: (amount / 100).toFixed(2),
-      moneda_transaccion: session.currency.toUpperCase(),
-      estado: paymentStatus,
-      descripcion: "Compra en Stripe Checkout",
-    });
-
-    const discountPercentage = Number(session.metadata.discountPercentage) || 0;
-
     // Procesar los productos del carrito (cada item incluye su punto de venta)
     const productos = JSON.parse(session.metadata.productos);
     console.log("Productos en la orden:", productos);
 
-    // Crear la orden utilizando el usuario obtenido (usuarioId)
+    // Crear la orden utilizando el usuario obtenido (usuarioId) y el id del pago (nuevoPago.id)
     const nuevaOrden = await createOrderTransaction({
       usuario_fk: Number(usuarioId),
-      // Se puede elegir el punto de venta que corresponda; por ejemplo, el primero del array:
       lugar_compra_fk: JSON.parse(session.metadata.puntos_venta_fk)[0] || 1,
       pago_fk: nuevoPago.id,
       total: Number(session.metadata.total) || amount / 100,

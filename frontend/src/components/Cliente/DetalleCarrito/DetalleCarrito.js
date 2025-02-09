@@ -127,6 +127,7 @@ export function DetalleCarrito({
         priceId: p.stripe_price_id,
         quantity: p.REL_CarritoProducto.cantidad,
         producto_fk: p.id,
+        puntoVentaId: p.puntoVenta.id,
       }));
 
     if (!items.length) {

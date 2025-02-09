@@ -66,11 +66,21 @@ message GetUsuarioByEmailResponse {
   User usuario = 1;
 }
 
+// Request para obtener usuarios por vendedor_fk
+message GetUsersByVendedorFkRequest {
+  repeated int32 vendedor_fks = 1;
+}
+
+// Respuesta con múltiples usuarios
+message GetUsersByVendedorFkResponse {
+  repeated User users = 1;
+}
+
 // Servicio para exponer métodos relacionados con usuarios
 service UserService {
   rpc GetUsersByIds (GetUsersByIdsRequest) returns (GetUsersByIdsResponse);
   rpc SearchUsers (SearchUsersRequest) returns (SearchUsersResponse);
   rpc GetDireccionById (GetDireccionByIdRequest) returns (GetDireccionByIdResponse);
-  // Método nuevo para obtener usuario por email
   rpc GetUsuarioByEmail (GetUsuarioByEmailRequest) returns (GetUsuarioByEmailResponse);
+  rpc GetUsersByVendedorFk (GetUsersByVendedorFkRequest) returns (GetUsersByVendedorFkResponse);
 }

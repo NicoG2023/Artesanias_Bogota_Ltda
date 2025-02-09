@@ -9,6 +9,7 @@ const swaggerSpec = require("./config/swagger");
 const ordenesRoutes = require("./api/routes/ordenRoutes");
 const puntoVentaRoutes = require("./api/routes/puntoVentaRoutes");
 const pagosRoutes = require("./api/routes/pagosRoutes");
+const analiticasRoutes = require("./api/routes/analiticasRoutes");
 require("./grpc/userClientGrpc");
 require("./grpc/productClientGrpc");
 require("./grpc/grpcServer");
@@ -33,6 +34,7 @@ app.use(
 app.use("/api", ordenesRoutes);
 app.use("/api", puntoVentaRoutes);
 app.use("/api", pagosRoutes);
+app.use("/api", analiticasRoutes);
 app.post(
   "/webhook/stripe",
   express.raw({ type: "application/json" }),
