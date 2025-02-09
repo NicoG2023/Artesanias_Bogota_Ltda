@@ -4,7 +4,7 @@ import { ModalProducto } from "../ModalProducto/ModalProducto";
 import { CartaProducto } from "../CartaProducto/CartaProducto";
 import "./CuadriculaProductos.scss";
 
-export function CuadriculaProductos({ productosHook }) {
+export function CuadriculaProductos({ productosHook, puntoVentaId }) {
   const {
     productos = [],
     loading,
@@ -70,6 +70,7 @@ export function CuadriculaProductos({ productosHook }) {
         open={open}
         onClose={handleCloseModal}
         producto={selectedProduct}
+        puntoVentaId={puntoVentaId}
       />
     </div>
   );

@@ -3,16 +3,19 @@ import { Modal, Button, Icon, Message, Label } from "semantic-ui-react";
 import { useCarrito } from "../../../hooks/useCarrito";
 import "./ModalProducto.scss";
 
-export function ModalProducto({ open, onClose, producto }) {
+export function ModalProducto({ open, onClose, producto, puntoVentaId }) {
   const { agregarProducto } = useCarrito();
 
   if (!producto) return null;
 
   const handleAddToCart = async () => {
+    // Si no se ha seleccionado un punto de venta, avisamos al usuario
+    if (!puntoVentaId) {
+      alert("Debe seleccionar un punto de venta antes de agregar el producto.");
+      return;
+    }
     try {
-      console.log("Agregar al carrito:", producto);
-      await agregarProducto(producto.id, 1);
-      console.log("Producto agregado al carrito:", producto);
+      await agregarProducto(producto.id, 1, puntoVentaId);
       onClose();
     } catch (error) {
       console.error("Error al agregar el producto al carrito:", error.message);

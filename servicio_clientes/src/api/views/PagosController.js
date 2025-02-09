@@ -5,9 +5,11 @@ const endpointSecret =
 const { createOrderTransaction } = require("./OrdenController");
 const { sendMessage } = require("../../kafka/kafkaProducer");
 const { Pago } = require("../../models");
+const { getUsuarioByEmail } = require("../../grpc/userClientGrpc");
 
 async function createCheckoutSession(req, res) {
   try {
+    // Se espera que cada item tenga: producto_fk, quantity y puntoVentaId
     const {
       items,
       applyDiscount,
@@ -21,19 +23,18 @@ async function createCheckoutSession(req, res) {
 
     const discounts = [];
 
-    // 1) Crear el cupón efímero si hay descuento
+    // Si se aplica descuento, crear cupón efímero
     if (applyDiscount && discountPercentage > 0) {
-      // Creamos un cupón con porcentaje "discountPercentage"
       const ephemeralCoupon = await stripe.coupons.create({
-        percent_off: discountPercentage, // entero 0 a 100
-        duration: "once", // Solo para una compra
+        percent_off: discountPercentage,
+        duration: "once",
       });
       discounts.push({ coupon: ephemeralCoupon.id });
     }
 
-    // 2) Construimos line_items a partir de items
+    // Construir line_items para Stripe a partir de items
     const line_items = items.map((item) => ({
-      price: item.priceId,
+      price: item.priceId, // se asume que cada item trae su stripe_price_id como priceId
       quantity: item.quantity,
     }));
 
@@ -44,19 +45,23 @@ async function createCheckoutSession(req, res) {
           product_data: {
             name: "Envío",
           },
-          // unit_amount va en centavos
-          unit_amount: shippingCost * 100,
+          unit_amount: shippingCost * 100, // en centavos
         },
         quantity: 1,
       });
     }
 
+    // Crear un arreglo de productos para la orden, incluyendo el punto de venta de cada item
     const productosCarrito = items.map((item) => ({
       producto_fk: item.producto_fk,
       cantidad: item.quantity,
+      punto_venta_fk: item.puntoVentaId,
     }));
 
-    // 3) Creamos la sesión de Checkout
+    // Obtener el array de IDs únicos de punto de venta
+    const puntosVentaIds = [...new Set(items.map((item) => item.puntoVentaId))];
+
+    // Crear la sesión de Stripe Checkout, incluyendo en metadata la info necesaria
     const session = await stripe.checkout.sessions.create({
       mode: "payment",
       payment_method_types: ["card"],
@@ -66,12 +71,12 @@ async function createCheckoutSession(req, res) {
       cancel_url: `${frontendUrl}/pago-cancelado`,
       metadata: {
         usuario_fk: userId?.toString() || "",
-        direccion_fk: selectedAddress?.toString() || "",
+        direccion_fk: selectedAddress?.toString() || null,
         discountPercentage: discountPercentage?.toString() || "0",
         total: total?.toString() || "0",
         productos: JSON.stringify(productosCarrito),
-        punto_venta_fk: "1",
-        // Podrías incluir shippingCost, etc.
+        puntos_venta_fk: JSON.stringify(puntosVentaIds),
+        rol: req.user.rol,
       },
     });
 
@@ -88,8 +93,6 @@ async function createCheckoutSession(req, res) {
 async function stripeWebhookHandler(req, res) {
   console.log("Entra al webHook");
   let event;
-
-  // Verificar la firma de Stripe
   const signature = req.headers["stripe-signature"];
   try {
     event = stripe.webhooks.constructEvent(
@@ -102,89 +105,121 @@ async function stripeWebhookHandler(req, res) {
     return res.status(400).send(`Webhook Error: ${err.message}`);
   }
 
-  // Manejar evento
   if (event.type === "checkout.session.completed") {
     const session = event.data.object;
     const paymentIntentId = session.payment_intent;
-    const paymentStatus = session.payment_status; // "paid", etc.
-    const amount = session.amount_total; // en centavos
-    const currency = session.currency;
+    const paymentStatus = session.payment_status;
+    const amount = session.amount_total;
     console.log("Checkout session completed:", session.id);
 
-    // 1) Obtener más detalles del PaymentIntent
+    // **Obtener el correo ingresado en Stripe**
+    const customerEmail = session.customer_details?.email;
+    let usuarioId = session.metadata.usuario_fk || null;
+
+    if (customerEmail && session.metadata.rol === "staff") {
+      console.log("entra a vincular usuario");
+      const getUsuario = {
+        eventType: "VINCULAR_USUARIO",
+        payload: {
+          email: customerEmail,
+        },
+      };
+      await sendMessage("usuarios-events", "VincularUsuario", getUsuario);
+      console.log("Evento ACTUALIZAR_PUNTOS_USUARIO enviado a Kafka.");
+
+      usuarioId = await getUsuarioByEmail(customerEmail);
+      console.log("Usuario encontrado:", usuarioId);
+    } else {
+      console.warn(
+        "No se encontró customer_details.email en la sesión de Stripe"
+      );
+    }
+
+    // Obtener detalles adicionales del PaymentIntent
     const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
     const paymentMethodId = paymentIntent.payment_method;
 
-    // 2) Crear un Pago en tu DB
+    // Crear un pago en la DB usando el usuario obtenido/creado
     const nuevoPago = await Pago.create({
-      usuario_fk: Number(session.metadata.usuario_fk),
+      usuario_fk: Number(usuarioId),
       intencion_pago_id: paymentIntentId,
       metodo_pago_id: paymentMethodId,
       monto_transaccion: (amount / 100).toFixed(2),
-      moneda_transaccion: currency.toUpperCase(),
-      estado: paymentStatus, // "paid" / "unpaid" / "canceled"
+      moneda_transaccion: session.currency.toUpperCase(),
+      estado: paymentStatus,
       descripcion: "Compra en Stripe Checkout",
     });
 
     const discountPercentage = Number(session.metadata.discountPercentage) || 0;
 
-    // 3) Crear la Orden
+    // Procesar los productos del carrito (cada item incluye su punto de venta)
     const productos = JSON.parse(session.metadata.productos);
     console.log("Productos en la orden:", productos);
+
+    // Crear la orden utilizando el usuario obtenido (usuarioId)
     const nuevaOrden = await createOrderTransaction({
-      usuario_fk: Number(session.metadata.usuario_fk),
-      lugar_compra_fk: session.metadata.punto_venta_fk || 1,
+      usuario_fk: Number(usuarioId),
+      // Se puede elegir el punto de venta que corresponda; por ejemplo, el primero del array:
+      lugar_compra_fk: JSON.parse(session.metadata.puntos_venta_fk)[0] || 1,
       pago_fk: nuevoPago.id,
       total: Number(session.metadata.total) || amount / 100,
-      direccion_fk: Number(session.metadata.direccion_fk),
+      direccion_fk: Number(session.metadata.direccion_fk) || null,
       productos,
       stripe_session_id: session.id,
       descuento_aplicado: discountPercentage,
     });
     console.log("Orden creada:", nuevaOrden.id);
 
-    // 4) Publicar evento "DESCONTAR_INVENTARIO" a Kafka
-    // Supongamos que punto_venta_fk = 1 (como dices que es fijo).
+    // Agrupar los productos por punto de venta para descontar inventario
+    const grupos = {};
+    productos.forEach((item) => {
+      const pv = item.punto_venta_fk;
+      if (!grupos[pv]) {
+        grupos[pv] = [];
+      }
+      grupos[pv].push({
+        producto_fk: item.producto_fk,
+        cantidad: item.cantidad,
+      });
+    });
+    const puntosVentaGrupos = Object.entries(grupos).map(
+      ([punto_venta_fk, items]) => ({
+        punto_venta_fk,
+        items,
+      })
+    );
+
+    // Enviar evento DESCONTAR_INVENTARIO con la agrupación por punto de venta
     const inventoryPayload = {
       eventType: "DESCONTAR_INVENTARIO",
       payload: {
-        punto_venta_fk: session.metadata.punto_venta_fk || 1,
-        items: productos.map((prod) => ({
-          producto_fk: prod.producto_fk,
-          cantidad: prod.cantidad,
-        })),
+        puntos_venta: puntosVentaGrupos,
       },
     };
-
     await sendMessage("admins-events", "descontarInventario", inventoryPayload);
     console.log("Evento DESCONTAR_INVENTARIO enviado a Kafka.");
 
+    // Enviar evento LIMPIAR_CARRITO
     const cleanCartPayload = {
       eventType: "LIMPIAR_CARRITO",
       payload: {
-        usuario_fk: Number(session.metadata.usuario_fk),
+        usuario_fk: Number(usuarioId),
       },
     };
     await sendMessage("admins-events", "limpiarCarrito", cleanCartPayload);
-    console.log("Evento LIMPIAR_CARRITO enviado a Kafka");
+    console.log("Evento LIMPIAR_CARRITO enviado a Kafka.");
 
-    //ACTUALIZAR LOS PUNTOS DEL USUARIO
-    const totalOrden = Number(session.metadata.total) || amount / 100; // amount/100 si no vino en metadata
-
-    let eventTypePuntos = "ACTUALIZAR_PUNTOS_USUARIO";
+    // Actualizar puntos del usuario (evento ACTUALIZAR_PUNTOS_USUARIO)
+    const totalOrden = Number(session.metadata.total) || amount / 100;
     const payloadPuntos = {
-      usuario_fk: Number(session.metadata.usuario_fk),
+      usuario_fk: Number(usuarioId),
       discountPercentage,
       total: totalOrden,
     };
-
-    // 2) Crear evento Kafka
     const updatePuntosMessage = {
-      eventType: eventTypePuntos,
+      eventType: "ACTUALIZAR_PUNTOS_USUARIO",
       payload: payloadPuntos,
     };
-
-    // 3) Mandar a un tópico, p. ej. "usuarios-events"
     await sendMessage(
       "usuarios-events",
       "actualizarPuntos",
@@ -195,7 +230,7 @@ async function stripeWebhookHandler(req, res) {
     console.log("Orden creada y carrito limpiado");
   }
 
-  // Responde 200 a Stripe
+  // Responder 200 a Stripe
   return res.json({ received: true });
 }
 

@@ -41,6 +41,28 @@ async function GetUsersByIds(call, callback) {
   }
 }
 
+async function GetUsuarioByEmail(call, callback) {
+  try {
+    const email = call.request.email;
+    const usuario = await Usuario.findOne({
+      where: { email },
+    });
+    if (!usuario) {
+      return callback({
+        code: grpc.status.NOT_FOUND,
+        message: "Usuario no encontrado",
+      });
+    }
+    callback(null, { usuario: usuario.toJSON() });
+  } catch (error) {
+    console.error("Error en GetUsuarioByEmail gRPC:", error);
+    return callback({
+      code: grpc.status.INTERNAL,
+      message: error.message || "Error al obtener usuario",
+    });
+  }
+}
+
 // NUEVO: Buscar usuarios por termino (nombre, apellido, email)
 async function SearchUsers(call, callback) {
   try {
@@ -112,6 +134,7 @@ function main() {
     GetUsersByIds,
     SearchUsers,
     GetDireccionById,
+    GetUsuarioByEmail,
   });
 
   const address = "0.0.0.0:50051";

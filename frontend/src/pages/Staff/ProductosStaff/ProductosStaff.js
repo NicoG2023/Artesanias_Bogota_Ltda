@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   CuadriculaProductos,
   ListadoPuntosVenta,
@@ -9,11 +9,14 @@ import { useProductos } from "../../../hooks";
 import "./ProductosStaff.scss";
 
 export function ProductosStaff() {
+  const [puntoVentaSeleccionado, setPuntoVentaSeleccionado] = useState(null);
   const puntoVentaHook = usePuntoVenta();
   const productosHook = useProductos();
 
   // Función para manejar la selección de un punto de venta en el dropdown
   const handleSelectPuntoVenta = (puntoVentaId) => {
+    console.log("Punto de venta seleccionado:", puntoVentaId);
+    setPuntoVentaSeleccionado(puntoVentaId);
     // Actualizamos los filtros de productos con el punto de venta elegido
     productosHook.updateFilters({ puntoVentaId, page: 1 });
   };
@@ -38,7 +41,10 @@ export function ProductosStaff() {
         <Buscador onSearch={handleSearch} />
       </div>
       <div className="cuadricula-productos">
-        <CuadriculaProductos productosHook={productosHook} />
+        <CuadriculaProductos
+          productosHook={productosHook}
+          puntoVentaId={puntoVentaSeleccionado}
+        />
       </div>
     </div>
   );

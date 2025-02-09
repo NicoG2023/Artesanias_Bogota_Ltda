@@ -43,7 +43,7 @@ const Orden = sequelize.define(
     },
     direccion_fk: {
       type: DataTypes.INTEGER,
-      allowNull: false,
+      allowNull: true,
     },
     stripe_session_id: {
       type: DataTypes.STRING,

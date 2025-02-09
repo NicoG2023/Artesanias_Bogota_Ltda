@@ -162,7 +162,11 @@ export function DetalleCarrito({
                 className="cart-item__image"
               />
               <div className="cart-item__details">
-                <div className="cart-item__type">{producto.tipo || ""}</div>
+                {auth?.user?.rol === "staff" && (
+                  <div className="cart-item__type">
+                    {producto.puntoVenta.nombre || ""}
+                  </div>
+                )}
                 <div className="cart-item__name">{producto.nombre}</div>
                 <div className="cart-item__quantity">
                   <button
@@ -237,16 +241,18 @@ export function DetalleCarrito({
           )}
 
           {/* Sección para seleccionar la dirección de envío */}
-          <div className="summary-section">
-            <label>Envío</label>
-            <Dropdown
-              options={shippingOptions}
-              value={selectedAddress}
-              onChange={(e) => setSelectedAddress(e.value)}
-              placeholder="Seleccione dirección de envío"
-              className="shipping-dropdown"
-            />
-          </div>
+          {auth?.user?.rol === "cliente" && (
+            <div className="summary-section">
+              <label>Envío</label>
+              <Dropdown
+                options={shippingOptions}
+                value={selectedAddress}
+                onChange={(e) => setSelectedAddress(e.value)}
+                placeholder="Seleccione dirección de envío"
+                className="shipping-dropdown"
+              />
+            </div>
+          )}
 
           {/* Sección de Descuentos */}
           <div className="summary-section">

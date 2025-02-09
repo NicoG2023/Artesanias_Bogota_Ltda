@@ -26,6 +26,8 @@ async function connectConsumer() {
         console.log("Evento recibido en Usuarios:", event);
         if (event.eventType === "ACTUALIZAR_PUNTOS_USUARIO") {
           await handleActualizarPuntosUsuario(event.payload);
+        } else if (event.eventType === "VINCULAR_USUARIO") {
+          await handleVincularUsuario(event.payload);
         }
       } catch (error) {
         console.error("Error procesando mensaje en Usuarios:", error);
@@ -73,6 +75,31 @@ async function handleActualizarPuntosUsuario({
       `Usuario ${usuario_fk} sin cambio de puntos (discount=0, total <= 70000)`
     );
   }
+}
+
+async function handleVincularUsuario({ email }) {
+  if (!email) {
+    console.error("No se proporcionó email en el payload de VINCULAR_USUARIO");
+    return;
+  }
+
+  // Buscar usuario por email
+  let usuario = await Usuario.findOne({ where: { email } });
+  if (!usuario) {
+    // Si no existe, crearlo
+    // Se genera una contraseña aleatoria (en producción usa un método más robusto)
+    const randomPassword = Math.random().toString(36).slice(-8);
+    usuario = await Usuario.create({
+      email,
+      password: randomPassword, // se encriptará automáticamente mediante el hook beforeSave
+      rol: "cliente",
+    });
+    console.log(`Se creó un nuevo usuario: ${usuario.id} para email: ${email}`);
+  } else {
+    console.log(`Usuario ya existente: ${usuario.id} para email: ${email}`);
+  }
+
+  // Aquí podrías, por ejemplo, publicar un evento de confirmación o actualizar metadata si fuera necesario.
 }
 
 module.exports = {

@@ -349,7 +349,8 @@ const obtenerOrdenesPorUsuario = async (req, res) => {
     // 3) Recolectar todos los IDs de direcciones (direccion_fk) de las órdenes
     const direccionIds = new Set();
     ordenesUsuario.forEach((orden) => {
-      if (orden.direccion_fk) {
+      // Solo agregamos si direccion_fk NO es null ni undefined
+      if (orden.direccion_fk !== null && orden.direccion_fk !== undefined) {
         direccionIds.add(orden.direccion_fk);
       }
     });
@@ -370,6 +371,7 @@ const obtenerOrdenesPorUsuario = async (req, res) => {
     await Promise.all(
       [...direccionIds].map(async (dirId) => {
         // Se pasa el id de la dirección y el usuario_fk obtenido de los parámetros
+        console.log("dirId", dirId);
         const direccion = await getDireccionById(dirId, usuario_fk);
         dictDirecciones[dirId] = direccion;
       })
@@ -378,6 +380,7 @@ const obtenerOrdenesPorUsuario = async (req, res) => {
     // 6) Enriquecer cada orden con la información de los productos y la dirección
     const ordenesEnriquecidas = ordenesUsuario.map((orden) => {
       const ordenJSON = orden.toJSON();
+      ordenJSON.direccion = dictDirecciones[ordenJSON.direccion_fk] || null;
 
       // Enriquecer cada REL_Orden_Producto con la información del producto
       ordenJSON.productosOrden = ordenJSON.productosOrden.map((rel) => {
@@ -465,8 +468,8 @@ const obtenerOrdenPorId = async (req, res) => {
 
     // 5) Obtener la dirección por gRPC (si aplica)
     let direccionData = null;
-    if (direccionId) {
-      // Suponiendo que la orden tiene un usuario_fk
+    if (direccionId !== null && direccionId !== undefined) {
+      // Se asume que la orden tiene un usuario_fk
       direccionData = await getDireccionById(direccionId, orden.usuario_fk);
     }
 

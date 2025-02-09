@@ -47,29 +47,44 @@ export function useCarrito() {
     }
   };
 
-  const agregarProducto = async (productoId, cantidad) => {
+  const agregarProducto = async (productoId, cantidad, puntoVentaId) => {
     try {
       setLoading(true);
       limpiarError();
       const nuevoProducto = await agregarAlCarritoApi(
         auth.token,
         productoId,
-        cantidad
+        cantidad,
+        puntoVentaId
       );
 
       setCarrito((prevCarrito) => {
+        // Se busca si ya existe el producto con el mismo punto de venta
         const productoExistente = prevCarrito.productos.find(
-          (p) => p.id === nuevoProducto.id
+          (p) => p.id === productoId && p.punto_venta_fk === puntoVentaId
         );
-        const nuevosProductos = productoExistente
-          ? prevCarrito.productos.map((p) =>
-              p.id === nuevoProducto.id
-                ? { ...p, cantidad: p.cantidad + cantidad }
+        if (productoExistente) {
+          return {
+            ...prevCarrito,
+            productos: prevCarrito.productos.map((p) =>
+              p.id === productoId && p.punto_venta_fk === puntoVentaId
+                ? { ...p, cantidad: productoExistente.cantidad + cantidad }
                 : p
-            )
-          : [...prevCarrito.productos, { ...nuevoProducto, cantidad }];
-
-        return { ...prevCarrito, productos: nuevosProductos };
+            ),
+          };
+        } else {
+          // Agregamos un nuevo objeto al carrito (completa con los datos que tengas)
+          const nuevoObj = {
+            id: productoId,
+            cantidad: cantidad,
+            punto_venta_fk: puntoVentaId,
+            // Puedes agregar otros campos del producto si los tienes
+          };
+          return {
+            ...prevCarrito,
+            productos: [...prevCarrito.productos, nuevoObj],
+          };
+        }
       });
     } catch (err) {
       setError(err.message);

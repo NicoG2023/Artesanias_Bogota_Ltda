@@ -96,38 +96,35 @@ async function handlePuntoDeVentaEliminado(payload) {
   }
 }
 
-async function handleDescontarInventario({ punto_venta_fk, items }) {
-  // items = [{ producto_fk, cantidad }, ...]
-  // 1) por cada item, buscar Inventario y restar
-  for (const item of items) {
-    const { producto_fk, cantidad } = item;
+async function handleDescontarInventario({ puntos_venta }) {
+  // puntos_venta: array de objetos { punto_venta_fk, items }
+  for (const grupo of puntos_venta) {
+    const { punto_venta_fk, items } = grupo;
+    for (const item of items) {
+      const { producto_fk, cantidad } = item;
 
-    // Obtener el inventario
-    const inv = await Inventario.findOne({
-      where: {
-        producto_fk,
-        punto_venta_fk,
-      },
-    });
+      const inv = await Inventario.findOne({
+        where: { producto_fk, punto_venta_fk },
+      });
 
-    if (!inv) {
-      // Podrías crear uno nuevo (si la lógica lo permite) o lanzar error
-      throw new Error(
-        `No se encontró inventario para producto_fk=${producto_fk} en PV=${punto_venta_fk}`
+      if (!inv) {
+        throw new Error(
+          `No se encontró inventario para producto_fk=${producto_fk} en PV=${punto_venta_fk}`
+        );
+      }
+
+      if (inv.cantidad < cantidad) {
+        throw new Error(
+          `Inventario insuficiente para producto_fk=${producto_fk} en PV=${punto_venta_fk}. Actual=${inv.cantidad}, requerido=${cantidad}`
+        );
+      }
+
+      inv.cantidad -= cantidad;
+      await inv.save();
+      console.log(
+        `Inventario actualizado para producto_fk=${producto_fk} en PV=${punto_venta_fk}: nueva cantidad=${inv.cantidad}`
       );
     }
-
-    if (inv.cantidad < cantidad) {
-      throw new Error(
-        `Inventario insuficiente para producto_fk=${producto_fk}. Actual=${inv.cantidad}, requerido=${cantidad}`
-      );
-    }
-
-    inv.cantidad -= cantidad;
-    await inv.save();
-    console.log(
-      `Inventario actualizado para producto_fk=${producto_fk}: nueva cantidad=${inv.cantidad}`
-    );
   }
 }
 

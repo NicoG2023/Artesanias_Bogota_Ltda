@@ -67,8 +67,24 @@ function getDireccionById(id, usuario_id) {
   });
 }
 
+/**
+ * Función para obtener una dirección por su ID vía gRPC
+ * @param {string} email - email vinculado
+ * @returns {Promise<{ id }>}
+ */
+function getUsuarioByEmail(email) {
+  return new Promise((resolve, reject) => {
+    userServiceClient.GetUsuarioByEmail({ email }, (err, response) => {
+      if (err) return reject(err);
+      // response.usuario es un objeto con la información del usuario
+      resolve(response.usuario.id);
+    });
+  });
+}
+
 module.exports = {
   getUsersByIds,
   searchUsersByTerm,
   getDireccionById,
+  getUsuarioByEmail,
 };

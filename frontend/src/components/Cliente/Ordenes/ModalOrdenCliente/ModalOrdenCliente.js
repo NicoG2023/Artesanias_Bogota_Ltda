@@ -54,13 +54,20 @@ export function ModalOrdenCliente({ visible, onHide, order }) {
                 <Table.Cell>Punto de Venta</Table.Cell>
                 <Table.Cell>{order.puntoVenta?.nombre}</Table.Cell>
               </Table.Row>
-              <Table.Row>
-                <Table.Cell>Dirección</Table.Cell>
-                <Table.Cell>
-                  {order.direccion.direccion}, {order.direccion.ciudad},{" "}
-                  {order.direccion.departamento}, {order.direccion.pais}
-                </Table.Cell>
-              </Table.Row>
+              {order.direccion ? (
+                <Table.Row>
+                  <Table.Cell>Dirección</Table.Cell>
+                  <Table.Cell>
+                    {order.direccion.direccion}, {order.direccion.ciudad},{" "}
+                    {order.direccion.departamento}, {order.direccion.pais}
+                  </Table.Cell>
+                </Table.Row>
+              ) : (
+                <Table.Row>
+                  <Table.Cell>Lugar de Compra</Table.Cell>
+                  <Table.Cell>Comprado en Establecimiento</Table.Cell>
+                </Table.Row>
+              )}
             </Table.Body>
           </Table>
 
@@ -82,10 +89,12 @@ export function ModalOrdenCliente({ visible, onHide, order }) {
                     <Image src={prod.productoImagen} size="tiny" bordered />
                   </Table.Cell>
                   <Table.Cell>{prod.productoNombre}</Table.Cell>
-                  <Table.Cell>{formatCurrency(prod.productoPrecio)}</Table.Cell>
+                  <Table.Cell>
+                    {formatCurrency(prod.productoPrecio * 1000)}
+                  </Table.Cell>
                   <Table.Cell>{prod.cantidad}</Table.Cell>
                   <Table.Cell>
-                    {formatCurrency(prod.cantidad * prod.productoPrecio)}
+                    {formatCurrency(prod.cantidad * prod.productoPrecio * 1000)}
                   </Table.Cell>
                 </Table.Row>
               ))}
