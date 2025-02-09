@@ -1,0 +1,44 @@
+// 🔹 Contenedor principal del listado de puntos de venta
+.listado-puntos-venta {
+    max-width: 600px;
+    margin: 1rem auto;
+    padding: 1.5rem;
+    background: #f9f9f9;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    text-align: center;
+  }
+  
+  // 🔹 Estilos para el título (Header)
+  .listado-puntos-venta__header {
+    font-size: 1rem;
+    font-weight: bold;
+    color: #003087 !important;
+    margin-bottom: 1rem;
+  }
+  
+  // 🔹 Estilos del Dropdown
+  .listado-puntos-venta__dropdown {
+    width: 100%;
+    font-size: 1rem;
+    padding: 0.75rem;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    background: white;
+    color: #003087 !important;
+  
+    &:hover {
+      border-color: #333 !important;
+      
+    }
+  }
+  
+  // 🔹 Loader (Cargando puntos de venta)
+  /*.listado-puntos-venta__loader {
+    display: flex;
+    justify-content: center;
+    margin-top: 1rem;
+  }*/
+  
+
+  

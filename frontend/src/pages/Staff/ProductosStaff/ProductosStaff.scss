@@ -31,7 +31,7 @@
     }
     
     .section-title {
-      color: #C64D34;
+      color: #C8102E;
       font-size: 1.5rem;
       font-weight: bold;
       margin-bottom: 1rem;
@@ -44,7 +44,7 @@
       margin-bottom: 1rem;
     
       .product-count {
-        color: #6E6159;
+        color: #003087;
         font-size: 0.875rem;
       }
     
@@ -54,12 +54,12 @@
           border: 1px solid #6E6159;
           border-radius: 4px;
           background-color: #FFFFFF;
-          color: #6E6159;
+          color: #003087;
           font-size: 0.875rem;
     
           &:focus {
             outline: none;
-            border-color: #C64D34;
+            border-color: #C8102E;
           }
         }
       }

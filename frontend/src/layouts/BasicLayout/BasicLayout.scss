@@ -4,19 +4,19 @@
     min-height: 100vh;
   
     &__topmenu {
-      background-color: #c64d34; // Fondo del TopMenu
+      background-color: #C8102E; // Fondo del TopMenu
     }
   
     &__main-content {
       flex-grow: 1; // Asegura que este bloque ocupe el espacio restante
       padding: 2rem;
-      background-color: #f7f2e7;
+      background-color: #FFFFFF;
     }
   
     &__footer {
-      background-color: #c64d34; // Fondo del Footer
+      background-color: rgba(186, 16, 45, 0.8); // Fondo del Footer
       padding: 1rem;
-      color: #ffffff;
+      color: #FFFFFF;
       text-align: center;
     }
   }

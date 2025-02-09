@@ -3,10 +3,10 @@
 .side-menu-admin {
     width: 100%; /* El contenedor del menú se ajusta a su padre (250px del layout) */
     height: 100%; 
-    background-color: #C64D34 !important; /* color principal, si lo deseas */
+    background-color: #C8102E !important; /* color principal, si lo deseas */
   
     .ui.menu.side {
-      background-color: #C64D34 !important;
+      background-color: #C8102E !important;
       /* Quita borde, ajusta diseño */
       border: none;
       border-radius: 0;
@@ -24,6 +24,7 @@
         color: #fff !important; /* texto blanco */
         font-weight: 500;
         padding: 1rem;
+        font-size: 1.2rem !important;  // Aumenta el tamaño del texto
   
         i.icon {
           margin-right: 10px !important;
@@ -33,18 +34,18 @@
   
         &:hover {
           background-color: #E2B13C !important; /* color secundario */
-          color: #6E6159 !important; /* texto café grisáceo */
+          color: #003087 !important; /* texto café grisáceo */
           i.icon {
-            color: #6E6159 !important;
+            color: #003087 !important;
           }
         }
   
         /* Cuando está activo */
         &.active {
           background-color: #E2B13C !important; /* color secundario */
-          color: #6E6159 !important; 
+          color: #003087 !important; 
           i.icon {
-            color: #6E6159 !important;
+            color: #003087 !important;
           }
         }
       }

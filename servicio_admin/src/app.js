@@ -17,7 +17,7 @@ const { connectConsumer } = require("./kafka/kafkaConsumer");
 app.use(cors());
 
 // Middleware básico
-app.use(express.json({ limit: "10mb" }));
+app.use(express.json({ limit: "30mb" }));
 app.use(express.urlencoded({ limit: "10mb", extended: true }));
 
 // Rutas

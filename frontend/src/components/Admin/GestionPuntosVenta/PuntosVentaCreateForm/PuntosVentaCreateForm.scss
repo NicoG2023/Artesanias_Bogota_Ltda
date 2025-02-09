@@ -35,6 +35,13 @@
 
   &__button {
     margin-block-start: 1rem !important;
+    background-color: #003087 !important;
+    color: yellow !important;
+    font-size: 1rem;
+  
+    &:hover {
+      background-color: #043a9f !important;
+    }
   }
 }
 
@@ -149,7 +156,7 @@
     color: #555;
 
     &:hover {
-      color: #800a0a;
+      color: #C8102E;
     }
   }
 

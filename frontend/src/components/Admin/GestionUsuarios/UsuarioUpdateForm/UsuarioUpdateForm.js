@@ -103,7 +103,6 @@ export function UsuarioUpdateForm({ usuario, onClose, onUserActions }) {
       <Button
         type="submit"
         content={loading ? "Actualizando..." : "Actualizar Usuario"}
-        primary
         fluid
         className="update-user-form__button"
         loading={loading}

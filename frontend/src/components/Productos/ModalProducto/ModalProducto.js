@@ -53,7 +53,7 @@ export function ModalProducto({ open, onClose, producto }) {
             <h2 className="modal-product__title">{producto.nombre}</h2>
             <p className="modal-product__price">Precio: ${producto.precio}</p>
             <p className="modal-product__description">{producto.descripcion}</p>
-            <p>Color: {producto.color}</p>
+            <p className="modal-product__color">Color: {producto.color}</p>
             <div className="modal-product__rating">
               Rating: {renderRating()}
             </div>

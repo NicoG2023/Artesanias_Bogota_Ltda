@@ -568,7 +568,7 @@ async function agregarProductosBulk(req, res) {
       // Subir imagen (si existe)
       let imagenUrl = "https://.../default-product.webp";
       if (imagenBase64) {
-        const base64Regex = /^data:.*;base64,(.*)$/;
+        const base64Regex = /^data:.;base64,(.)$/;
         const match = imagenBase64.match(base64Regex);
         if (!match) {
           await transaction.rollback();
@@ -620,7 +620,6 @@ async function agregarProductosBulk(req, res) {
           // Validar punto de venta
           const pvRemoto = dictPuntosVenta[punto_venta_fk];
           if (!pvRemoto) {
-            await transaction.rollback();
             throw new Error(
               `El punto de venta con ID ${punto_venta_fk} no existe (producto: ${nombre}).`
             );
@@ -658,7 +657,7 @@ async function agregarProductosBulk(req, res) {
         for (const catId of nuevoProducto.categorias) {
           const catObj = dictCategorias[catId];
           if (!catObj) {
-            console.error(`La categoría con ID ${catId} no existe.`);
+            console.error(`La categoría con ID ${catId} no existe`);
             continue;
           }
           await REL_ProductoCategoria.create({

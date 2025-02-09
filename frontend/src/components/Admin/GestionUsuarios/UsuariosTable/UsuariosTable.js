@@ -106,13 +106,16 @@ export function UsuariosTable({
                 <Table.Cell>{usuario.es_activo ? "Activo" : "Inactivo"}</Table.Cell>
                 <Table.Cell>
                   <Button
+                    className="btn-actualizar"
+                    //color="blue"
                     onClick={() => handleEditClick(usuario)}
                     disabled={usuario.rol === "superadmin" && currentUserRole === "admin"}
                   >
                     Actualizar
                   </Button>
                   <Button
-                    color="red"
+                    className="btn-eliminar"
+                    //color="red"
                     onClick={() => handleDeleteClick(usuario)}
                     disabled={usuario.rol === "superadmin" && currentUserRole === "admin"}
                   >

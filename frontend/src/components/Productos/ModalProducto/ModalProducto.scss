@@ -45,23 +45,29 @@
   .modal-product__title {
     font-size: 1.5rem;
     margin-bottom: 0.5rem;
-    color: #c64d34;  /* color principal */
+    color: #C8102E;  /* color principal */
   }
   
   .modal-product__price {
     font-size: 1.25rem;
     font-weight: bold;
     margin-bottom: 1rem;
-    color: #6e6159;
+    color: #003087;
   }
   
   .modal-product__description {
     margin-bottom: 1rem;
-    color: #6e6159;
+    color: #003087;
+  }
+
+  .modal-product__color {
+    margin-bottom: 1rem;
+    color: #003087;
   }
   
   .modal-product__rating {
     margin-bottom: 1rem;
+    color: #003087;
   }
   
   .modal-product__footer {

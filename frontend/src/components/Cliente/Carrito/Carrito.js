@@ -80,6 +80,7 @@ export function Carrito({
               <Table.Cell>
                 <Button
                   icon="minus"
+                  className="btn-minus"
                   onClick={() =>
                     handleActualizarCantidad(
                       producto.id,
@@ -93,6 +94,7 @@ export function Carrito({
                 {producto.REL_CarritoProducto.cantidad}
                 <Button
                   icon="plus"
+                  className="btn-plus"
                   onClick={() =>
                     handleActualizarCantidad(
                       producto.id,
@@ -112,8 +114,8 @@ export function Carrito({
               </Table.Cell>
               <Table.Cell>
                 <Button
-                  color="red"
                   icon
+                  className="btn-delete"
                   onClick={() => handleEliminar(producto.id)}
                   disabled={loading}
                 >
@@ -133,7 +135,7 @@ export function Carrito({
         </Table.Footer>
       </Table>
       <div className="carrito__pago-container">
-        <Button color="green" size="large" onClick={handleIrAPagar}>
+        <Button size="large" onClick={handleIrAPagar}>
           Ir a Pagar
         </Button>
       </div>

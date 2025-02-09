@@ -23,17 +23,17 @@
           transition: all 0.3s ease;
   
           &.afirmative-option {
-            background-color: #e74c3c;
+            background-color: #C8102E;
             color: white;
   
             &:hover {
-              background-color: #c0392b;
+              background-color: #9d2c15;
             }
           }
   
           &.cancel-option {
             background-color: #bdc3c7;
-            color: #333;
+            color: #003087;
   
             &:hover {
               background-color: #95a5a6;
@@ -54,7 +54,7 @@
       color: #333;
   
       &:hover {
-        color: #e74c3c;
+        color: #C8102E;
       }
     }
 }
