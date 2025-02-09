@@ -37,6 +37,14 @@ export function SideMenu() {
 
             <Menu.Item
               as={Link}
+              to="/admin-editar-productos"
+              active={pathname === "/admin-editar-productos"}
+            >
+              <Icon name="cart plus" /> Gestionar Producto
+            </Menu.Item>
+
+            <Menu.Item
+              as={Link}
               to="/admin-inventario"
               active={pathname === "/admin-inventario"}
             >
