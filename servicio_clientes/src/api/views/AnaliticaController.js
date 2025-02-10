@@ -2,6 +2,7 @@
 const { Pago, Orden, REL_Orden_Producto, sequelize } = require("../../models");
 const { Op } = require("sequelize");
 const { getUsersByVendedorFk } = require("../../grpc/userClientGrpc");
+const stripe = require("../../config/stripe");
 
 async function getEmpleadosConMasDineroGenerado(req, res) {
   try {
@@ -208,4 +209,96 @@ async function getEmpleadosConMasVentas(req, res) {
   }
 }
 
-module.exports = { getEmpleadosConMasVentas, getEmpleadosConMasDineroGenerado };
+async function getProductosMasVendidos(req, res) {
+  try {
+    const { month, year } = req.query;
+
+    if (!year) {
+      return res.status(400).json({ message: "Debe proporcionar el año" });
+    }
+
+    const y = parseInt(year);
+    const m = month ? parseInt(month) : null;
+
+    if (isNaN(y)) {
+      return res
+        .status(400)
+        .json({ message: "Mes y año deben ser números válidos" });
+    }
+
+    // Definir el rango de fechas
+    const startDate = new Date(y, m ? m - 1 : 0, 1);
+    const endDate = new Date(y, m ? m : 12, 1);
+
+    let ventasProductos = {};
+
+    // Obtener todas las sesiones de pago dentro del rango de fechas usando auto-paginación
+    const sesionesIterator = stripe.checkout.sessions.list({
+      limit: 100,
+      created: {
+        gte: Math.floor(startDate.getTime() / 1000),
+        lt: Math.floor(endDate.getTime() / 1000),
+      },
+    });
+
+    for await (const sesion of sesionesIterator) {
+      const items = await stripe.checkout.sessions.listLineItems(sesion.id);
+
+      for (const item of items.data) {
+        const productoId = item.price.product;
+        const cantidad = item.quantity;
+
+        ventasProductos[productoId] = (ventasProductos[productoId] || 0) + cantidad;
+      }
+    }
+
+    // Ordenar los productos por cantidad vendida en orden descendente y limitar a los primeros 10
+    const productosMasVendidos = Object.entries(ventasProductos)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 10)
+      .map(([productoId, cantidad]) => ({ productoId, cantidad }));
+
+    // Obtener los nombres de los productos desde Stripe
+    const productosConNombres = await Promise.all(productosMasVendidos.map(async (venta) => {
+      const producto = await stripe.products.retrieve(venta.productoId);
+      return {
+        productoId: venta.productoId,
+        nombre: producto.name,
+        cantidad: venta.cantidad,
+      };
+    }));
+
+    return res.json({ data: productosConNombres });
+  } catch (error) {
+    console.error('Error al obtener y ordenar los productos:', error);
+    return res.status(500).json({ message: "Error interno", error: error.message });
+  }
+}
+
+async function getClientesConMasCompras (req, res) {
+  try{
+    const { month, year } = req.query;
+    if (!year) {
+      return res.status(400).json({ message: "Debe proporcionar el año" });
+    }
+
+    const y = parseInt(year);
+    const m = month ? parseInt(month) : null;
+
+    if (isNaN(y)) {
+      return res
+        .status(400)
+        .json({ message: "Mes y año deben ser números válidos" });
+    }
+
+    // Definir el rango de fechas
+    const startDate = new Date(y, m ? m - 1 : 0, 1);
+    const endDate = new Date(y, m ? m : 12, 1);
+    
+  }catch(error){
+    console.error('Error al obtener los clientes con mas compras:', error);
+    return res.status(500).json({ message: "Error interno", error: error.message });
+  }
+}
+
+module.exports = { getEmpleadosConMasVentas, getEmpleadosConMasDineroGenerado, getProductosMasVendidos };

@@ -3,6 +3,7 @@ const router = express.Router();
 const {
   getEmpleadosConMasVentas,
   getEmpleadosConMasDineroGenerado,
+  getProductosMasVendidos,
 } = require("../views/AnaliticaController");
 const { verifyToken, authorizeRoles } = require("../../middleware/auth");
 
@@ -19,5 +20,12 @@ router.get(
   authorizeRoles("admin", "superadmin", "staff"),
   getEmpleadosConMasDineroGenerado
 );
+
+router.get(
+  "/analiticas/productos-mas-vendidos",
+  verifyToken,
+  authorizeRoles("admin", "superadmin", "staff"),
+  getProductosMasVendidos
+)
 
 module.exports = router;
