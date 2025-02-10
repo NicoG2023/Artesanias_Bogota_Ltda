@@ -1,25 +1,28 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   CuadriculaProductos,
   PanelFiltrado,
   Buscador,
+  CarruselProductos,
 } from "../../../components";
 import { useProductos } from "../../../hooks/useProducto";
+import { useAuth } from "../../../hooks";
+import { Button } from "semantic-ui-react";
+import { motion } from "framer-motion";
 import "./Productos.scss";
 
 export function Productos() {
+  const { auth } = useAuth();
   const productosHook = useProductos();
+  const [mostrarRecomendaciones, setMostrarRecomendaciones] = useState(false);
 
   // Función que invocaremos desde el Buscador
   const handleSearch = (searchTerm) => {
-    // Llamamos al hook para actualizar el "search" en nuestros filtros
     productosHook.updateFilters({ search: searchTerm, page: 1 });
-    // Nota: también puedes resetear la paginación a 1 (page: 1) si lo deseas
   };
 
   return (
     <div className="products-page">
-      {/* Contenedor para el Buscador, centrado */}
       <div className="buscador-container">
         <Buscador onSearch={handleSearch} />
       </div>
@@ -28,7 +31,38 @@ export function Productos() {
         <aside className="sidebar">
           <PanelFiltrado productosHook={productosHook} />
         </aside>
+
         <main className="content">
+          {/* Botón para activar el Carrusel */}
+          {auth?.user && auth?.user?.rol === "cliente" && (
+            <>
+              <Button
+                className="toggle-recommendations-btn"
+                onClick={() =>
+                  setMostrarRecomendaciones(!mostrarRecomendaciones)
+                }
+              >
+                {mostrarRecomendaciones
+                  ? "Ocultar Recomendaciones"
+                  : "Ver Recomendaciones"}
+              </Button>
+
+              {/* Animación para mostrar el Carrusel */}
+              <motion.div
+                className="recomendaciones-container"
+                initial={{ height: 0, opacity: 0 }}
+                animate={{
+                  height: mostrarRecomendaciones ? "auto" : 0,
+                  opacity: mostrarRecomendaciones ? 1 : 0,
+                }}
+                transition={{ duration: 0.5 }}
+              >
+                {mostrarRecomendaciones && <CarruselProductos />}
+              </motion.div>
+            </>
+          )}
+
+          {/* Cuadrícula de Productos */}
           <CuadriculaProductos productosHook={productosHook} puntoVentaId={1} />
         </main>
       </div>

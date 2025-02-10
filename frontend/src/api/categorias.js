@@ -46,3 +46,122 @@ export async function descargarPlantillaCategoriasApi() {
     throw error;
   }
 }
+
+export async function obtenerCategoriasApi(token) {
+  const url = `${API_SERVICIO_ADMIN}/api/categorias/obtener-categorias`;
+  try {
+    const response = await fetch(url, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`Error al obtener categorías: ${response.statusText}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Error en obtenerCategoriasApi", error);
+    throw error;
+  }
+}
+
+export async function agregarCategoriaApi(token, nombre) {
+  const url = `${API_SERVICIO_ADMIN}/api/categorias/agregar-categoria`;
+  try {
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ nombre }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Error al agregar categoría: ${response.statusText}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Error en agregarCategoriaApi", error);
+    throw error;
+  }
+}
+
+export async function actualizarCategoriaApi(token, id, nombre) {
+  const url = `${API_SERVICIO_ADMIN}/api/categorias/actualizar-categoria/${id}`;
+  try {
+    const response = await fetch(url, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ nombre }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Error al actualizar categoría: ${response.statusText}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Error en actualizarCategoriaApi", error);
+    throw error;
+  }
+}
+
+export async function eliminarCategoriaApi(token, id) {
+  const url = `${API_SERVICIO_ADMIN}/api/categorias/eliminar-categoria/${id}`;
+  try {
+    const response = await fetch(url, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`Error al eliminar categoría: ${response.statusText}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Error en eliminarCategoriaApi", error);
+    throw error;
+  }
+}
+
+export async function relacionarProductoCategoriaApi(
+  token,
+  productoId,
+  categoriaId
+) {
+  const url = `${API_SERVICIO_ADMIN}/api/categorias/relacionar-producto-categoria`;
+  try {
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ productoId, categoriaId }),
+    });
+
+    if (!response.ok) {
+      throw new Error(
+        `Error al relacionar producto con categoría: ${response.statusText}`
+      );
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Error en relacionarProductoCategoriaApi", error);
+    throw error;
+  }
+}

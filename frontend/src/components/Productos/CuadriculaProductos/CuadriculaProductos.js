@@ -39,6 +39,7 @@ export function CuadriculaProductos({ productosHook, puntoVentaId }) {
     setOpen(false);
     setSelectedProduct(null);
   };
+  console.log("Productos cuadriculaProductos:", productos);
 
   return (
     <div className="product-grid">

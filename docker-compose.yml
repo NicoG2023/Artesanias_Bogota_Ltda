@@ -59,6 +59,11 @@ services:
       DATABASE_PASSWORD: ${POSTGRES_PASSWORD}
       DATABASE_NAME: ${USERS_DB}
       DATABASE_PORT: 5432
+      EMAIL_USER: ${EMAIL_USER}
+      EMAIL_PASS: ${EMAIL_PASS}
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+
     depends_on:
       - users-db
     networks:

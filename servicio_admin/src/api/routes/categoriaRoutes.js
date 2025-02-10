@@ -1,5 +1,12 @@
 const express = require("express");
-const { agregarCategorias } = require("../views/categoriaController");
+const {
+  agregarCategorias,
+  obtenerCategorias,
+  agregarCategoria,
+  actualizarCategoria,
+  eliminarCategoria,
+  relacionarProductoCategoria,
+} = require("../views/categoriaController");
 const router = express.Router();
 const { verifyToken, authorizeRoles } = require("../../middleware/auth");
 /**
@@ -112,5 +119,40 @@ router.get("/categorias/plantilla", (req, res) => {
   // Enviamos la respuesta como JSON
   res.status(200).json(plantilla);
 });
+
+router.get(
+  "/categorias/obtener-categorias",
+  verifyToken,
+  authorizeRoles("admin", "superadmin"),
+  obtenerCategorias
+);
+
+router.post(
+  "/categorias/agregar-categoria",
+  verifyToken,
+  authorizeRoles("admin", "superadmin"),
+  agregarCategoria
+);
+
+router.put(
+  "/categorias/actualizar-categoria/:id",
+  verifyToken,
+  authorizeRoles("admin", "superadmin"),
+  actualizarCategoria
+);
+
+router.delete(
+  "/categorias/eliminar-categoria/:id",
+  verifyToken,
+  authorizeRoles("admin", "superadmin"),
+  eliminarCategoria
+);
+
+router.post(
+  "/categorias/relacionar-producto-categoria",
+  verifyToken,
+  authorizeRoles("admin", "superadmin"),
+  relacionarProductoCategoria
+);
 
 module.exports = router;

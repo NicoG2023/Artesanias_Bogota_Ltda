@@ -11,6 +11,7 @@ const authRoutes = require("./api/routes/authRoutes");
 const direccionRoutes = require("./api/routes/direccionRoutes");
 require("./grpcServer.js");
 const { connectConsumer } = require("./kafka/kafkaConsumer");
+const { connectProducer } = require("./kafka/kafkaProducer");
 
 // Configuración de CORS para permitir todas las solicitudes (solo para desarrollo, en producción CAMBIAR)
 app.use(cors());
@@ -32,6 +33,7 @@ app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 // Servidor escuchando en el puerto especificado
 app.listen(PORT, async () => {
   console.log(`Servidor escuchando en el puerto ${PORT}`);
+  await connectProducer();
   await connectConsumer();
 });
 

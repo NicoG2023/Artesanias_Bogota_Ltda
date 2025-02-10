@@ -1,6 +1,13 @@
 import React from "react";
 import { BasicLayout } from "../layouts";
-import { Login, OlvidarPassword, Registro, LandingPage } from "../pages";
+import {
+  Login,
+  OlvidarPassword,
+  Registro,
+  LandingPage,
+  Verificacion,
+  ConfirmarCodigoPage,
+} from "../pages";
 import { DynamicLayout } from "../layouts/DynamicLayout";
 
 const usuariosRoutes = [
@@ -33,6 +40,22 @@ const usuariosRoutes = [
     element: (
       <BasicLayout>
         <OlvidarPassword />
+      </BasicLayout>
+    ),
+  },
+  {
+    path: "/verify",
+    element: (
+      <BasicLayout>
+        <Verificacion />
+      </BasicLayout>
+    ),
+  },
+  {
+    path: "/confirmar-codigo",
+    element: (
+      <BasicLayout>
+        <ConfirmarCodigoPage />
       </BasicLayout>
     ),
   },

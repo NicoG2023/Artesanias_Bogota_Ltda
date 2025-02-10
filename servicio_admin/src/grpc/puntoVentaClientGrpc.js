@@ -37,6 +37,24 @@ function getPuntosVentaByIds(ids) {
   });
 }
 
+/**
+ * Obtener los productos comprados por un usuario
+ * @param {number} usuarioId - ID del usuario
+ * @returns {Promise<number[]>} - Lista de IDs de productos únicos
+ */
+function getOrdenesByUserId(usuarioId) {
+  return new Promise((resolve, reject) => {
+    puntoVentaServiceClient.GetOrdenesByUserId(
+      { usuario_id: usuarioId },
+      (err, response) => {
+        if (err) return reject(err);
+        resolve(response.productos_ids);
+      }
+    );
+  });
+}
+
 module.exports = {
   getPuntosVentaByIds,
+  getOrdenesByUserId,
 };

@@ -19,19 +19,22 @@ export function LoginForm() {
     onSubmit: async (formValue) => {
       try {
         const response = await loginApi(formValue);
-        const { token } = response;
-        const user = await login(token);
-        toast.success("Inicio de sesión exitoso");
-        // Redirige según el rol del usuario
-        const roleToRoute = {
-          admin: "/admin",
-          cliente: "/productos",
-          staff: "/staff-dashboard",
-          superadmin: "/UsuariosSuperAdmin",
-        };
-        console.log("response.rol -->", roleToRoute[user.rol]);
-        const redirectRoute = roleToRoute[user.rol] || "/";
-        navigate(redirectRoute);
+        // Suponemos que en el flujo 2FA la respuesta no trae token definitivo sino el userId
+        if (response.userId) {
+          // Guardamos temporalmente el userId para el 2FA
+          localStorage.setItem("tempUserId", response.userId);
+          // Redirigimos a la página para confirmar el código
+          navigate("/confirmar-codigo");
+          toast.info(
+            "Se ha enviado un código a tu correo, por favor ingrésalo para continuar."
+          );
+        } else if (response.token) {
+          // En caso de que no se use 2FA, se puede iniciar sesión directamente
+          await login(response.token);
+          toast.success("Inicio de sesión exitoso");
+          // Redirige según el rol
+          // ...
+        }
       } catch (error) {
         toast.error("Error al iniciar sesión: " + error.message);
       }

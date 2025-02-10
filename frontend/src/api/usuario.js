@@ -135,7 +135,9 @@ export async function createUsuarioApi(token, formValue) {
     if (response.status !== 201) {
       const result = await response.json();
       throw new Error(
-        result.detail || `Error creando usuario. Código de estado: ${response.status}`);
+        result.detail ||
+          `Error creando usuario. Código de estado: ${response.status}`
+      );
     }
     return response.json();
   } catch (error) {
@@ -183,6 +185,43 @@ export async function deleteUsuarioApi(token, id) {
       throw new Error(result.detail || "Error eliminando usuario");
     }
     return { message: "Usuario eliminado exitosamente" };
+  } catch (error) {
+    throw error;
+  }
+}
+
+export async function verificarUsuarioApi(token) {
+  try {
+    const url = `${API_SERVICIO_USUARIOS}/api/auth/verify?token=${token}`;
+    const params = { method: "GET" };
+    const response = await fetch(url, params);
+    const result = await response.json();
+
+    if (!response.ok)
+      throw new Error(result.message || "Error de verificación");
+
+    return result;
+  } catch (error) {
+    throw error;
+  }
+}
+
+export async function verify2faApi(data) {
+  try {
+    const url = `${API_SERVICIO_USUARIOS}/api/auth/verify2fa`; // Asegúrate que API_SERVICIO_USUARIOS esté configurado correctamente
+    const params = {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    };
+    const response = await fetch(url, params);
+    const result = await response.json();
+    if (!response.ok) {
+      throw new Error(result.message || "Error al verificar el código 2FA");
+    }
+    return result;
   } catch (error) {
     throw error;
   }

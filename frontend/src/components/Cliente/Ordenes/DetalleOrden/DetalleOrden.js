@@ -10,6 +10,7 @@ import "./DetalleOrden.scss";
 export function DetalleOrden({ order }) {
   const { auth } = useAuth();
   if (!order) return <p>Cargando orden...</p>;
+
   const {
     id: orderNumber,
     estado,
@@ -57,6 +58,11 @@ export function DetalleOrden({ order }) {
     : "No disponible";
   const pagoEstado = pago?.estado ?? "Desconocido";
 
+  // 🔹 Función para imprimir
+  const handlePrint = () => {
+    window.print(); // Abre la ventana de impresión del navegador
+  };
+
   return (
     <Card className="detalle-orden">
       <div className="detalle-orden__content">
@@ -65,10 +71,11 @@ export function DetalleOrden({ order }) {
         <h1 className="detalle-orden__title">
           Detalle de la Orden <i className="pi pi-rocket"></i>
         </h1>
-
-        <p className="detalle-orden__info">
-          Tu pedido está en estado: <strong>{estado}</strong>
-        </p>
+        {auth.user.rol === "cliente" && (
+          <p className="detalle-orden__info">
+            Tu pedido está en estado: <strong>{estado}</strong>
+          </p>
+        )}
 
         <div className="detalle-orden__header">
           <div className="detalle-orden__order-number">
@@ -78,10 +85,12 @@ export function DetalleOrden({ order }) {
             <span className="order-number">{formatDate(fecha_orden)}</span>
           </div>
           <div className="detalle-orden__actions">
+            {/* 🔹 Botón para imprimir */}
             <Button
               label="Imprimir"
               className="p-button-outlined"
               icon="pi pi-print"
+              onClick={handlePrint} // Llamar a la función de impresión
             />
           </div>
         </div>
@@ -151,10 +160,12 @@ export function DetalleOrden({ order }) {
           <Card className="detalle-orden__summary">
             <h3>Resumen</h3>
             <div className="summary-details">
-              <div className="summary-row">
-                <span>Subtotal</span>
-                <span>{formatoColombiano(subtotalVal)}</span>
-              </div>
+              {auth.user.rol === "cliente" && (
+                <div className="summary-row">
+                  <span>Subtotal</span>
+                  <span>{formatoColombiano(subtotalVal)}</span>
+                </div>
+              )}
 
               {descuentoVal > 0 && auth.user.rol === "cliente" && (
                 <div className="summary-row">

@@ -9,6 +9,7 @@ const productoRoutes = require("./api/routes/productoRoutes");
 const carritoRoutes = require("./api/routes/carritoRoutes");
 const inventarioRoutes = require("./api/routes/inventarioRoutes");
 const categoriaRoutes = require("./api/routes/categoriaRoutes");
+const recomendacionesRoutes = require("./api/routes/recomendacionesRoutes");
 require("./grpc/grpcServer");
 require("./grpc/puntoVentaClientGrpc");
 const { connectConsumer } = require("./kafka/kafkaConsumer");
@@ -25,6 +26,7 @@ app.use("/api", productoRoutes);
 app.use("/api", carritoRoutes);
 app.use("/api", inventarioRoutes);
 app.use("/api", categoriaRoutes);
+app.use("/api", recomendacionesRoutes);
 
 // Ruta para la documentación de Swagger
 app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));

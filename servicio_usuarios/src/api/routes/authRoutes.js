@@ -1,5 +1,11 @@
 const express = require("express");
-const { login, register, getMe } = require("../views/authController");
+const {
+  login,
+  register,
+  getMe,
+  verifyUser,
+  verify2fa,
+} = require("../views/authController");
 const { verifyToken } = require("../../middleware/auth");
 const router = express.Router();
 /**
@@ -126,5 +132,9 @@ router.post("/auth/register", register);
  *         description: Usuario no encontrado
  */
 router.get("/auth/me", verifyToken, getMe);
+
+router.get("/auth/verify", verifyUser);
+
+router.post("/auth/verify2fa", verify2fa);
 
 module.exports = router;

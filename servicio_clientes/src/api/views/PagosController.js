@@ -24,7 +24,7 @@ async function createCheckoutSession(req, res) {
     const discounts = [];
 
     // Si se aplica descuento, crear cupón efímero
-    if (applyDiscount && discountPercentage > 0) {
+    if (applyDiscount && discountPercentage > 0 && req.user.rol === "cliente") {
       const ephemeralCoupon = await stripe.coupons.create({
         percent_off: discountPercentage,
         duration: "once",
