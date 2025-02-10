@@ -15,7 +15,7 @@ export function TarjetaUpdateDatos({ usuario, titulo, onUpdate, Formulario, icon
         <>
             <Card fluid onClick={handleOpen} className="clickable-card">
                 <Card.Content textAlign="center">
-                    <Icon name= {icono} size="huge" />
+                    <Icon name={icono} size="huge" className="icono-update-datos" />
                     <Card.Header>{titulo}</Card.Header>
                     <Card.Meta></Card.Meta>
                     <Card.Description></Card.Description>

@@ -1,5 +1,5 @@
 import React from "react";
-import { Modal, Button, Icon} from "semantic-ui-react";
+import { Modal } from "semantic-ui-react";
 import "./PerfilModal.scss";
 
 export function PerfilModal({ open, onClose, usuario, Formulario, titulo, onUserActions }){

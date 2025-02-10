@@ -1,21 +1,25 @@
 import React, { useState, useEffect } from "react";
-import { Button, Form, Modal, Icon } from "semantic-ui-react";
+import { Button, Form, Modal, Dropdown } from "semantic-ui-react";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { toast } from "react-toastify";
 import { useAuth } from "../../../../hooks";
 import { updateDireccionApi } from "../../../../api/direcciones";
 import AddressInput from "../DireccionCreateModalForm/AddressInput";
+import { departamentos } from "../DireccionCreateModalForm/Departamentos";
+import { ciudades } from "../DireccionCreateModalForm/Ciudades";
 import "./DireccionUpdateModalForm.scss";
 
-export function DireccionUpdateModalForm({ direccion, onClose, onUserActions }) {
+export function DireccionUpdateModalForm({ open, direccion, onClose, onUserActions }) {
   const { auth } = useAuth();
   const [loading, setLoading] = useState(false);
   const [currentDireccion, setCurrentDireccion] = useState(null);
-  
+
   useEffect(() => {
     if (direccion) {
       setCurrentDireccion(direccion);
+    } else {
+      setCurrentDireccion(null);
     }
   }, [direccion]);
 
@@ -88,23 +92,33 @@ export function DireccionUpdateModalForm({ direccion, onClose, onUserActions }) 
       numeroSecundario: ""
     };
 
+  const validationSchema = Yup.object().shape({
+    tipoCalle: Yup.string().required("Debe seleccionar un tipo de calle"),
+    nombreCalle: Yup.string().required("Debe proporcionar el nombre de la calle"),
+    numeroPrincipal: Yup.string()
+      .required("Debe proporcionar el número principal")
+      .matches(/^[0-9]/, "Debe comenzar con un número"),
+    numeroSecundario: Yup.string()
+      .required("Debe proporcionar el número secundario")
+      .matches(/^[0-9]/, "Debe comenzar con un número"),
+    ciudad: Yup.string().required("Debe seleccionar una ciudad"),
+    departamento: Yup.string().required("Debe seleccionar un departamento"),
+    codigo_postal: Yup.string().matches(/^\d{5}$/, "Debe ser un código postal válido"),
+    info_adicional: Yup.string(),
+  });
+
   const formik = useFormik({
     initialValues: {
       tipoCalle: direccionComponents.tipoCalle || "",
       nombreCalle: direccionComponents.nombreCalle || "",
       numeroPrincipal: direccionComponents.numeroPrincipal || "",
       numeroSecundario: direccionComponents.numeroSecundario || "",
+      departamento: currentDireccion?.departamento || "",
+      ciudad: currentDireccion?.ciudad || "",
       codigo_postal: currentDireccion?.codigo_postal || "",
       info_adicional: currentDireccion?.info_adicional || ""
     },
-    validationSchema: Yup.object().shape({
-      tipoCalle: Yup.string().required("Debe seleccionar un tipo de calle"),
-      nombreCalle: Yup.string().required("Debe proporcionar el nombre de la calle"),
-      numeroPrincipal: Yup.string().required("Debe proporcionar el número principal"),
-      numeroSecundario: Yup.string().required("Debe proporcionar el número secundario"),
-      codigo_postal: Yup.string().matches(/^\d{5}$/, "Debe ser un código postal válido de 5 dígitos"),
-      info_adicional: Yup.string()
-    }),
+    validationSchema,
     enableReinitialize: true,
     onSubmit: async (formValue) => {
       if (!currentDireccion?.id) {
@@ -117,6 +131,8 @@ export function DireccionUpdateModalForm({ direccion, onClose, onUserActions }) 
         const direccionCompleta = `${formValue.tipoCalle} ${formValue.nombreCalle} #${formValue.numeroPrincipal}-${formValue.numeroSecundario}`;
         const datosFinales = {
           direccion: direccionCompleta,
+          departamento: formValue.departamento,
+          ciudad: formValue.ciudad,
           codigo_postal: formValue.codigo_postal,
           info_adicional: formValue.info_adicional
         };
@@ -125,6 +141,7 @@ export function DireccionUpdateModalForm({ direccion, onClose, onUserActions }) 
         toast.success("Dirección actualizada exitosamente");
         onUserActions();
         onClose();
+        
       } catch (error) {
         toast.error("Error al actualizar la dirección: " + (error.message || "Error desconocido"));
       } finally {
@@ -133,27 +150,55 @@ export function DireccionUpdateModalForm({ direccion, onClose, onUserActions }) 
     },
   });
 
-  if (!currentDireccion) {
-    return null;
-  }
+  const handleDepartamentoChange = (_, { value }) => {
+    formik.setFieldValue("departamento", value);
+    formik.setFieldValue("ciudad", "");
+  };
 
   return (
-    <Modal open={true} onClose={onClose} size="small">
-      <button className="close-button" onClick={onClose}>
-        <Icon name="close" />
-      </button>
+    <Modal open={open} onClose={onClose} size="small" closeIcon>
       <Modal.Header>Actualizar Dirección</Modal.Header>
       <Modal.Content>
         <Form className="update-direccion-form" onSubmit={formik.handleSubmit}>
           <AddressInput formik={formik} />
+
+          <Form.Field>
+            <Dropdown
+              selection
+              search
+              name="departamento"
+              placeholder="Seleccione Departamento"
+              options={departamentos}
+              value={formik.values.departamento}
+              onChange={handleDepartamentoChange}
+              error={formik.errors.departamento && formik.touched.departamento}
+              fluid
+            />
+          </Form.Field>
+
+          <Form.Field>
+            <Dropdown
+              selection
+              search
+              name="ciudad"
+              placeholder="Seleccione Ciudad"
+              options={ciudades[formik.values.departamento] || []}
+              value={formik.values.ciudad}
+              onChange={(_, { value }) => formik.setFieldValue("ciudad", value)}
+              error={formik.errors.ciudad && formik.touched.ciudad}
+              disabled={!formik.values.departamento}
+              fluid
+            />
+          </Form.Field>
+
           <Form.Input
             name="codigo_postal"
             placeholder="Código Postal"
             value={formik.values.codigo_postal}
             onChange={formik.handleChange}
-            error={formik.touched.codigo_postal && formik.errors.codigo_postal ? 
-              { content: formik.errors.codigo_postal, pointing: "below" } : null}
+            error={formik.errors.codigo_postal ? { content: formik.errors.codigo_postal, pointing: "below" } : null}
           />
+
           <Form.TextArea
             name="info_adicional"
             placeholder="Información adicional"
@@ -163,17 +208,20 @@ export function DireccionUpdateModalForm({ direccion, onClose, onUserActions }) 
         </Form>
       </Modal.Content>
       <Modal.Actions>
-        <Button onClick={onClose} secondary>Cancelar</Button>
         <Button 
+        className="btn-actualizar-direccion"
           type="submit" 
           onClick={formik.handleSubmit} 
           primary 
-          loading={loading} 
+          loading={loading}
           disabled={loading || !formik.isValid}
         >
           {loading ? "Actualizando..." : "Actualizar Dirección"}
         </Button>
+        <Button className="btn-cancelar"onClick={onClose} secondary>Cancelar</Button>
       </Modal.Actions>
     </Modal>
   );
 }
+
+

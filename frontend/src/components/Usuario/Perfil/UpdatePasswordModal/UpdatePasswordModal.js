@@ -36,7 +36,7 @@ export function UpdatePasswordModal({ open, onClose, onUserActions }) {
   };
 
   return (
-    <Modal open={open} onClose={onClose} size="tiny" className="update-password-modal">
+    <Modal open={open} onClose={onClose} size="tiny" className="update-password-modal" closeIcon>
       <Modal.Header>Nueva contraseña</Modal.Header>
       <Modal.Content>
         <Form className="update-password-form" onSubmit={formik.handleSubmit}>

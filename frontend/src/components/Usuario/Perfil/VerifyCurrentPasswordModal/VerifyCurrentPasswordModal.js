@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Button, Form, Modal } from "semantic-ui-react";
 import { useFormik } from "formik";
 import * as Yup from "yup";
@@ -33,6 +33,18 @@ export function VerifyCurrentPasswordModal({ open, onClose, onVerified }) {
     },
   });
 
+  // Efecto para resetear el formulario cuando el modal se cierra
+  useEffect(() => {
+    if (!open) {
+      formik.resetForm();
+    }
+  }, [open]);
+
+  const handleClose = () => {
+    formik.resetForm();
+    onClose();
+  };
+
   const handleUpdatePasswordClose = () => {
     setShowUpdatePassword(false);
     onClose();
@@ -40,11 +52,12 @@ export function VerifyCurrentPasswordModal({ open, onClose, onVerified }) {
 
   return (
     <>
-      <Modal 
-        open={open && !showUpdatePassword} 
-        onClose={onClose} 
-        size="tiny" 
+      <Modal
+        open={open && !showUpdatePassword}
+        onClose={handleClose}
+        size="tiny"
         className="verify-password-modal"
+        closeIcon
       >
         <Modal.Header>Verificar Contraseña</Modal.Header>
         <Modal.Content>
@@ -62,6 +75,7 @@ export function VerifyCurrentPasswordModal({ open, onClose, onVerified }) {
               }
             />
             <Button
+              className="btn-verificar"
               type="submit"
               content={loading ? "Verificando..." : "Verificar"}
               primary

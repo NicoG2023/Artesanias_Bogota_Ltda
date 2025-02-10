@@ -41,7 +41,7 @@ export function Perfil() {
         }
     }, [auth.token]);
 
-    if (!usuario) return <p>Cargando datos del usuario...</p>;
+    if (!usuario) return null;
 
     return (
         <div className="perfil-page">

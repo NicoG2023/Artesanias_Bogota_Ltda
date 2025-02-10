@@ -36,24 +36,14 @@ export async function getAllDireccionesApi(token) {
     };
 
     const response = await fetch(url, params);
+    const result = await response.json();
 
-    // Imprime la respuesta antes de procesarla
-    const textResponse = await response.text();
-    console.log("🔍 Respuesta del servidor:", textResponse);
-
-    // Verifica si la respuesta es JSON
-    try {
-      const result = JSON.parse(textResponse);
-      if (response.status !== 200) {
-        throw new Error(result.message || "Error al obtener las direcciones");
-      }
-      return result;
-    } catch (jsonError) {
-      throw new Error("El backend devolvió un HTML en lugar de JSON.");
+    if (response.status !== 200) {
+      throw new Error(result.message || "Error al obtener las direcciones");
     }
 
+    return result;
   } catch (error) {
-    console.error("Error en getAllDireccionesApi:", error);
     throw error;
   }
 }

@@ -1,14 +1,36 @@
-.modal-form-usuario {
-  .contenedor-tabla {
-    width: 100%;
-    overflow-x: auto; /* 📌 Permite desplazamiento horizontal */
+.modal-form-direccion {
+  .contenedor-modal {
+    display: flex;
+    flex-direction: column;
+    align-items: center; 
+  }
+
+  .btn-agregar {
+    background-color: #003087 !important;
+    color: white !important;
+    font-size: 1.2rem;
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-weight: bold;
+    display: flex;
+    justify-content: center;
+    margin-bottom: 15px;
+  }
+
+  .ui.button.btn-agregar {
+    background-color: #003087 !important;
+    color: white !important;
+    font-size: 1rem;
+    padding: 10px 16px;
+    border-radius: 6px;
+    font-weight: bold;
   }
 
   .ui.table {
     table-layout: fixed;
     width: 100%;
     border-collapse: collapse;
-    min-width: 800px; /* 📌 Evita que las columnas se colapsen demasiado */
+    min-width: 800px;
   }
 
   .ui.table th,
@@ -18,41 +40,64 @@
     vertical-align: middle;
   }
 
-  /* 📌 Ajustes de ancho */
+  .ui.table th.ciudad,
+  .ui.table td.ciudad {
+    width: 100px;
+    min-width: 100px;
+  }
+
   .ui.table th.codigo-postal,
   .ui.table td.codigo-postal {
     width: 100px;
     min-width: 100px;
   }
 
-  .ui.table th.pais,
-  .ui.table td.pais {
+  .ui.table th.departamento,
+  .ui.table td.departamento {
     width: 120px;
     min-width: 120px;
   }
 
-  .ui.table th.acciones,
-  .ui.table td.acciones {
-    width: 220px;
-    min-width: 220px;
-    text-align: center;
-    white-space: nowrap;
+  .ui.table th.pais,
+  .ui.table td.pais {
+    width: 100px;
+    min-width: 100px;
   }
 
-  .ui.table td.acciones button {
-    margin: 3px;
-    font-size: 14px;
-  }
-
-  /* 📌 "Información Adicional" centrada y con ajuste de palabras */
   .ui.table th.info-adicional,
   .ui.table td.info-adicional {
-    width: 250px;
-    min-width: 250px;
+    width: 180px;
+    min-width: 180px;
     white-space: normal;
     word-wrap: break-word;
     text-align: center;
   }
+
+  .ui.table th.acciones,
+  .ui.table td.acciones {
+    width: 250px;
+    min-width: 250px;
+    text-align: center;
+    white-space: nowrap;
+  }
+
+  .ui.table td.acciones {
+    display: flex;
+    justify-content: center;
+    gap: 10px; /* Espaciado entre botones */
+  }
+
+  .ui.button.btn-actualizar {
+    background-color: #003087 !important;
+    color: white !important;
+  }
+
+  .ui.button.btn-eliminar {
+    background-color: #C8102E !important;
+    color: white !important;
+  }
 }
+
+
 
 

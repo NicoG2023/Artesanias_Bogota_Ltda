@@ -3,7 +3,7 @@ import { Card, Icon } from "semantic-ui-react";
 import { DireccionModal } from "../DireccionModal/DireccionModal";
 import "./TarjetaDireccion.scss";
 
-export function TarjetaDireccion({ usuario, onUpdate, direcciones }) {
+export function TarjetaDireccion({ onUpdate, direcciones }) {
     const [open, setOpen] = useState(false);
 
     const handleOpen = () => {
@@ -18,7 +18,7 @@ export function TarjetaDireccion({ usuario, onUpdate, direcciones }) {
         <>
             <Card fluid onClick={handleOpen} className="clickable-card">
                 <Card.Content textAlign="center">
-                    <Icon name="building" size="huge" />
+                    <Icon name="building" size="huge" className="direccion-icono"/>
                     <Card.Header>{"Direcciones"}</Card.Header>
                     <Card.Meta>
                         {direcciones?.length || 0} direcciones registradas

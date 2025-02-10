@@ -69,10 +69,7 @@ export function DireccionCreateModalForm({ open, onClose, onDireccionCreada }) {
     };
 
     return (
-        <Modal open={open} onClose={onClose} size="small">
-            <button className="close-button" onClick={onClose}>
-                <Icon name="close" />
-            </button>
+        <Modal open={open} onClose={onClose} size="small" closeIcon>
             <Modal.Header>Agregar Dirección</Modal.Header>
             <Modal.Content>
                 <Form className="add-direccion-form" onSubmit={formik.handleSubmit}>
@@ -124,8 +121,8 @@ export function DireccionCreateModalForm({ open, onClose, onDireccionCreada }) {
                 </Form>
             </Modal.Content>
             <Modal.Actions>
-                <Button onClick={onClose} secondary>Cancelar</Button>
-                <Button type="submit" onClick={formik.handleSubmit} primary>Agregar Dirección</Button>
+                <Button className="btn-agregar-direccion" type="submit" onClick={formik.handleSubmit} primary>Agregar Dirección</Button>
+                <Button className="btn-cancelar"onClick={onClose} secondary>Cancelar</Button>
             </Modal.Actions>
         </Modal>
     );
