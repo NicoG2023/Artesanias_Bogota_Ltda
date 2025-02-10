@@ -54,28 +54,29 @@ export async function updateEmailApi(token, formValue) {
 }
   
 export async function updatePasswordApi(token, formValue) {
-    try {
+  try {
       const url = `${API_SERVICIO_USUARIOS}/api/perfil/update-password`;
       const params = {
-        method: "PUT",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          nuevaContrasena: formValue.password
-        }),
+          method: "PUT",
+          headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+              nuevaContrasena: formValue.password,
+          }),
       };
-      
+
       const response = await fetch(url, params);
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message);
-      }
       const result = await response.json();
+
+      if (!response.ok) {
+          throw new Error(result.message);
+      }
+
       return result;
-    } catch (error) {
+  } catch (error) {
       throw error;
-    }
+  }
 }
   

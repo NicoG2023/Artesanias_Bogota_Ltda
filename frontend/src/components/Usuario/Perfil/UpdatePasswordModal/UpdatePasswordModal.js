@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Button, Form, Modal } from "semantic-ui-react";
 import { useFormik } from "formik";
 import * as Yup from "yup";
@@ -30,6 +30,12 @@ export function UpdatePasswordModal({ open, onClose, onUserActions }) {
       }
     },
   });
+
+  useEffect(() => {
+    if (!open) {
+      formik.resetForm();
+    }
+  }, [open]);
 
   const handleInputChange = (e, { name, value }) => {
     formik.setFieldValue(name, value);

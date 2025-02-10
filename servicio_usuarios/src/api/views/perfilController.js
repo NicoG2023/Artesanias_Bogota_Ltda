@@ -48,24 +48,36 @@ const updateEmail = async (req, res) => {
 
 const updateContrasena = async (req, res) => {
     try {
-      const { userId } = req.user;
-      const { nuevaContrasena } = req.body;
-  
-      if (!nuevaContrasena || nuevaContrasena.length < 8) {
-        return res.status(400).json({ message: "La contraseña debe tener al menos 8 caracteres" });
-      }
-  
-      const salt = await bcrypt.genSalt(10);
-      const hashedPassword = await bcrypt.hash(nuevaContrasena, salt);
-  
-      await Usuario.update({ password: hashedPassword }, { where: { id: userId } });
-  
-      res.status(200).json({ message: "Contraseña actualizada correctamente" });
+        const { userId } = req.user;
+        const { nuevaContrasena } = req.body;
+
+        if (!nuevaContrasena || nuevaContrasena.length < 8) {
+            return res.status(400).json({ message: "La contraseña debe tener al menos 8 caracteres" });
+        }
+
+        // Obtener el usuario y la contraseña actual desde la base de datos
+        const usuario = await Usuario.findByPk(userId);
+        if (!usuario) {
+            return res.status(404).json({ message: "Usuario no encontrado" });
+        }
+
+        // Verificar que la nueva contraseña no sea igual a la actual
+        const esIgual = await bcrypt.compare(nuevaContrasena, usuario.password);
+        if (esIgual) {
+            return res.status(400).json({ message: "La nueva contraseña no puede ser igual a la actual" });
+        }
+
+        // Hashear la nueva contraseña y actualizar en la base de datos
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(nuevaContrasena, salt);
+
+        await Usuario.update({ password: hashedPassword }, { where: { id: userId } });
+
+        res.status(200).json({ message: "Contraseña actualizada correctamente" });
     } catch (error) {
-      console.error("Error en actualizarContrasena:", error);
-      res.status(500).json({ message: "Error al actualizar la contraseña" });
+        console.error("Error en actualizarContrasena:", error);
+        res.status(500).json({ message: "Error al actualizar la contraseña" });
     }
 };
-
 
 module.exports = { updateNombreApellido, updateEmail,  updateContrasena};

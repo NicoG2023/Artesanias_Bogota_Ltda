@@ -109,10 +109,9 @@ const getMe = async (req, res) => {
 
 const verifyCurrentPassword = async (req, res) => {
   const { currentPassword } = req.body;
-  const { userId } = req.user; // Asumiendo que tienes el userId del middleware de autenticación
+  const { userId } = req.user;
 
   try {
-    // Buscar el usuario en la base de datos
     const usuario = await Usuario.findByPk(userId);
     if (!usuario) {
       return res.status(404).json({ 
@@ -120,7 +119,6 @@ const verifyCurrentPassword = async (req, res) => {
       });
     }
 
-    // Verificar la contraseña actual
     const isPasswordValid = await bcrypt.compare(currentPassword, usuario.password);
     if (!isPasswordValid) {
       return res.status(401).json({ 
@@ -128,7 +126,6 @@ const verifyCurrentPassword = async (req, res) => {
       });
     }
 
-    // Si la contraseña es correcta
     return res.status(200).json({ 
       message: "Contraseña verificada correctamente",
       verified: true

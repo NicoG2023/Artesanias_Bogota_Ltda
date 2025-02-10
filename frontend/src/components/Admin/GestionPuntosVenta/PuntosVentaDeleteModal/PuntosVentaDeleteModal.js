@@ -26,16 +26,13 @@ export function PuntosVentaDeleteModal({ open, onClose, selectedPuntoVenta, onUs
   };
 
   return (
-    <Modal open={open} onClose={onClose} size="small" className="modal-form-puntoVenta">
-      <button className="close-button" onClick={onClose}>
-        <Icon name="close" />
-      </button>
+    <Modal open={open} onClose={onClose} size="small" className="modal-form-puntoVenta" closeIcon>
       <Modal.Header className="header-title">Eliminar un punto de venta</Modal.Header>
       <Modal.Content scrolling>
         <div className="modal-container">
-          <h1 className="question-text">
+          <h3 className="question-text">
             ¿Está seguro que desea eliminar el punto de venta {selectedPuntoVenta?.nombre}?
-          </h1>
+          </h3>
           <div className="buttons-options">
             {/* Botón para confirmar la eliminación */}
             <Button
