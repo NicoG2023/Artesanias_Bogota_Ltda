@@ -74,3 +74,27 @@ export async function getProductosMasVendidosApi(token, mes, year) {
     throw error;
   }
 }
+
+export async function getClientesConMasComprasApi(token, mes, year) {
+  const baseUrl = `${API_SERVICIO_CLIENTES}/api/analiticas/clientes-con-mas-compras?month=${mes}&year=${year}`;
+  try {
+    const params = {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    };
+    const response = await fetch(baseUrl, params);
+    if (!response.ok) {
+      throw new Error(
+        `Error al obtener los clientes con más compras: ${response.statusText}`
+      );
+    }
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error en getClientesConMasComprasApi", error.message);
+    throw error;
+  }
+}

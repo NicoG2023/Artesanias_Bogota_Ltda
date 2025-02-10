@@ -2,6 +2,8 @@ import React from "react";
 import {
   EmpleadosConMasDineroGenerado,
   EmpleadosConMasVentas,
+  ProductosMasVendidos,
+  ClientesConMasCompras,
 } from "../../../components";
 import "./AdminDashboard.scss";
 
@@ -15,6 +17,12 @@ export function AdminDashboard() {
         </div>
         <div className="panel">
           <EmpleadosConMasVentas />
+        </div>
+        <div className="panel">
+          <ProductosMasVendidos />
+        </div>
+        <div className="panel">
+          <ClientesConMasCompras />
         </div>
       </div>
     </div>

@@ -12,7 +12,7 @@ import {
   Tooltip,
   Legend,
 } from "chart.js";
-import "./ProductosMasVendidos.scss";
+import "./ClientesConMasCompras.scss";
 
 ChartJS.register(
   CategoryScale,
@@ -23,7 +23,7 @@ ChartJS.register(
   Legend
 );
 
-export function ProductosMasVendidos() {
+export function ClientesConMasCompras() {
   const currentDate = new Date();
   const currentMonth = currentDate.getMonth() + 1;
   const currentYear = currentDate.getFullYear();
@@ -33,12 +33,12 @@ export function ProductosMasVendidos() {
   const [isAnnual, setIsAnnual] = useState(false);
   const [queryTriggered, setQueryTriggered] = useState(false);
 
-  const { data, loading, error, getProductosMasVendidos } = useAnalitica();
+  const { data, loading, error, getClientesConMasCompras } = useAnalitica();
   const { auth } = useAuth();
 
   const handleFetchData = () => {
     setQueryTriggered(true);
-    getProductosMasVendidos(isAnnual ? null : month, year);
+    getClientesConMasCompras(isAnnual ? null : month, year);
   };
 
   const monthOptions = [
@@ -62,9 +62,9 @@ export function ProductosMasVendidos() {
   }
 
   return (
-    <div className="productos-ventas-container">
+    <div className="clientes-ventas-container">
       <Header as="h2" textAlign="center">
-        Analítica de Productos Más Vendidos
+        Analítica de Clientes con Más Compras
       </Header>
       <Segment className="selector-container">
         <Checkbox
@@ -109,12 +109,12 @@ export function ProductosMasVendidos() {
         <div className="chart-container">
           <Bar
             data={{
-              labels: data.map((item) => item.nombre),
+              labels: data.map((item) => item.clienteId),
               datasets: [
                 {
-                  label: "Cantidad Vendida",
+                  label: "Cantidad Comprada",
                   data: data.map((item) => parseInt(item.cantidad)),
-                  backgroundColor: "rgba(54, 162, 235, 0.6)",
+                  backgroundColor: "rgba(75, 192, 192, 0.6)",
                 },
               ],
             }}
@@ -124,7 +124,7 @@ export function ProductosMasVendidos() {
                 legend: { position: "top" },
                 title: {
                   display: true,
-                  text: `Top 10 Productos Más Vendidos - ${
+                  text: `Top 10 Clientes con Más Compras - ${
                     isAnnual ? `Año ${year}` : `${month}/${year}`
                   }`,
                 },
