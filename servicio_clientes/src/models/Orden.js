@@ -43,7 +43,16 @@ const Orden = sequelize.define(
     },
     direccion_fk: {
       type: DataTypes.INTEGER,
-      allowNull: false,
+      allowNull: true,
+    },
+    stripe_session_id: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    descuento_aplicado: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      defaultValue: 0,
     },
   },
   {

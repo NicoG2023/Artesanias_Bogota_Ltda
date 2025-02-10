@@ -11,8 +11,8 @@ const TOKEN_EXPIRATION_DAYS = 120; //SOLO EN DESARROLLO, EN PRODUCCION BAJAR A 2
 export const saveToken = (token) => {
   Cookies.set(TOKEN, token, {
     expires: TOKEN_EXPIRATION_DAYS, // Expira en 120 días
-    secure: process.env.NODE_ENV === "production", // Solo HTTPS en producción
-    sameSite: "Strict", // Evita el envío del token en solicitudes entre sitios
+    secure: true, // Solo HTTPS en producción
+    sameSite: "None", // Evita el envío del token en solicitudes entre sitios
     path: "/", // Disponible en toda la aplicación
   });
 };

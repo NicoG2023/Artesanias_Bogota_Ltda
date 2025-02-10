@@ -1,5 +1,10 @@
 const { Kafka } = require("kafkajs");
-const { Inventario, Producto } = require("../models");
+const {
+  Inventario,
+  Producto,
+  Carrito,
+  REL_CarritoProducto,
+} = require("../models");
 
 const kafka = new Kafka({
   clientId: "admins-service",
@@ -18,6 +23,11 @@ async function connectConsumer() {
     fromBeginning: false,
   });
 
+  await consumer.subscribe({
+    topic: "admins-events",
+    fromBeginning: false,
+  });
+
   // Escuchar mensajes
   await consumer.run({
     eachMessage: async ({ topic, partition, message }) => {
@@ -29,6 +39,10 @@ async function connectConsumer() {
         // Dependiendo del eventType, realizamos acciones
         if (event.eventType === "PUNTO_DE_VENTA_ELIMINADO") {
           await handlePuntoDeVentaEliminado(event.payload);
+        } else if (event.eventType === "DESCONTAR_INVENTARIO") {
+          await handleDescontarInventario(event.payload);
+        } else if (event.eventType === "LIMPIAR_CARRITO") {
+          await handleLimpiarCarrito(event.payload);
         }
       } catch (error) {
         console.error("Error procesando mensaje en Admin:", error);
@@ -80,6 +94,58 @@ async function handlePuntoDeVentaEliminado(payload) {
     // Podrías relanzar el error para que Kafka reintente
     throw error;
   }
+}
+
+async function handleDescontarInventario({ puntos_venta }) {
+  // puntos_venta: array de objetos { punto_venta_fk, items }
+  for (const grupo of puntos_venta) {
+    const { punto_venta_fk, items } = grupo;
+    for (const item of items) {
+      const { producto_fk, cantidad } = item;
+
+      const inv = await Inventario.findOne({
+        where: { producto_fk, punto_venta_fk },
+      });
+
+      if (!inv) {
+        throw new Error(
+          `No se encontró inventario para producto_fk=${producto_fk} en PV=${punto_venta_fk}`
+        );
+      }
+
+      if (inv.cantidad < cantidad) {
+        throw new Error(
+          `Inventario insuficiente para producto_fk=${producto_fk} en PV=${punto_venta_fk}. Actual=${inv.cantidad}, requerido=${cantidad}`
+        );
+      }
+
+      inv.cantidad -= cantidad;
+      await inv.save();
+      console.log(
+        `Inventario actualizado para producto_fk=${producto_fk} en PV=${punto_venta_fk}: nueva cantidad=${inv.cantidad}`
+      );
+    }
+  }
+}
+
+async function handleLimpiarCarrito({ usuario_fk }) {
+  // 1) Buscar el carrito del usuario
+  const carrito = await Carrito.findOne({ where: { usuario_fk } });
+  if (!carrito) {
+    console.log(
+      `No hay carrito para usuario_fk=${usuario_fk}, nada que limpiar`
+    );
+    return;
+  }
+
+  // 2) Borrar productos en REL_CarritoProducto
+  await REL_CarritoProducto.destroy({
+    where: { carrito_fk: carrito.id },
+  });
+
+  console.log(
+    `Carrito ${carrito.id} (usuario_fk=${usuario_fk}) limpiado exitosamente`
+  );
 }
 
 module.exports = {

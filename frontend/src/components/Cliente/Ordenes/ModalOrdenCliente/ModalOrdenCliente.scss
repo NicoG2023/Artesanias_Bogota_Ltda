@@ -1,0 +1,65 @@
+$yellow: #FCD116;
+$blue: #003893;
+$red: #CE1126;
+$white: #FFFFFF;
+$black: #000000;
+
+.modal-orden {
+  .p-dialog-header {
+    background-color: $blue;
+    color: $white;
+  }
+
+  .modal-orden-header {
+    h2 {
+      color: $yellow;
+    }
+    p {
+      color: $white;
+    }
+  }
+
+  .modal-orden-content {
+    background-color: $white;
+    color: $black;
+
+    h3 {
+      color: $blue;
+      border-bottom: 2px solid $red;
+      padding-bottom: 5px;
+      margin-bottom: 10px;
+    }
+
+    .order-summary, .order-address, .order-products {
+      margin-bottom: 20px;
+    }
+
+    .p-datatable {
+      .p-datatable-thead > tr > th {
+        background-color: $blue;
+        color: $white;
+      }
+
+      .p-datatable-tbody > tr:nth-child(even) {
+        background-color: lighten($yellow, 30%);
+      }
+
+      .p-datatable-tbody > tr:nth-child(odd) {
+        background-color: $white;
+      }
+    }
+  }
+
+  .p-dialog-footer {
+    background-color: $red;
+
+    .p-button.p-button-text {
+      color: $white;
+
+      &:hover {
+        background-color: darken($red, 10%);
+      }
+    }
+  }
+}
+

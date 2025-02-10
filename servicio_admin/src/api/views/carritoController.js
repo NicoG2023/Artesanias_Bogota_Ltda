@@ -1,37 +1,63 @@
 const { Carrito, Producto, REL_CarritoProducto } = require("../../models");
 const sequelize = require("../../config/database");
 const { getSignedUrl } = require("../../utils/cacheUtils");
+const { getPuntosVentaByIds } = require("../../grpc/puntoVentaClientGrpc");
 
 // Obtener el contenido del carrito
 const obtenerCarrito = async (req, res) => {
+  console.log("req", req.user.rol);
   try {
     const { userId } = req.user;
     const carrito = await Carrito.findOne({ where: { usuario_fk: userId } });
 
     if (!carrito) return res.status(200).json({ productos: [] });
 
+    // Obtenemos los productos del carrito, incluyendo el campo "punto_venta_fk" de la relación
     const productos = await carrito.getProductos({
-      attributes: ["id", "nombre", "precio", "imagen"],
-      joinTableAttributes: ["id", "cantidad"],
+      attributes: ["id", "nombre", "precio", "imagen", "stripe_price_id"],
+      joinTableAttributes: ["id", "cantidad", "punto_venta_fk"],
     });
 
     // Procesamos cada producto para obtener la URL firmada de la imagen
     const productosConImagen = await Promise.all(
       productos.map(async (producto) => {
-        // Convertimos la instancia a objeto plano
         const prod = producto.get({ plain: true });
         if (prod.imagen) {
-          // Extraemos el nombre del blob, asumiendo que la URL es algo como:
-          // "https://<cuenta>.blob.core.windows.net/<container>/archivo.ext"
           const archivo = prod.imagen.split("/").pop();
-          // Obtenemos la URL firmada (esta función utiliza Redis para cachear el resultado)
           prod.imagen = await getSignedUrl(archivo, "r");
         }
         return prod;
       })
     );
 
-    return res.status(200).json({ carrito, productos: productosConImagen });
+    // Extraemos todos los IDs de punto de venta de los productos (tomando el valor de la relación)
+    const puntoVentaIds = productosConImagen
+      .map((prod) => prod.REL_CarritoProducto?.punto_venta_fk)
+      .filter((id) => id !== undefined && id !== null);
+    // Obtenemos los IDs únicos
+    const idsUnicos = [...new Set(puntoVentaIds)];
+
+    // Llamamos a getPuntosVentaByIds pasándole un array de IDs
+    let puntosVenta = [];
+    if (idsUnicos.length) {
+      puntosVenta = await getPuntosVentaByIds(idsUnicos);
+      // Se espera que puntosVenta sea un array con objetos { id, nombre, tipo, direccion }
+    }
+
+    // Para cada producto, asignamos la información del punto de venta
+    const productosConPuntoVenta = productosConImagen.map((prod) => {
+      const pvId = prod.REL_CarritoProducto?.punto_venta_fk;
+      if (pvId) {
+        // Buscamos el punto de venta que corresponda
+        const puntoVenta = puntosVenta.find((pv) => pv.id === pvId);
+        prod.puntoVenta = puntoVenta || null;
+      } else {
+        prod.puntoVenta = null;
+      }
+      return prod;
+    });
+
+    return res.status(200).json({ carrito, productos: productosConPuntoVenta });
   } catch (error) {
     console.error(error);
     return res.status(500).json({ error: "Error al obtener el carrito" });
@@ -42,16 +68,24 @@ const obtenerCarrito = async (req, res) => {
 const agregarAlCarrito = async (req, res) => {
   const transaction = await sequelize.transaction();
   try {
-    const { productoId, cantidad = 1 } = req.body;
+    const { productoId, cantidad = 1, puntoVentaId } = req.body;
     const { userId } = req.user;
 
     // Validaciones básicas
     if (!productoId || isNaN(productoId)) {
+      console.log("ID de producto inválido:", productoId); // Debugging
       await transaction.rollback();
       return res.status(400).json({ error: "ID de producto inválido" });
     }
 
+    if (!puntoVentaId || isNaN(puntoVentaId)) {
+      console.log("ID de punto de venta inválido:", puntoVentaId); // Debugging
+      await transaction.rollback();
+      return res.status(400).json({ error: "ID de punto de venta inválido" });
+    }
+
     if (cantidad < 1 || !Number.isInteger(cantidad)) {
+      console.log("Cantidad inválida:", cantidad); // Debugging
       await transaction.rollback();
       return res
         .status(400)
@@ -65,11 +99,13 @@ const agregarAlCarrito = async (req, res) => {
     });
 
     if (!producto) {
+      console.log("Producto no encontrado:", productoId); // Debugging
       await transaction.rollback();
       return res.status(404).json({ error: "Producto no encontrado" });
     }
 
     if (!producto.es_activo) {
+      console.log("Producto no disponible:", productoId); // Debugging
       await transaction.rollback();
       return res.status(400).json({ error: "Producto no disponible" });
     }
@@ -86,11 +122,13 @@ const agregarAlCarrito = async (req, res) => {
       where: {
         carrito_fk: carrito.id,
         producto_fk: productoId,
+        punto_venta_fk: puntoVentaId,
       },
       defaults: {
         cantidad: cantidad,
         carrito_fk: carrito.id,
         producto_fk: productoId,
+        punto_venta_fk: puntoVentaId,
       },
       transaction,
       lock: transaction.LOCK.UPDATE,
@@ -113,6 +151,7 @@ const agregarAlCarrito = async (req, res) => {
       nuevaCantidad: created ? cantidad : relacion.cantidad + cantidad,
     });
   } catch (error) {
+    console.error("error ", error);
     await transaction.rollback();
     console.error("Error en transacción:", error);
 

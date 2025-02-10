@@ -100,7 +100,7 @@ export function TopMenu() {
       </Container>
 
       {/* Modal del Carrito */}
-      {auth.user.rol === "cliente" && (
+      {(auth.user.rol === "cliente" || auth.user.rol === "staff") && (
         <>
           <Modal open={open} onClose={handleClose} size="large">
             <Modal.Header>Carrito de Compras</Modal.Header>

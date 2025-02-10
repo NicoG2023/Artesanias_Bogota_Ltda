@@ -37,6 +37,14 @@ export function SideMenu() {
 
             <Menu.Item
               as={Link}
+              to="/admin-editar-productos"
+              active={pathname === "/admin-editar-productos"}
+            >
+              <Icon name="cart plus" /> Gestionar Producto
+            </Menu.Item>
+
+            <Menu.Item
+              as={Link}
               to="/admin-inventario"
               active={pathname === "/admin-inventario"}
             >
@@ -69,13 +77,22 @@ export function SideMenu() {
         )}
         {/* Solo visible para usuarios con rol "staff" */}
         {auth.user.rol === "staff" && (
-          <Menu.Item
-            as={Link}
-            to="/productos-staff"
-            active={pathname === "/productos-staff"}
-          >
-            <Icon name="box" /> Productos Staff
-          </Menu.Item>
+          <>
+            <Menu.Item
+              as={Link}
+              to="/staff-dashboard"
+              active={pathname === "/staff-dashboard"}
+            >
+              <Icon name="home" /> Dashboard
+            </Menu.Item>
+            <Menu.Item
+              as={Link}
+              to="/productos-staff"
+              active={pathname === "/productos-staff"}
+            >
+              <Icon name="box" /> Productos Staff
+            </Menu.Item>
+          </>
         )}
       </Menu>
     </div>

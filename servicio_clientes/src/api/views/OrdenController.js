@@ -10,39 +10,88 @@ const {
   searchUsersByTerm,
 } = require("../../grpc/userClientGrpc");
 const { getProductsByIds } = require("../../grpc/productClientGrpc");
-const { containerClient } = require("../../config/blob-storage");
-const {
-  generateBlobSASQueryParameters,
-  StorageSharedKeyCredential,
-  BlobSASPermissions,
-} = require("@azure/storage-blob");
+const { getDireccionById } = require("../../grpc/userClientGrpc");
+const { getSignedUrl } = require("../../utils/cacheUtils");
 
 //Controlador para crear Orden
-const crearOrden = async (req, res) => {
-  const t = await sequelize.transaction();
-
+async function crearOrden(req, res) {
   try {
     const {
       usuario_fk,
       lugar_compra_fk,
-      estado,
       pago_fk,
       total,
+      direccion_fk,
       productos = [],
     } = req.body;
 
+    const nuevaOrden = await createOrderTransaction({
+      usuario_fk,
+      lugar_compra_fk,
+      pago_fk,
+      total,
+      direccion_fk,
+      productos,
+    });
+
+    return res.status(201).json({
+      message: "Orden creada exitosamente",
+      data: nuevaOrden,
+    });
+  } catch (error) {
+    console.error("Error al crear la orden:", error);
+    return res.status(500).json({
+      message: "Error al crear la orden",
+      error: error.message || error,
+    });
+  }
+}
+
+/**
+ * Crea una orden con estado "CREADA" y sus productos relacionados.
+ * Hace commit/rollback en caso de error.
+ *
+ * @param {object} data Objeto con los campos necesarios
+ * @param {number} data.usuario_fk
+ * @param {number|null} data.lugar_compra_fk
+ * @param {number} data.pago_fk
+ * @param {number} data.total
+ * @param {number} data.direccion_fk
+ * @param {Array}  data.productos - Array de objetos { producto_fk, cantidad }
+ *
+ * @returns {Orden} La instancia de la orden creada
+ */
+async function createOrderTransaction({
+  usuario_fk,
+  lugar_compra_fk,
+  pago_fk,
+  total,
+  direccion_fk,
+  productos = [],
+  stripe_session_id,
+  descuento_aplicado,
+}) {
+  const t = await sequelize.transaction();
+
+  try {
+    // 1) Crear la Orden
     const nuevaOrden = await Orden.create(
       {
         usuario_fk,
         lugar_compra_fk,
-        estado,
+        estado: "CREADA", // Forzamos a "CREADA"
         pago_fk,
         total,
+        direccion_fk,
         fecha_orden: new Date(),
+        stripe_session_id,
+        descuento_aplicado,
       },
       { transaction: t }
     );
-    if (productos.lenth > 0) {
+
+    // 2) Insertar los productos en rel_orden_producto
+    if (productos.length > 0) {
       const rels = productos.map((prod) => ({
         orden_fk: nuevaOrden.id,
         producto_fk: prod.producto_fk,
@@ -50,21 +99,61 @@ const crearOrden = async (req, res) => {
       }));
       await REL_Orden_Producto.bulkCreate(rels, { transaction: t });
     }
+
+    // 3) Confirmamos la transacción
     await t.commit();
 
-    return res.status(201).json({
-      message: "Orden creada exitosamente",
-      data: nuevaOrden,
-    });
+    // 4) Puedes disparar la simulación de envío (si procede)
+    simularEnvioOrden(nuevaOrden.id);
+
+    return nuevaOrden;
   } catch (error) {
-    await t.rollback(); // Revertir la transacción en caso de error
-    console.error("Error al crear la orden:", error);
-    return res.status(500).json({
-      message: "Error al crear la orden",
-      error: error.message || error,
+    // En caso de error, rollback
+    await t.rollback();
+    throw error;
+  }
+}
+
+//Funcion para simular los cambios de estado
+async function simularEnvioOrden(ordenId) {
+  try {
+    // A los 5 seg => pasar a "procesando"
+    setTimeout(async () => {
+      await actualizarEstadoOrdenInterno(ordenId, "procesando");
+    }, 8000);
+
+    // A los 10 seg => pasar a "EN_RUTA"
+    setTimeout(async () => {
+      await actualizarEstadoOrdenInterno(ordenId, "EN_RUTA");
+    }, 10000);
+
+    // A los 15 seg => pasar a "ENTREGADA"
+    setTimeout(async () => {
+      await actualizarEstadoOrdenInterno(ordenId, "ENTREGADA");
+    }, 15000);
+  } catch (error) {
+    console.error("Error en simularEnvioOrden:", error);
+  }
+}
+
+// Esta función interna es para no duplicar lógica
+async function actualizarEstadoOrdenInterno(id, nuevoEstado) {
+  const orden = await Orden.findByPk(id);
+  if (!orden) return;
+
+  orden.estado = nuevoEstado;
+  await orden.save();
+
+  console.log(`Orden #${id} actualizada a estado: ${nuevoEstado}`);
+
+  if (global.io) {
+    // Notificar a la sala 'orden-<id>'
+    global.io.to(`orden-${id}`).emit("estadoActualizado", {
+      ordenId: id,
+      nuevoEstado,
     });
   }
-};
+}
 
 // Obtener todas las ordenes (sin importar el usuario)
 const obtenerOrdenes = async (req, res) => {
@@ -139,7 +228,7 @@ const obtenerOrdenes = async (req, res) => {
     const dictProductos = {};
     productos.forEach((p) => {
       // Firmar la imagen (opcional)
-      p.imagen = p.imagen ? generarURLFirmada(p.imagen, "r") : p.imagen;
+      p.imagen = p.imagen ? getSignedUrl(p.imagen, "r") : p.imagen;
       dictProductos[p.id] = p;
     });
 
@@ -214,18 +303,18 @@ const updateEstadoOrden = async (req, res) => {
 
 //Obtener ordenes por usuario
 const obtenerOrdenesPorUsuario = async (req, res) => {
+  console.log("req.params", req.params);
   const { usuario_fk } = req.params;
   const { page = 1 } = req.query;
-
   const limit = 15;
   const offset = (page - 1) * limit;
 
   try {
+    // 1) Obtener las órdenes del usuario con relaciones básicas
     const { rows: ordenesUsuario, count } = await Orden.findAndCountAll({
       where: { usuario_fk: usuario_fk },
       limit,
       offset,
-      // Aquí indicamos el orden (columna, dirección)
       order: [["fecha_orden", "DESC"]],
       include: [
         {
@@ -241,8 +330,73 @@ const obtenerOrdenesPorUsuario = async (req, res) => {
         {
           model: REL_Orden_Producto,
           as: "productosOrden",
+          attributes: ["producto_fk", "cantidad"],
         },
       ],
+    });
+
+    const testProducts = await getProductsByIds([27]); // Un ID de prueba
+    console.log("Respuesta del microservicio de productos:", testProducts);
+
+    // 2) Recolectar todos los IDs de productos de todas las órdenes
+    const productIds = new Set();
+    ordenesUsuario.forEach((orden) => {
+      orden.productosOrden.forEach((rel) => {
+        productIds.add(rel.producto_fk);
+      });
+    });
+
+    // 3) Recolectar todos los IDs de direcciones (direccion_fk) de las órdenes
+    const direccionIds = new Set();
+    ordenesUsuario.forEach((orden) => {
+      // Solo agregamos si direccion_fk NO es null ni undefined
+      if (orden.direccion_fk !== null && orden.direccion_fk !== undefined) {
+        direccionIds.add(orden.direccion_fk);
+      }
+    });
+
+    // 4) Consultar el microservicio de productos vía gRPC
+    const products = await getProductsByIds([...productIds]);
+    console.log("products", products);
+    console.log("productsIds", productIds);
+    const dictProductos = {};
+    products.forEach((p) => {
+      // Opcionalmente, podrías firmar la imagen aquí si es necesario
+      dictProductos[p.id] = p;
+    });
+
+    // 5) Consultar (en paralelo) las direcciones vía gRPC (o bien, desde la BD del servicio de usuarios)
+    // Se asume que getDireccionById está implementado en el servicio de usuarios vía gRPC.
+    const dictDirecciones = {};
+    await Promise.all(
+      [...direccionIds].map(async (dirId) => {
+        // Se pasa el id de la dirección y el usuario_fk obtenido de los parámetros
+        console.log("dirId", dirId);
+        const direccion = await getDireccionById(dirId, usuario_fk);
+        dictDirecciones[dirId] = direccion;
+      })
+    );
+
+    // 6) Enriquecer cada orden con la información de los productos y la dirección
+    const ordenesEnriquecidas = ordenesUsuario.map((orden) => {
+      const ordenJSON = orden.toJSON();
+      ordenJSON.direccion = dictDirecciones[ordenJSON.direccion_fk] || null;
+
+      // Enriquecer cada REL_Orden_Producto con la información del producto
+      ordenJSON.productosOrden = ordenJSON.productosOrden.map((rel) => {
+        const productoData = dictProductos[rel.producto_fk];
+        return {
+          ...rel,
+          productoNombre: productoData ? productoData.nombre : null,
+          productoImagen: productoData ? productoData.imagen : null,
+          productoPrecio: productoData ? productoData.precio : null,
+        };
+      });
+
+      // Agregar la dirección asociada a la orden
+      ordenJSON.direccion = dictDirecciones[ordenJSON.direccion_fk] || null;
+
+      return ordenJSON;
     });
 
     const total = count;
@@ -250,7 +404,7 @@ const obtenerOrdenesPorUsuario = async (req, res) => {
 
     return res.json({
       message: `Lista de órdenes del usuario ${usuario_fk}`,
-      data: ordenesUsuario,
+      data: ordenesEnriquecidas,
       pagination: {
         page: Number(page),
         total,
@@ -266,70 +420,160 @@ const obtenerOrdenesPorUsuario = async (req, res) => {
   }
 };
 
-const accountName = process.env.AZURE_ACCOUNT_NAME;
-const accountKey = process.env.AZURE_ACCOUNT_KEY;
-
-if (!accountName || !accountKey) {
-  throw new Error("Faltan AZURE_ACCOUNT_NAME o AZURE_ACCOUNT_KEY en el .env");
-}
-
-const sharedKeyCredential = new StorageSharedKeyCredential(
-  accountName,
-  accountKey
-);
-
-/**
- * Extrae el blobName y genera la URL firmada con permisos "permisos"
- * durante "expiracionEnHoras" horas (por defecto 5).
- */
-function generarURLFirmada(urlCompleta, permisos = "r", expiracionEnHoras = 5) {
+const obtenerOrdenPorId = async (req, res) => {
   try {
-    // 1) Obtenemos solo el blobName (ej. "default-product.webp")
-    const blobName = extraerBlobName(urlCompleta);
+    const { id } = req.params;
 
-    // 2) Cálculo de expiración
-    const expiresOn = new Date(Date.now() + expiracionEnHoras * 60 * 60 * 1000);
+    // 1) Buscar la orden específica con sus relaciones
+    const orden = await Orden.findOne({
+      where: { id },
+      include: [
+        {
+          model: Pago,
+          as: "pago",
+        },
+        {
+          model: PuntoVenta,
+          as: "puntoVenta",
+        },
+        {
+          model: REL_Orden_Producto,
+          as: "productosOrden",
+        },
+      ],
+    });
 
-    // 3) Permisos en formato de BlobSASPermissions
-    const sasPermissions = BlobSASPermissions.parse(permisos);
-    // Por ejemplo, "r" => lectura
+    if (!orden) {
+      return res.status(404).json({
+        message: "Orden no encontrada",
+      });
+    }
 
-    // 4) Construimos las opciones para generar el SAS
-    const sasOptions = {
-      containerName: containerClient.containerName,
-      blobName,
-      permissions: sasPermissions,
-      expiresOn,
-    };
+    // 2) Recolectar IDs de productos
+    const productIds = new Set();
+    orden.productosOrden.forEach((rel) => {
+      productIds.add(rel.producto_fk);
+    });
 
-    // 5) Generamos el token
-    const sasToken = generateBlobSASQueryParameters(
-      sasOptions,
-      sharedKeyCredential
-    ).toString();
+    // 3) Recolectar ID de dirección
+    let direccionId = orden.direccion_fk;
 
-    // 6) Retornamos la URL firmada
-    // "https://artesaniasbogota2024.blob.core.windows.net/imagenes-artesanias/default-product.webp?<sas>"
-    return `https://${accountName}.blob.core.windows.net/${containerClient.containerName}/${blobName}?${sasToken}`;
+    // 4) Obtener info de productos vía gRPC
+    const products = await getProductsByIds([...productIds]);
+    const dictProductos = {};
+    products.forEach((p) => {
+      // Podrías firmar la imagen si así lo requieres
+      dictProductos[p.id] = p;
+    });
+
+    // 5) Obtener la dirección por gRPC (si aplica)
+    let direccionData = null;
+    if (direccionId !== null && direccionId !== undefined) {
+      // Se asume que la orden tiene un usuario_fk
+      direccionData = await getDireccionById(direccionId, orden.usuario_fk);
+    }
+
+    // 6) Enriquecer los productos en la orden
+    const ordenJSON = orden.toJSON();
+    ordenJSON.productosOrden = ordenJSON.productosOrden.map((rel) => {
+      const pData = dictProductos[rel.producto_fk];
+      return {
+        ...rel,
+        productoNombre: pData?.nombre || null,
+        productoImagen: pData?.imagen || null,
+        productoPrecio: pData?.precio || null,
+      };
+    });
+
+    // 7) Agregar la dirección
+    ordenJSON.direccion = direccionData || null;
+
+    // 8) Responder con la orden enriquecida
+    return res.json({
+      message: "Orden encontrada",
+      data: ordenJSON,
+    });
   } catch (error) {
-    console.error("Error al generar URL firmada:", error.message);
-    return null;
+    console.error("Error al obtener la orden por ID:", error);
+    return res.status(500).json({
+      message: "Error al obtener la orden",
+      error: error.message || error,
+    });
   }
-}
+};
 
-/**
- * Extrae la parte final del blobName de una URL como:
- * "https://account.blob.core.windows.net/container/foo.jpg" => "foo.jpg"
- */
-function extraerBlobName(urlCompleta) {
-  if (!urlCompleta) return "";
-  try {
-    const urlObj = new URL(urlCompleta);
-    const parts = urlObj.pathname.split("/");
-    return parts[parts.length - 1] || "";
-  } catch (err) {
-    return urlCompleta; // fallback si no es una URL válida
+async function obtenerOrdenPorSessionId(req, res) {
+  console.log("req.query", req.params);
+  const { sessionId } = req.params;
+  console.log("sessionId", sessionId);
+
+  const orden = await Orden.findOne({
+    where: { stripe_session_id: sessionId },
+    include: [
+      {
+        model: Pago,
+        as: "pago",
+      },
+      {
+        model: PuntoVenta,
+        as: "puntoVenta",
+      },
+      {
+        model: REL_Orden_Producto,
+        as: "productosOrden",
+      },
+    ],
+  });
+  if (!orden) {
+    return res.status(404).json({ message: "Orden no encontrada" });
   }
+
+  const productIds = new Set();
+  orden.productosOrden.forEach((rel) => {
+    productIds.add(rel.producto_fk);
+  });
+
+  // 3) Recolectar ID de dirección
+  let direccionId = orden.direccion_fk;
+
+  // 4) Obtener info de productos vía gRPC
+  const products = await getProductsByIds([...productIds]);
+  console.log("obtiene products");
+  const dictProductos = {};
+  products.forEach((p) => {
+    // Podrías firmar la imagen si así lo requieres
+    dictProductos[p.id] = p;
+  });
+  console.log("llena dictProductos");
+
+  // 5) Obtener la dirección por gRPC (si aplica)
+  let direccionData = null;
+  if (direccionId) {
+    // Suponiendo que la orden tiene un usuario_fk
+    direccionData = await getDireccionById(direccionId, orden.usuario_fk);
+  }
+
+  // 6) Enriquecer los productos en la orden
+  const ordenJSON = orden.toJSON();
+  ordenJSON.productosOrden = ordenJSON.productosOrden.map((rel) => {
+    const pData = dictProductos[rel.producto_fk];
+    return {
+      ...rel,
+      productoNombre: pData?.nombre || null,
+      productoImagen: pData?.imagen || null,
+      productoPrecio: pData?.precio || null,
+    };
+  });
+
+  // 7) Agregar la dirección
+  ordenJSON.direccion = direccionData || null;
+
+  // 8) Responder con la orden enriquecida
+  console.log("orden encontrada");
+  return res.json({
+    message: "Orden encontrada",
+    data: ordenJSON,
+  });
 }
 
 module.exports = {
@@ -337,4 +581,7 @@ module.exports = {
   obtenerOrdenes,
   updateEstadoOrden,
   obtenerOrdenesPorUsuario,
+  obtenerOrdenPorId,
+  createOrderTransaction,
+  obtenerOrdenPorSessionId,
 };

@@ -11,6 +11,8 @@ export function ResumenOrden() {
     actualizarProducto,
     cargarCarrito,
   } = useCarrito();
+
+  console.log("carrito", carrito);
   return (
     <div className="resumen-orden">
       <DetalleCarrito

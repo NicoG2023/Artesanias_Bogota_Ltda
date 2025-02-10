@@ -11,6 +11,7 @@ export function ListadoPuntosVenta({ puntoVentaHook, onSelectPuntoVenta }) {
   }, [getPuntosVenta]);
 
   const handlePuntoVentaChange = (e, { value }) => {
+    console.log("Valor seleccionado en Dropdown:", value);
     setPuntoVentaSeleccionado(value);
     // Avisamos al padre que se eligió un nuevo punto de venta
     if (onSelectPuntoVenta) {

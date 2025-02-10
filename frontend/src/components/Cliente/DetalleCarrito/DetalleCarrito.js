@@ -3,7 +3,7 @@ import { Card } from "primereact/card";
 import { Image, Loader, Button } from "semantic-ui-react";
 import { Dropdown } from "primereact/dropdown";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../../../hooks";
+import { useAuth, usePago } from "../../../hooks";
 import "./DetalleCarrito.scss";
 
 export function DetalleCarrito({
@@ -17,7 +17,9 @@ export function DetalleCarrito({
   const hasFetched = useRef(false);
   const navigate = useNavigate();
   const { auth } = useAuth();
-  console.log("auth", auth);
+
+  // Hook de pago (para Stripe)
+  const { iniciarCheckout, loadingPago, errorPago } = usePago();
 
   // Estado para la dirección de envío seleccionada
   const [selectedAddress, setSelectedAddress] = useState(null);
@@ -93,14 +95,10 @@ export function DetalleCarrito({
   );
 
   // Calculamos el subtotal: sumamos (precio * cantidad) para cada producto.
-  // Convertimos el precio (que viene formateado) a número eliminando los puntos.
-  const subTotal = productos.reduce(
-    (acc, item) =>
-      acc +
-      Number(item.precio.replace(/\./g, "")) *
-        item.REL_CarritoProducto.cantidad,
-    0
-  );
+  const subTotal = productos.reduce((acc, item) => {
+    const precioSinPuntos = Number(item.precio.replace(/\./g, ""));
+    return acc + precioSinPuntos * item.REL_CarritoProducto.cantidad;
+  }, 0);
 
   // Costo de envío fijo en COP
   const shippingCost = 7300;
@@ -115,6 +113,38 @@ export function DetalleCarrito({
 
   // Precio original final (sin descuento)
   const originalTotal = subTotal + shippingCost;
+
+  // ------------------------------
+  // Manejo de Stripe Checkout
+  // ------------------------------
+  const handlePagar = () => {
+    // Vamos a pasar los productos al checkout.
+    // Cada "item" en Stripe Checkout: { price: "stripe_price_id", quantity: X }
+    // Si un producto no tiene stripe_price_id, lo omitimos o manejamos error
+    const items = productos
+      .filter((p) => p.stripe_price_id) // o manejar si no existe
+      .map((p) => ({
+        priceId: p.stripe_price_id,
+        quantity: p.REL_CarritoProducto.cantidad,
+        producto_fk: p.id,
+        puntoVentaId: p.puntoVenta.id,
+      }));
+
+    if (!items.length) {
+      alert("No hay productos válidos con stripe_price_id para pagar.");
+      return;
+    }
+
+    // Llamamos a nuestro hook
+    iniciarCheckout(
+      items,
+      aplicarDescuento,
+      discountPercentage,
+      shippingCost,
+      selectedAddress,
+      subTotal + shippingCost
+    );
+  };
 
   return (
     <div className="detalle-carrito">
@@ -133,7 +163,11 @@ export function DetalleCarrito({
                 className="cart-item__image"
               />
               <div className="cart-item__details">
-                <div className="cart-item__type">{producto.tipo || ""}</div>
+                {auth?.user?.rol === "staff" && (
+                  <div className="cart-item__type">
+                    {producto.puntoVenta.nombre || ""}
+                  </div>
+                )}
                 <div className="cart-item__name">{producto.nombre}</div>
                 <div className="cart-item__quantity">
                   <button
@@ -187,6 +221,7 @@ export function DetalleCarrito({
 
         <Card className="summary-card">
           <h2>RESUMEN</h2>
+          {/* Si hay descuento aplicado, mostramos el "precio original" tachado */}
           {aplicarDescuento ? (
             <div className="summary-row discount-summary">
               <span>ITEMS {totalItems}</span>
@@ -205,17 +240,21 @@ export function DetalleCarrito({
               <span>{formatoColombiano(subTotal)}</span>
             </div>
           )}
+
           {/* Sección para seleccionar la dirección de envío */}
-          <div className="summary-section">
-            <label>Envío</label>
-            <Dropdown
-              options={shippingOptions}
-              value={selectedAddress}
-              onChange={(e) => setSelectedAddress(e.value)}
-              placeholder="Seleccione dirección de envío"
-              className="shipping-dropdown"
-            />
-          </div>
+          {auth?.user?.rol === "cliente" && (
+            <div className="summary-section">
+              <label>Envío</label>
+              <Dropdown
+                options={shippingOptions}
+                value={selectedAddress}
+                onChange={(e) => setSelectedAddress(e.value)}
+                placeholder="Seleccione dirección de envío"
+                className="shipping-dropdown"
+              />
+            </div>
+          )}
+
           {/* Sección de Descuentos */}
           <div className="summary-section">
             <label>Descuento</label>
@@ -243,6 +282,7 @@ export function DetalleCarrito({
               )}
             </div>
           </div>
+
           {aplicarDescuento ? (
             <>
               <div className="summary-row discount-summary">
@@ -288,8 +328,16 @@ export function DetalleCarrito({
               </div>
             </>
           )}
-          <Button className="register-button">Pagar</Button>{" "}
-          {/* Botón de pago que redirige al stripe */}
+
+          {/* Botón de pago que redirige a Stripe */}
+          <Button
+            className="register-button"
+            onClick={handlePagar}
+            disabled={loadingPago}
+          >
+            {loadingPago ? "Procesando..." : "Pagar"}
+          </Button>
+          {errorPago && <p>Error en pago: {errorPago}</p>}
         </Card>
       </div>
     </div>

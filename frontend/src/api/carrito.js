@@ -26,7 +26,12 @@ export async function obtenerCarritoApi(token, userId) {
 }
 
 // Agregar un producto al carrito
-export async function agregarAlCarritoApi(token, productoId, cantidad) {
+export async function agregarAlCarritoApi(
+  token,
+  productoId,
+  cantidad,
+  puntoVentaId
+) {
   const url = `${API_SERVICIO_ADMIN}/api/carrito`;
 
   try {
@@ -36,7 +41,7 @@ export async function agregarAlCarritoApi(token, productoId, cantidad) {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
       },
-      body: JSON.stringify({ productoId, cantidad }),
+      body: JSON.stringify({ productoId, cantidad, puntoVentaId }),
     });
 
     if (!response.ok) {

@@ -1,21 +1,22 @@
 import React from "react";
-import { Modal, Button, Icon, Message } from "semantic-ui-react";
+import { Modal, Button, Icon, Message, Label } from "semantic-ui-react";
 import { useCarrito } from "../../../hooks/useCarrito";
 import "./ModalProducto.scss";
 
-export function ModalProducto({ open, onClose, producto }) {
+export function ModalProducto({ open, onClose, producto, puntoVentaId }) {
   const { agregarProducto } = useCarrito();
 
   if (!producto) return null;
 
   const handleAddToCart = async () => {
-    // Lógica para agregar al carrito
+    // Si no se ha seleccionado un punto de venta, avisamos al usuario
+    if (!puntoVentaId) {
+      alert("Debe seleccionar un punto de venta antes de agregar el producto.");
+      return;
+    }
     try {
-      // Agregar el producto al carrito con una cantidad fija (por ejemplo, 1)
-      console.log("Agregar al carrito:", producto);
-      await agregarProducto(producto.id, 1);
-      console.log("Producto agregado al carrito:", producto);
-      onClose(); // Cierra el modal después de agregar al carrito
+      await agregarProducto(producto.id, 1, puntoVentaId);
+      onClose();
     } catch (error) {
       console.error("Error al agregar el producto al carrito:", error.message);
     }
@@ -29,7 +30,20 @@ export function ModalProducto({ open, onClose, producto }) {
     return stars.length ? stars : "Sin valoración";
   };
 
+  const renderCategorias = () => {
+    return (
+      <div className="modal-product__categorias">
+        {producto.categorias.map((categoria) => (
+          <Label key={categoria.id} className="categoria-tag">
+            {categoria.nombre}
+          </Label>
+        ))}
+      </div>
+    );
+  };
+
   const sinStock = producto.stock === 0;
+  console.log("Producto:", producto);
 
   return (
     <Modal
@@ -65,7 +79,10 @@ export function ModalProducto({ open, onClose, producto }) {
                 <p>No hay unidades disponibles en este punto de venta.</p>
               </Message>
             ) : (
-              <p>Unidades disponibles: {producto.stock}</p>
+              <>
+                <p>Unidades disponibles: {producto.stock}</p>
+                {renderCategorias()} {/* Renderizamos las categorías aquí */}
+              </>
             )}
 
             <div className="modal-product__footer">

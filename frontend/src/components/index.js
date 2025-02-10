@@ -6,3 +6,4 @@ export * from "./Productos";
 export * from "./Admin";
 export * from "./Staff";
 export * from "./LandingPage";
+export * from "./Analitica";

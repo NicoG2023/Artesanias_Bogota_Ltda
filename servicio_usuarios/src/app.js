@@ -8,7 +8,9 @@ const swaggerUi = require("swagger-ui-express");
 const swaggerSpec = require("./config/swagger");
 const usuarioRoutes = require("./api/routes/usuarioRoutes");
 const authRoutes = require("./api/routes/authRoutes");
+const direccionRoutes = require("./api/routes/direccionRoutes");
 require("./grpcServer.js");
+const { connectConsumer } = require("./kafka/kafkaConsumer");
 
 // Configuración de CORS para permitir todas las solicitudes (solo para desarrollo, en producción CAMBIAR)
 app.use(cors());
@@ -18,15 +20,21 @@ app.use(express.json());
 
 app.use("/api", usuarioRoutes);
 app.use("/api", authRoutes);
+app.use("/api", direccionRoutes);
 
 app.get("/", (req, res) => {
-  res.send("¡Servicio funcionando!");
+  res.send("¡Servicio Usuarios funcionando!");
 });
 
 // Ruta para la documentación de Swagger
 app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
-// Sincronización y autenticación con la base de datos
+// Servidor escuchando en el puerto especificado
+app.listen(PORT, async () => {
+  console.log(`Servidor escuchando en el puerto ${PORT}`);
+  await connectConsumer();
+});
+
 sequelize
   .authenticate()
   .then(() => {
@@ -34,13 +42,8 @@ sequelize
     return sequelize.sync();
   })
   .then(() => {
-    console.log("Sincronización de modelos completada.");
+    console.log("Sincronización de modelos completada");
   })
   .catch((err) => {
     console.error("No se pudo conectar a la base de datos:", err);
   });
-
-// Servidor escuchando en el puerto especificado
-app.listen(PORT, () => {
-  console.log(`Servidor escuchando en el puerto ${PORT}`);
-});

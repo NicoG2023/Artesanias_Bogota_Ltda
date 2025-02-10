@@ -19,6 +19,7 @@
     "redis": "^4.7.0",
     "sequelize": "^6.37.5",
     "sequelize-cli": "^6.6.2",
+    "stripe": "^17.6.0",
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.1"
   },
