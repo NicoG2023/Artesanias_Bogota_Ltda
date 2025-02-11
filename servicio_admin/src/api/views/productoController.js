@@ -579,7 +579,7 @@ async function agregarProductosBulk(req, res) {
       // Subir imagen (si existe)
       let imagenUrl = "https://.../default-product.webp";
       if (imagenBase64) {
-        const base64Regex = /^data:.*;base64,(.*)$/;
+        const base64Regex = /^data:.;base64,(.)$/;
         const match = imagenBase64.match(base64Regex);
         if (!match) {
           await transaction.rollback();

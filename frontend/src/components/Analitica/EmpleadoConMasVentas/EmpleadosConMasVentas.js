@@ -92,7 +92,7 @@ export function EmpleadosConMasVentas() {
           onChange={(e, { value }) => setYear(value)}
         />
 
-        <Button primary onClick={handleFetchData}>
+        <Button className="btn-consultar" onClick={handleFetchData}>
           Consultar
         </Button>
       </Segment>

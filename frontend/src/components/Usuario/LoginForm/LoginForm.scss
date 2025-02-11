@@ -1,22 +1,22 @@
 .login-form {
   &__input {
     background-color: #f7f2e7 !important;
-    border-color: #c64d34 !important;
-    color: #6e6159 !important;
+    border-color: #00308766 !important;
+    color: #00308766 !important;
 
     &:focus {
       border-color: #e2b13c !important;
-      background-color: #f7f2e7 !important;
+      background-color: #fdfdfd !important;
     }
   }
 
   &__button {
-    background-color: #88b04b !important;
-    color: white !important;
+    background-color: #003087 !important;
+    color: yellow !important;
     font-size: 1rem;
 
     &:hover {
-      background-color: #c64d34 !important;
+      background-color: #C8102E !important;
     }
   }
 
@@ -26,7 +26,7 @@
     margin-top: 1rem;
 
     a {
-      color: #c64d34;
+      color: #003087;
       font-size: 0.9rem;
 
       &:hover {

@@ -1,0 +1,29 @@
+.ordenes-admin {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  
+    &__title {
+      font-size: 2rem;
+      margin-top: 10px;
+      margin-bottom: 10px;
+    }
+  
+  }
+  
+  // 📌 Responsividad
+  @media (max-width: 768px) {
+    .ordenes-admin {
+      &__title {
+        font-size: 20px;
+      }
+  
+      .tabla-ordenes-container {
+        overflow-x: auto;
+      }
+    }
+  }
+  

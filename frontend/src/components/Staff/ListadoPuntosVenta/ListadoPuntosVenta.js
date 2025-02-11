@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Dropdown, Loader, Message, Header } from "semantic-ui-react";
+import "./ListadoPuntosVenta.scss"
 
 export function ListadoPuntosVenta({ puntoVentaHook, onSelectPuntoVenta }) {
   const { puntosVenta, loading, error, getPuntosVenta } = puntoVentaHook;
@@ -40,9 +41,10 @@ export function ListadoPuntosVenta({ puntoVentaHook, onSelectPuntoVenta }) {
   }
 
   return (
-    <div>
-      <Header as="h2">Selecciona un punto de venta</Header>
+    <div className="listado-puntos-venta">
+      <Header as="h2" className="listado-puntos-venta__header">Selecciona un punto de venta</Header>
       <Dropdown
+        className="listado-puntos-venta__dropdown"
         placeholder="Elige un punto de venta"
         selection
         options={opcionesDropdown}

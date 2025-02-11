@@ -133,7 +133,7 @@ const ActualizarInventario = ({
               }
             />
           </Form.Group>
-          <Button type="submit" primary>
+          <Button className="btn-actualizar" type="submit" primary>
             <Icon name="save" /> Actualizar
           </Button>
           <Button type="button" onClick={onClose}>

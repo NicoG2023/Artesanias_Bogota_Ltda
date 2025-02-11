@@ -14,21 +14,30 @@
       display: block;
       border-radius: 8px;
       margin: 20px auto;
-      color: white;
-      background-color: rgb(34, 139, 34);
+      color: #FFCD00;
+      background-color: rgb(0, 48, 135);
       font-size: 20px;
       padding: 10px 20px;
       border: none;
       cursor: pointer;
 
       &:hover {
-        background-color: rgb(28, 112, 28);
+        background-color: rgb(0, 38, 110);
+        transform: scale(1.05);
+      }
+      &:disabled {
+        background-color: #b0b0b0 !important;
+        cursor: not-allowed;
+      }
+  
+      i.icon {
+        margin-right: 5px;
       }
     }
   }
 
   .usuarios__title {
-    font-size: 40px;
+    font-size: 2rem;
     margin-top: 10px;
     margin-bottom: 10px;
   }

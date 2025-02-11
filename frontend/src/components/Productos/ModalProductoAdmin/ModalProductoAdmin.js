@@ -67,7 +67,7 @@ export function ModalProductoAdmin({ producto, open, onClose}) {
             <Form.Input
               label="Categorías"
               name="categorias"
-              defaultValue={producto.categorias.map(c => c.nombre).join(", ")}
+              defaultValue={producto.categorias.map(c => c.nombre).join(", ") || "Sin categorías"}
               readOnly
             />
             <Form.Input

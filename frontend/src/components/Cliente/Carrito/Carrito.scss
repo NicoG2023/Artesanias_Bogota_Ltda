@@ -6,7 +6,7 @@
       text-align: center;
       font-size: 1.5rem;
       font-weight: bold;
-      color: #888;
+      color: #003087;
       margin-top: 50px;
     }
   
@@ -18,7 +18,7 @@
   
       th {
         background-color: #f5f5f5;
-        color: #333;
+        color: #003087;
         text-transform: uppercase;
         font-size: 0.85rem;
         font-weight: bold;
@@ -26,6 +26,7 @@
   
       td {
         vertical-align: middle;
+        color: #003087;
         font-size: 1rem;
       }
   
@@ -34,17 +35,18 @@
         padding: 8px 12px;
   
         &.red {
-          background-color: #e74c3c !important;
+          background-color: #C8102E !important;
           color: #fff !important;
   
           &:hover {
-            background-color: #c0392b !important;
+            background-color: #9d2c15 !important;
           }
         }
       }
     }
   
     .ui.table tfoot {
+      color:#003087;
       font-size: 1.1rem;
       font-weight: bold;
   
@@ -59,7 +61,7 @@
   
     .ui.icon.button {
       background: transparent !important;
-      color: #e74c3c !important;
+      color: #C8102E !important;
   
       &:hover {
         background: rgba(231, 76, 60, 0.1) !important;
@@ -69,5 +71,63 @@
         margin: 0;
       }
     }
+
+    //botones aumentar y disminuir cantidad en el carrito
+    .btn-minus,
+    .btn-plus {
+      background-color: #C8102E;
+      color: white !important;
+      transition: background-color 0.3s ease;
+      display: flex;
+      font-size: 1.2rem;
+      border: none;
+
+      &:disabled {
+        background-color: #b0b0b0 !important; // Gris cuando está deshabilitado
+        cursor: not-allowed !important;
+      }
+    }
+
+    // Botón de eliminar producto
+    .btn-delete {
+      background-color: #C8102E !important; // Rojo
+      color: white !important;
+      border-radius: 50%;
+      transition: background-color 0.3s ease;
+
+      &:hover {
+        background-color: #e94221 !important; // Rojo más oscuro
+      }
+
+      &:disabled {
+        background-color: #b0b0b0 !important; // Gris cuando está deshabilitado
+        cursor: not-allowed !important;
+      }
+    }
+
+    .carrito__pago-container {
+      display: flex;
+      //justify-content: center;  // Centra el botón horizontalmente
+      //margin-top: 20px;         // Espacio antes del botón
+    
+      .ui.button {
+        background-color: #003087 !important;
+        color: white !important;
+        //font-size: 18px;
+        font-weight: bold;
+        transition: background-color 0.3s ease;
+    
+        &:hover {
+          background-color: #043a9f !important;
+          color: #FFCD00;
+        }
+    
+        &:disabled {
+          background-color: #b0b0b0 !important;
+          cursor: not-allowed !important;
+        }
+      }
+    }
+    
   }
   

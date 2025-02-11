@@ -6,25 +6,33 @@
   
     /* Personalizar el input interno de Semantic UI */
     .ui.input > input {
-      background-color: #F7F2E7 !important;
-      color: #6E6159 !important;
-      border: 1px solid #C64D34 !important;
+      border: 1px solid #003087 !important;
       border-radius: 4px;
+      padding: 0.6rem 1rem; /* Más espacioso */
+
+      &::placeholder {
+        color: #6E85B2 !important;  /* Azul grisáceo */
+        font-style: italic;  /* Diferencia visual */
+      }
   
       &:focus {
         outline: none;
-        border-color: #C64D34 !important;
-        /* Efecto de sombra sutil (opcional) */
-        box-shadow: 0 0 4px rgba(198, 77, 52, 0.3);
+        border-color: #002060 !important; /* Azul más oscuro */
+        /* Efecto de sombra sutil */
+        box-shadow: 0 0 6px rgba(0, 48, 135, 0.4);
       }
     }
   
     /* Estiliza el ícono de la lupita */
     .ui.icon.input > .icon.search.link.icon {
-      color: #C64D34 !important;
+      color: #003087 !important;  /* Azul oscuro */
+      font-size: 1.2rem !important; /* Más grande */
+      transition: transform 0.2s ease, color 0.2s ease;
   
       &:hover {
-        opacity: 0.8; /* Efecto hover */
+        color: #002060 !important;  /* Azul más intenso */
+        transform: scale(1.2) translateY(-2px); /* Se agranda y eleva */
+        opacity: 0.9; /* Ligero efecto de transparencia */ /* Efecto hover */
       }
     }
   }

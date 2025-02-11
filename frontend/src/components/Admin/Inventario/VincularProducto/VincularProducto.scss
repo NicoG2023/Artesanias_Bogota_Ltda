@@ -12,9 +12,59 @@
     .ui.form {
       margin-top: 1em;
     }
+    .ui.form label {
+      color: #003087 !important; // 📌 Azul oscuro para los labels
+    }
     .ui.button {
       margin-top: 1em;
       margin-right: 0.5em;
+    }
+
+    .ui.selection.dropdown {
+      width: 100%;
+      background-color: white !important;
+      border: 1px solid #003087 !important;
+      border-radius: 5px;
+      padding: 0.5rem;
+  
+      &:focus {
+        border-color: #002060 !important;
+        box-shadow: 0 0 5px rgba(0, 48, 135, 0.5);
+      }
+  
+      .menu {
+        z-index: 1002 !important;
+      }
+  
+      .item {
+        color: #003087 !important;
+  
+        &:hover {
+          background-color: #e3f2fd !important;
+        }
+      }
+    }
+
+    .btn-vincular {
+      background-color: #003087 !important;
+      //background-color: #ffcd00b3 !important; 
+      color: #fff !important;
+      //color: #003087 !important;
+      font-size: 1rem;
+      padding: 0.5rem 1rem;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    
+      &:hover {
+        background-color: #002060 !important;
+        //background-color: #edc114b3 !important;
+      }
+    
+      &:disabled {
+        background-color: #b0b0b0 !important;
+        cursor: not-allowed;
+      }
     }
   }
   

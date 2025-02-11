@@ -22,7 +22,7 @@ export function OrdenesAdmin() {
 
   return (
     <div>
-      <h1>Gestión de Órdenes</h1>
+      <h1 className="ordenes__title">Gestión de Órdenes</h1>
       <TablaOrdenesAdmin
         ordenesHook={{
           ordenes,

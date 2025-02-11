@@ -101,10 +101,10 @@ export function PuntosVentaTable({
               <Table.Cell>{puntoVenta.tipo}</Table.Cell>
               <Table.Cell>{puntoVenta.tipo === "fisico" ? puntoVenta.direccion || "N/A" : "No aplica"}</Table.Cell>
               <Table.Cell>
-                <Button onClick={() => handleEditClick(puntoVenta)}>
+                <Button className="btn-actualizar" onClick={() => handleEditClick(puntoVenta)}>
                   Actualizar
                 </Button>
-                <Button color="red" onClick={() => handleDeleteClick(puntoVenta)}>
+                <Button className="btn-eliminar" onClick={() => handleDeleteClick(puntoVenta)}>
                   Eliminar
                 </Button>
               </Table.Cell>

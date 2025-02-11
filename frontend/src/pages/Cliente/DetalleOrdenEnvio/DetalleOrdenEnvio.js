@@ -27,7 +27,7 @@ export function DetalleOrdenEnvio() {
 
   // 3) Si tenemos orden, mostrar los datos (ejemplo: un componente <DetalleOrden>)
   return (
-    <div>
+    <div className="detalle-orden-page">
       <DetalleOrden order={orden} />
     </div>
   );

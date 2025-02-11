@@ -129,7 +129,7 @@ export function ModalCambioEstadoOrden({
         </Table>
 
         {/* Dropdown para cambiar estado */}
-        <div style={{ marginTop: "1em" }}>
+        <div className="estado-dropdown">
           <label style={{ marginRight: "1em" }}>Nuevo Estado:</label>
           <Dropdown
             placeholder="Selecciona un estado"

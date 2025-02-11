@@ -67,27 +67,28 @@ export function ModalProducto({ open, onClose, producto, puntoVentaId }) {
             <h2 className="modal-product__title">{producto.nombre}</h2>
             <p className="modal-product__price">Precio: ${producto.precio}</p>
             <p className="modal-product__description">{producto.descripcion}</p>
-            <p>Color: {producto.color}</p>
+            <p className="modal-product__color">Color: {producto.color}</p>
             <div className="modal-product__rating">
               Rating: {renderRating()}
             </div>
 
             {/* Mostrar stock y/o mensaje de sin stock */}
             {sinStock ? (
-              <Message negative>
+              <Message negative className="modal-product__stock modal-product__stock--no">
                 <Message.Header>Sin stock</Message.Header>
                 <p>No hay unidades disponibles en este punto de venta.</p>
               </Message>
             ) : (
               <>
-                <p>Unidades disponibles: {producto.stock}</p>
+                <p className="modal-product__stock modal-product__stock--yes">
+                  Unidades disponibles: {producto.stock}</p>
                 {renderCategorias()} {/* Renderizamos las categorías aquí */}
               </>
             )}
 
             <div className="modal-product__footer">
               <Button
-                color="green"
+                className="btn-add-cart"
                 onClick={handleAddToCart}
                 disabled={sinStock}
               >

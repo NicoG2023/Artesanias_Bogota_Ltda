@@ -1,5 +1,5 @@
 .top-menu {
-  background-color: #C64D34 !important;
+  background-color: #C8102E !important;
   border: none !important;
   margin: 0 !important;
   height: 5rem; // Aumentado de 4rem a 5rem
@@ -20,7 +20,7 @@
 
     .brand {
       background-color: transparent !important;
-      color: #F7F2E7 !important;
+      color: #FFCD00 !important;
       font-size: 1.2rem !important;
       font-weight: bold !important;
       padding: 0.5rem !important;
@@ -46,16 +46,16 @@
   }
 
   .auth-dropdown {
-    color: #F7F2E7 !important;
+    color: #FFCD00 !important;
     font-weight: bold;
 
     .menu {
-      background-color: #F7F2E7 !important;
-      border: 1px solid #C64D34 !important;
+      background-color: #FFFFFF !important;
+      border: 1px solid #C8102E !important;
       margin-top: 0.5rem !important;
 
       .item {
-        color: #6E6159 !important;
+        color: #00308766 !important;
 
         &:hover {
           background-color: #C64D34 !important;

@@ -1,0 +1,128 @@
+.modal-cambio-estado-orden {
+    border-radius: 10px !important;
+    
+    .header {
+      border-bottom: 2px solid #ddd;
+      font-size: 1.3rem;
+      padding: 1.2rem;
+      color: #003087;
+    }
+  
+    .content {
+      padding: 1.5rem;
+      max-height: 70vh;
+      overflow-y: auto;
+    }
+  
+    /* 📌 Tabla de detalles de la orden */
+    .ui.table.definition {
+      border-radius: 10px;
+      background-color: white;
+      border: 1px solid #ddd;
+  
+      tbody {
+        tr {
+          &:nth-child(odd) {
+            background-color: #f9f9f9;
+          }
+          &:nth-child(even) {
+            background-color: #ffffff;
+          }
+        }
+  
+        /* 📌 Primera columna como cabecera */
+        td:first-child {
+          font-weight: bold;
+          text-align: left;
+        }
+  
+        /* 📌 Contenido de las celdas en azul */
+        td:not(:first-child) {
+          color: #003087 !important;
+          padding: 12px;
+        }
+      }
+    }
+  
+    /* 📌 Sección de "Nuevo Estado" */
+    .estado-dropdown {
+        margin-top: 1rem;
+        
+        label {
+          color: #003087 !important; /* 📌 Ahora el label será azul */
+          margin-bottom: 0.5rem;
+        }
+        
+        .ui.dropdown {
+          width: 100%;
+          padding: 0.5rem;
+          border-radius: 5px;
+          border: 1px solid #ddd;
+          background-color: #fff;
+          color: #003087 !important;
+    
+          &:focus {
+            border-color: #C8102E !important;
+          }
+        }
+      }
+  
+    /* 📌 Botones */
+    .ui.button {
+      font-size: 1rem;
+      font-weight: bold;
+      border-radius: 5px;
+      padding: 10px 15px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+  
+      &.primary {
+        background-color: #003087 !important;
+        color: white !important;
+  
+        &:hover {
+          background-color: #002060 !important;
+          transform: scale(1.05);
+        }
+      }
+  
+      &:not(.primary) {
+        background-color: #f5f5f5 !important;
+        color: #333 !important;
+  
+        &:hover {
+          background-color: #ddd !important;
+          color: #002060 !important;
+          transform: scale(1.05);
+        }
+      }
+  
+      &:disabled {
+        background-color: #b0b0b0 !important;
+        cursor: not-allowed;
+      }
+    }
+  }
+  
+  /* 📌 Responsividad */
+  @media (max-width: 768px) {
+    .modal-cambio-estado-orden {
+      .content {
+        padding: 1rem;
+        max-height: 60vh;
+      }
+  
+      .ui.table.definition {
+        tbody td {
+          font-size: 0.9rem;
+          padding: 10px;
+        }
+      }
+  
+      .ui.button {
+        font-size: 0.9rem;
+        padding: 8px 12px;
+      }
+    }
+  }
+  

@@ -10,6 +10,7 @@ import {
 } from "semantic-ui-react";
 import ActualizarInventario from "../ActualizarInventario/ActualizarInventario"; // Asegúrate de importar el componente
 import { toast } from "react-toastify";
+import "./TablaInventarios.scss";
 
 export function TablaInventarios({ inventarioHook }) {
   const {
@@ -86,10 +87,10 @@ export function TablaInventarios({ inventarioHook }) {
               <Table.Cell>{inv.cantidad}</Table.Cell>
               <Table.Cell>{inv.nombre_punto_venta}</Table.Cell>
               <Table.Cell textAlign="center">
-                <Button icon color="blue" onClick={() => handleOpenModal(inv)}>
+                <Button className="btn-update" icon color="blue" onClick={() => handleOpenModal(inv)}>
                   <Icon name="truck" color="white" />
                 </Button>
-                <Button icon color="red" onClick={() => handleDelete(inv.id)}>
+                <Button className="btn-delete" icon color="red" onClick={() => handleDelete(inv.id)}>
                   <Icon name="trash" color="white" />
                 </Button>
               </Table.Cell>
@@ -97,14 +98,14 @@ export function TablaInventarios({ inventarioHook }) {
           ))}
         </Table.Body>
       </Table>
-
+    <div className="fixed-footer">
       {/* Paginación */}
       <Pagination
         activePage={pagination.currentPage}
         totalPages={pagination.totalPages}
         onPageChange={(_, data) => fetchInventario(data.activePage)}
       />
-
+    </div>
       {/* Modal para actualizar stock */}
       {selectedInventario && (
         <ActualizarInventario

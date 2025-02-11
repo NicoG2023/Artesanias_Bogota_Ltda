@@ -1,0 +1,164 @@
+.modal-orden {
+    border-radius: 10px !important;
+    
+    .header {
+      border-bottom: 2px solid #ddd;
+      font-size: 1.5rem;
+      padding: 1.2rem;
+      color: #003087;
+    }
+  
+    .content {
+      padding: 1.5rem;
+      max-height: 70vh; /* Evita que el contenido sea demasiado largo */
+      overflow-y: auto;
+    }
+  
+    &__content {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+  
+    h3 {
+      font-size: 1.3rem;
+      font-weight: bold;
+      color: #c8102e;
+      margin-bottom: 1rem;
+    }
+  
+    /* 📌 Tabla de detalles de la orden */
+    .ui.table.definition {
+      border-radius: 10px;
+      background-color: white;
+      border: 1px solid #ddd;
+
+      thead {
+        th {
+          background: none; /* Mantiene el diseño por defecto */
+          color: inherit; /* Usa el color de Semantic UI */
+        }
+      }
+  
+      tbody {
+        tr {
+          &:nth-child(odd) {
+            background-color: #f9f9f9;
+          }
+          &:nth-child(even) {
+            background-color: #ffffff;
+          }
+        }
+  
+        /* Primera columna con fondo gris */
+        td:first-child {
+            font-weight: bold;
+            text-align: left;
+        }
+
+        /* Otras celdas en azul */
+        td:not(:first-child) {
+            color: #003087 !important;
+            padding: 12px;
+        }
+      }
+    }
+  
+    /* 📌 Tabla de productos */
+    .ui.table.celled {
+      border-radius: 10px;
+      border: 1px solid #ddd;
+  
+      thead {
+    
+        th {
+          text-align: center;
+          padding: 12px;
+          font-weight: bold;
+        }
+      }
+  
+      tbody {
+        tr {
+          &:nth-child(odd) {
+            background-color: #f9f9f9;
+          }
+  
+          &:nth-child(even) {
+            background-color: #ffffff;
+          }
+        }
+  
+        td {
+          text-align: center;
+          padding: 10px;
+          color: #003087 !important;
+        }
+      }
+    }
+  
+    /* 📌 Imagen de productos */
+    .ui.image {
+      border-radius: 8px;
+      box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.1);
+    }
+  
+    /* 📌 Botón de Cerrar */
+    .ui.button {
+      font-size: 1rem;
+      font-weight: bold;
+      border-radius: 5px;
+      padding: 10px 15px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+  
+      &.primary {
+        background-color: #003087 !important;
+        color: white !important;
+  
+        &:hover {
+          background-color: #002060 !important;
+          transform: scale(1.05);
+        }
+      }
+    }
+  }
+  
+  /* 📌 Responsividad */
+  @media (max-width: 768px) {
+    .modal-orden {
+      .content {
+        padding: 1rem;
+        max-height: 60vh;
+      }
+  
+      h3 {
+        font-size: 1.1rem;
+      }
+  
+      .ui.table.definition {
+        tbody td {
+          font-size: 0.9rem;
+          padding: 10px;
+        }
+      }
+  
+      .ui.table.celled {
+        thead th {
+          font-size: 0.9rem;
+          padding: 10px;
+        }
+  
+        tbody td {
+          font-size: 0.9rem;
+          padding: 8px;
+        }
+      }
+  
+      .ui.button {
+        font-size: 0.9rem;
+        padding: 8px 12px;
+      }
+    }
+  }
+  
