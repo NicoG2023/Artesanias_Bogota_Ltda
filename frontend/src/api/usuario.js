@@ -63,6 +63,32 @@ export async function registerApi(formValue) {
   }
 }
 
+export async function verifyCurrentPasswordApi(token, currentPassword) {
+  try {
+    const url = `${API_SERVICIO_USUARIOS}/api/auth/verify-password`;
+    const params = {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ currentPassword }),
+    };
+
+    const response = await fetch(url, params);
+    const result = await response.json();
+
+    if (response.status !== 200) {
+      throw new Error(result.message || "Error al verificar la contraseña");
+    }
+
+    return result;
+  } catch (error) {
+    throw error;
+  }
+}
+
+
 //usuarioRoutes Api
 
 export async function getUsuariosPagesApi(token, page = 1, limit = 10) {

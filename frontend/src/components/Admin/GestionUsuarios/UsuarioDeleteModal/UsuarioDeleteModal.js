@@ -26,16 +26,12 @@ export function UsuarioDeleteModal({ open, onClose, selectedUsuario, onUserActio
   };
 
   return (
-    <Modal open={open} onClose={onClose} size="small" className="modal-form-usuario">
-      <button className="close-button" onClick={onClose}>
-        <Icon name="close" />
-      </button>
-      <Modal.Header className="header-title">Eliminar un usuario</Modal.Header>
+    <Modal open={open} onClose={onClose} size="small" className="modal-form-usuario" closeIcon>
       <Modal.Content scrolling>
         <div className="modal-container">
-          <h1 className="question-text">
+          <h3 className="question-text">
             ¿Está seguro que desea eliminar al (la) usuario {selectedUsuario?.nombre} {selectedUsuario?.apellido}?
-          </h1>
+          </h3>
           <div className="buttons-options">
             {/* Botón para confirmar la eliminación */}
             <Button

@@ -1,37 +1,36 @@
 import React, { useState } from "react";
 import { Modal, Button, Icon } from "semantic-ui-react";
-import { eliminarPuntoDeVentaApi } from "../../../../api/puntosVenta"; 
+import { deleteDireccionApi } from "../../../../api/direcciones";
 import { useAuth } from "../../../../hooks";
 import { toast } from "react-toastify";
-import "./PuntosVentaDeleteModal.scss";
+import "./DireccionDeleteModal.scss";
 
-export function PuntosVentaDeleteModal({ open, onClose, selectedPuntoVenta, onUserActions }) {
+export function DireccionDeleteModal({ open, onClose, selectedDireccion, onUserActions }) {
   const { auth } = useAuth();
-  const [loading, setLoading] = useState(false); // Estado para manejar el loading
+  const [loading, setLoading] = useState(false);
 
   const handleDeleteConfirm = async () => {
     setLoading(true);
     try {
-      // Llamada a la API para eliminar el punto de venta
-      await eliminarPuntoDeVentaApi(auth.token, selectedPuntoVenta.id);
-      toast.success("Punto de venta eliminado exitosamente");
+      
+      await deleteDireccionApi(auth.token, selectedDireccion.id);
+      toast.success("Dirección eliminada exitosamente");
 
       onUserActions();
       onClose();
     } catch (error) {
-      toast.error("Error al eliminar punto de venta: " + error.message);
+      toast.error("Error al eliminar dirección: " + error.message);
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <Modal open={open} onClose={onClose} size="small" className="modal-form-puntoVenta" closeIcon>
-      <Modal.Header className="header-title">Eliminar un punto de venta</Modal.Header>
+    <Modal open={open} onClose={onClose} size="small" className="modal-delete-direccion" closeIcon>
       <Modal.Content scrolling>
         <div className="modal-container">
           <h3 className="question-text">
-            ¿Está seguro que desea eliminar el punto de venta {selectedPuntoVenta?.nombre}?
+            ¿Está seguro que desea eliminar la dirección {selectedDireccion?.direccion}?
           </h3>
           <div className="buttons-options">
             {/* Botón para confirmar la eliminación */}

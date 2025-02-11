@@ -1,0 +1,78 @@
+.add-direccion-form {
+  padding: 20px;
+
+  .field {
+    margin-bottom: 1.5rem !important;
+    
+    input, 
+    textarea,
+    .dropdown {
+      width: 100%;
+      margin-bottom: 0.5rem;
+    }
+
+    .error {
+      color: #db2828;
+      font-size: 0.9em;
+    }
+  }
+
+  .address-inputs-container {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+    margin-bottom: 1.5rem !important;
+  }
+
+  textarea {
+    min-height: 100px;
+    resize: vertical;
+  }
+}
+
+  .ui.modal {
+    position: relative;
+
+
+    .header {
+      text-align: center !important;
+      padding: 1.25rem 2rem !important;
+      font-size: 1.28571429rem !important;
+      font-weight: bold !important;
+      border-bottom: 1px solid rgba(34, 36, 38, 0.15) !important;
+    }
+ 
+    .content {
+      padding: 1.5rem !important;
+    }
+
+    .actions {
+      background: #f9fafb;
+      padding: 1rem;
+      border-top: 1px solid rgba(34, 36, 38, 0.15);
+      text-align: center !important;
+      
+      .button {
+        margin: 0 0.375rem !important;
+      }
+    }
+  }
+  
+  .ui.dropdown {
+    .menu {
+      max-height: 200px;
+      overflow-y: auto;
+    }
+  }
+.ui.button.btn-agregar-direccion {
+  background-color: #003087 !important;
+  color: white !important;
+}
+.ui.button.btn-cancelar{
+  background-color: #bdc3c7 !important;
+  color: #333 !important;
+  &:hover {
+    background-color: #95a5a6 !important;
+    color: #333 !important;
+  }
+}

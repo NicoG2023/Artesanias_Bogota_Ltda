@@ -263,6 +263,41 @@ const resetPassword = async (req, res) => {
   }
 };
 
+const verifyCurrentPassword = async (req, res) => {
+  const { currentPassword } = req.body;
+  const { userId } = req.user;
+
+  try {
+    const usuario = await Usuario.findByPk(userId);
+    if (!usuario) {
+      return res.status(404).json({
+        message: "Usuario no encontrado",
+      });
+    }
+
+    const isPasswordValid = await bcrypt.compare(
+      currentPassword,
+      usuario.password
+    );
+    if (!isPasswordValid) {
+      return res.status(401).json({
+        message: "La contraseña actual es incorrecta",
+      });
+    }
+
+    return res.status(200).json({
+      message: "Contraseña verificada correctamente",
+      verified: true,
+    });
+  } catch (error) {
+    console.error("Error al verificar la contraseña:", error);
+    return res.status(500).json({
+      message: "Error al verificar la contraseña",
+      error: error.message,
+    });
+  }
+};
+
 module.exports = {
   login,
   verify2fa,
@@ -271,4 +306,5 @@ module.exports = {
   verifyUser,
   solicitarResetPassword,
   resetPassword,
+  verifyCurrentPassword,
 };
