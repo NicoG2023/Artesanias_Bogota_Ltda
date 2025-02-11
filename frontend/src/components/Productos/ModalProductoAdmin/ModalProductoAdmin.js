@@ -1,13 +1,17 @@
 import React from "react";
 import { Modal, Button, Icon, Form } from "semantic-ui-react";
-import { desactivarProducto } from "../../../api/productos";
+import { desactivarProducto, editarProducto } from "../../../api/productos";
 import "./ModalProductoAdmin.scss";
 
 export function ModalProductoAdmin({ producto, open, onClose}) {
   if (!producto) return null;
 
   const handleSave = () => {
-    console.log(producto)
+    if(window.confirm("¿Estás seguro de que deseas guardar los cambios?")){
+      editarProducto(producto.id, producto);
+      window.alert("Cambios guardados");
+      window.location.reload();
+    }
   };
   const handleDelete = () => {
     if (window.confirm("¿Estás seguro de que deseas eliminar el producto?")) {

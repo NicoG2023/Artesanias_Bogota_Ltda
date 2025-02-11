@@ -48,6 +48,11 @@ const Usuario = sequelize.define(
       allowNull: false,
       defaultValue: true,
     },
+    esta_verificado: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false,
+    },
   },
   {
     tableName: "usuarios",

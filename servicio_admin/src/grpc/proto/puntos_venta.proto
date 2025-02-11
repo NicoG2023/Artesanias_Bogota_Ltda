@@ -4,6 +4,17 @@ package puntosventa;
 
 service PuntoVentaService {
   rpc GetPuntosVentaByIds (GetPuntosVentaByIdsRequest) returns (GetPuntosVentaByIdsResponse);
+  rpc GetOrdenesByUserId(GetOrdenesByUserIdRequest) returns (GetOrdenesByUserIdResponse);
+}
+
+// Solicitud: El servicio admin envía el ID del usuario.
+message GetOrdenesByUserIdRequest {
+  int32 usuario_id = 1;
+}
+
+// Respuesta: El servicio clientes devuelve un array de IDs de productos únicos.
+message GetOrdenesByUserIdResponse {
+  repeated int32 productos_ids = 1;
 }
 
 message GetPuntosVentaByIdsRequest {

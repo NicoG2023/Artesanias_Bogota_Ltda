@@ -6,7 +6,7 @@ const {
   getUsuarioById,
   deleteUsuario,
   updateUsuario,
-} = require("../views/UsuarioController");
+} = require("../views/usuarioController");
 const { verifyToken, authorizeRoles } = require("../../middleware/auth");
 const router = express.Router();
 

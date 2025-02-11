@@ -1,7 +1,9 @@
 // controllers/analyticsController.js
 const { Pago, Orden, REL_Orden_Producto, sequelize } = require("../../models");
 const { Op } = require("sequelize");
-const { getUsersByVendedorFk } = require("../../grpc/userClientGrpc");
+const { getUsersByVendedorFk, getUsersByIds } = require("../../grpc/userClientGrpc");
+const stripe = require("../../config/stripe");
+const redisClient = require("../../config/redisClient");
 
 async function getEmpleadosConMasDineroGenerado(req, res) {
   try {
@@ -23,6 +25,16 @@ async function getEmpleadosConMasDineroGenerado(req, res) {
     // Definir el rango de fechas
     const startDate = new Date(y, m ? m - 1 : 0, 1); // Si no hay mes, empieza desde enero
     const endDate = new Date(y, m ? m : 12, 1); // Si no hay mes, termina en diciembre
+
+    // Generar una clave única para el caché
+    const cacheKey = `empleadosConMasDineroGenerado:${y}:${m || "annual"}`;
+
+    // Intentar obtener los datos del caché
+    const cachedData = await redisClient.get(cacheKey);
+    if (cachedData) {
+      // Si los datos están en caché, devolverlos
+      return res.json({ data: JSON.parse(cachedData) });
+    }
 
     // Obtener ventas agrupadas por vendedor
     const ventas = await Pago.findAll({
@@ -65,6 +77,9 @@ async function getEmpleadosConMasDineroGenerado(req, res) {
         cantidad_ventas: venta.cantidad_ventas,
       };
     });
+
+    // Almacenar los datos en caché con una expiración de 10 minutos (600 segundos)
+    await redisClient.setEx(cacheKey, 600, JSON.stringify(ventasConNombres));
 
     return res.json({ data: ventasConNombres });
   } catch (error) {
@@ -208,4 +223,233 @@ async function getEmpleadosConMasVentas(req, res) {
   }
 }
 
-module.exports = { getEmpleadosConMasVentas, getEmpleadosConMasDineroGenerado };
+async function getProductosMasVendidos(req, res) {
+  try {
+    const { month, year } = req.query;
+
+    if (!year) {
+      return res.status(400).json({ message: "Debe proporcionar el año" });
+    }
+
+    const y = parseInt(year);
+    const m = month ? parseInt(month) : null;
+
+    if (isNaN(y)) {
+      return res
+        .status(400)
+        .json({ message: "Mes y año deben ser números válidos" });
+    }
+
+    // Definir el rango de fechas
+    const startDate = new Date(y, m ? m - 1 : 0, 1);
+    const endDate = new Date(y, m ? m : 12, 1);
+
+    // Generar una clave única para el caché
+    const cacheKey = `productosMasVendidos:${y}:${m || "annual"}`;
+
+    // Intentar obtener los datos del caché
+    const cachedData = await redisClient.get(cacheKey);
+    if (cachedData) {
+      // Si los datos están en caché, devolverlos
+      return res.json({ data: JSON.parse(cachedData) });
+    }
+
+    // Si los datos no están en caché, obtenerlos de Stripe
+    let ventasProductos = {};
+
+    const sesionesIterator = stripe.checkout.sessions.list({
+      limit: 100,
+      created: {
+        gte: Math.floor(startDate.getTime() / 1000),
+        lt: Math.floor(endDate.getTime() / 1000),
+      },
+    });
+
+    for await (const sesion of sesionesIterator) {
+      const items = await stripe.checkout.sessions.listLineItems(sesion.id);
+
+      for (const item of items.data) {
+        const productoId = item.price.product;
+        const cantidad = item.quantity;
+
+        ventasProductos[productoId] = (ventasProductos[productoId] || 0) + cantidad;
+      }
+    }
+
+    // Ordenar los productos por cantidad vendida en orden descendente y limitar a los primeros 10
+    const productosMasVendidos = Object.entries(ventasProductos)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 10)
+      .map(([productoId, cantidad]) => ({ productoId, cantidad }));
+
+    // Obtener los nombres de los productos desde Stripe
+    const productosConNombres = await Promise.all(productosMasVendidos.map(async (venta) => {
+      const producto = await stripe.products.retrieve(venta.productoId);
+      return {
+        productoId: venta.productoId,
+        nombre: producto.name,
+        cantidad: venta.cantidad,
+      };
+    }));
+
+    // Almacenar los datos en caché con una expiración de 10 minutos (600 segundos)
+    await redisClient.setEx(cacheKey, 600, JSON.stringify(productosConNombres));
+
+    return res.json({ data: productosConNombres });
+  } catch (error) {
+    console.error('Error al obtener y ordenar los productos:', error);
+    return res.status(500).json({ message: "Error interno", error: error.message });
+  }
+}
+
+async function getClientesConMasCompras(req, res) {
+  try {
+    const { month, year } = req.query;
+
+    if (!year) {
+      return res.status(400).json({ message: "Debe proporcionar el año" });
+    }
+
+    const y = parseInt(year);
+    const m = month ? parseInt(month) : null;
+
+    if (isNaN(y)) {
+      return res
+        .status(400)
+        .json({ message: "Mes y año deben ser números válidos" });
+    }
+
+    // Definir el rango de fechas
+    const startDate = new Date(y, m ? m - 1 : 0, 1);
+    const endDate = new Date(y, m ? m : 12, 1);
+
+    // Generar una clave única para el caché
+    const cacheKey = `clientesConMasCompras:${y}:${m || "annual"}`;
+
+    // Intentar obtener los datos del caché
+    const cachedData = await redisClient.get(cacheKey);
+    if (cachedData) {
+      // Si los datos están en caché, devolverlos
+      return res.json({ data: JSON.parse(cachedData) });
+    }
+
+    // Si los datos no están en caché, obtenerlos de Stripe
+    let comprasClientes = {};
+
+    const sesionesIterator = stripe.checkout.sessions.list({
+      limit: 100,
+      created: {
+        gte: Math.floor(startDate.getTime() / 1000),
+        lt: Math.floor(endDate.getTime() / 1000),
+      },
+    });
+
+    for await (const sesion of sesionesIterator) {
+      if (!sesion.metadata.usuario_fk) {
+        continue; // Saltar a la siguiente sesión si no hay customer
+      }
+
+      const clienteId = sesion.metadata.usuario_fk;
+      const items = await stripe.checkout.sessions.listLineItems(sesion.id);
+
+      for (const item of items.data) {
+        const cantidad = item.quantity;
+        comprasClientes[clienteId] = (comprasClientes[clienteId] || 0) + cantidad;
+      }
+    }
+
+    // Ordenar los clientes por cantidad comprada en orden descendente y limitar a los primeros 10
+    const clientesMasCompras = Object.entries(comprasClientes)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 10)
+      .map(([clienteId, cantidad]) => ({ clienteId, cantidad }));
+
+    // Obtener los nombres de los clientes desde gRPC
+    const clienteIds = clientesMasCompras.map((compra) => compra.clienteId);
+    const clientes = await getUsersByIds(clienteIds);
+
+    // Mapear los nombres de los clientes en el resultado final
+    const clientesConNombres = clientesMasCompras.map((compra) => {
+      const cliente = clientes.find((c) => c.id === compra.clienteId);
+      return {
+        clienteId: compra.clienteId,
+        //nombre: cliente.nombre || "Desconocido",
+        cantidad: compra.cantidad,
+      };
+    });
+
+    // Almacenar los datos en caché con una expiración de 10 minutos (600 segundos)
+    await redisClient.setEx(cacheKey, 600, JSON.stringify(clientesConNombres));
+
+    return res.json({ data: clientesConNombres });
+  } catch (error) {
+    console.error('Error al obtener y ordenar los clientes:', error);
+    return res.status(500).json({ message: "Error interno", error: error.message });
+  }
+}
+
+async function getTotalVentas(req, res) {
+  try {
+    const { month, year } = req.query;
+
+    if (!year) {
+      return res.status(400).json({ message: "Debe proporcionar el año" });
+    }
+
+    const y = parseInt(year);
+    const m = month ? parseInt(month) : null;
+
+    if (isNaN(y)) {
+      return res.status(400).json({ message: "Mes y año deben ser números válidos" });
+    }
+
+    // Definir el rango de fechas
+    const startDate = new Date(y, m ? m - 1 : 0, 1);
+    const endDate = new Date(y, m ? m : 12, 1);
+
+    // Generar una clave única para el caché
+    const cacheKey = `totalVentas:${y}:${m || "annual"}`;
+
+    // Intentar obtener los datos del caché
+    const cachedData = await redisClient.get(cacheKey);
+    if (cachedData) {
+      // Si los datos están en caché, devolverlos
+      return res.json({ data: JSON.parse(cachedData) });
+    }
+
+    // Obtener ventas agrupadas por mes
+    const ventas = await Pago.findAll({
+      attributes: [
+        [sequelize.fn("DATE_TRUNC", "month", sequelize.col("fecha_pago")), "mes"],
+        [sequelize.fn("SUM", sequelize.col("monto_transaccion")), "total_ventas"],
+      ],
+      where: {
+        fecha_pago: { [Op.gte]: startDate, [Op.lt]: endDate },
+      },
+      group: [sequelize.fn("DATE_TRUNC", "month", sequelize.col("fecha_pago"))],
+      order: [[sequelize.fn("DATE_TRUNC", "month", sequelize.col("fecha_pago")), "ASC"]],
+      raw: true,
+    });
+
+    const ventasPorMes = ventas.map((venta) => ({
+      mes: venta.mes,
+      total_ventas: parseFloat(venta.total_ventas),
+    }));
+
+    // Almacenar los datos en caché con una expiración de 10 minutos (600 segundos)
+    await redisClient.setEx(cacheKey, 600, JSON.stringify(ventasPorMes));
+
+    return res.json({ data: ventasPorMes });
+  } catch (error) {
+    console.error("Error al obtener el total de ventas:", error);
+    return res.status(500).json({ message: "Error interno", error: error.message });
+  }
+}
+
+module.exports = { 
+  getEmpleadosConMasVentas,
+  getEmpleadosConMasDineroGenerado,
+  getProductosMasVendidos,
+  getClientesConMasCompras,
+  getTotalVentas 
+};

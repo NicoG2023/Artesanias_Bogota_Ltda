@@ -1,0 +1,24 @@
+.carrusel-productos {
+    text-align: center;
+    margin: 20px 0;
+    
+    h2 {
+      font-size: 1.5rem;
+      margin-bottom: 15px;
+      color: #333;
+    }
+  
+    .p-carousel .p-carousel-items {
+      justify-content: center;
+    }
+  
+    .product-card {
+      cursor: pointer;
+      transition: transform 0.3s ease-in-out;
+  
+      &:hover {
+        transform: scale(1.05);
+      }
+    }
+  }
+  

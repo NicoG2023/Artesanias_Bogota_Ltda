@@ -1,7 +1,17 @@
 import React from "react";
 import { BasicLayout } from "../layouts";
-import { Login, OlvidarPassword, Registro, LandingPage } from "../pages";
+import {
+  Login,
+  OlvidarPassword,
+  Registro,
+  LandingPage,
+  Perfil,
+  Verificacion,
+  ConfirmarCodigoPage,
+  ResetPassword,
+} from "../pages";
 import { DynamicLayout } from "../layouts/DynamicLayout";
+import { ClientLayout } from "../layouts";
 
 const usuariosRoutes = [
   {
@@ -29,7 +39,7 @@ const usuariosRoutes = [
     ),
   },
   {
-    path: "/OlvidoContraseña",
+    path: "/olvide-password",
     element: (
       <BasicLayout>
         <OlvidarPassword />
@@ -37,8 +47,40 @@ const usuariosRoutes = [
     ),
   },
   {
+    path: "/reset-password",
+    element: (
+      <BasicLayout>
+        <ResetPassword />
+      </BasicLayout>
+    ),
+  },
+  {
+    path: "/verify",
+    element: (
+      <BasicLayout>
+        <Verificacion />
+      </BasicLayout>
+    ),
+  },
+  {
+    path: "/confirmar-codigo",
+    element: (
+      <BasicLayout>
+        <ConfirmarCodigoPage />
+      </BasicLayout>
+    ),
+  },
+  {
     path: "/productos",
     element: <DynamicLayout />,
+  },
+  {
+    path: "/perfil",
+    element: (
+      <ClientLayout>
+        <Perfil />
+      </ClientLayout>
+    ),
   },
 ];
 

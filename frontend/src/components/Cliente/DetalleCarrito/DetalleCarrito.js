@@ -258,29 +258,31 @@ export function DetalleCarrito({
           {/* Sección de Descuentos */}
           <div className="summary-section">
             <label>Descuento</label>
-            <div className="discount-info">
-              <span>{discountPercentage}%</span>
-              {discountPercentage < 100 && (
-                <div className="discount-options">
-                  <p>¿Desea aplicar este descuento o seguir acumulando?</p>
-                  <Button
-                    onClick={() => setAplicarDescuento(true)}
-                    className="btn-discount"
-                  >
-                    Aplicar descuento
-                  </Button>
-                  <Button
-                    onClick={() => setAplicarDescuento(false)}
-                    className="btn-discount"
-                  >
-                    Seguir acumulando
-                  </Button>
-                </div>
-              )}
-              {discountPercentage === 100 && (
-                <p>Descuento aplicado automáticamente</p>
-              )}
-            </div>
+            {auth?.user?.rol === "cliente" && (
+              <div className="discount-info">
+                <span>{discountPercentage}%</span>
+                {discountPercentage < 100 && (
+                  <div className="discount-options">
+                    <p>¿Desea aplicar este descuento o seguir acumulando?</p>
+                    <Button
+                      onClick={() => setAplicarDescuento(true)}
+                      className="btn-discount"
+                    >
+                      Aplicar descuento
+                    </Button>
+                    <Button
+                      onClick={() => setAplicarDescuento(false)}
+                      className="btn-discount"
+                    >
+                      Seguir acumulando
+                    </Button>
+                  </div>
+                )}
+                {discountPercentage === 100 && (
+                  <p>Descuento aplicado automáticamente</p>
+                )}
+              </div>
+            )}
           </div>
 
           {aplicarDescuento ? (

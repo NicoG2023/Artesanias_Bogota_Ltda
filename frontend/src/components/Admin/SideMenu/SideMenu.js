@@ -61,17 +61,17 @@ export function SideMenu() {
 
             <Menu.Item
               as={Link}
-              to="/admin-analiticas"
-              active={pathname === "/admin-analiticas"}
-            >
-              <Icon name="chart line" /> Analíticas
-            </Menu.Item>
-            <Menu.Item
-              as={Link}
               to="/admin-agregar-info"
               active={pathname === "/admin-analiticas"}
             >
               <Icon name="upload" /> Agregar Información
+            </Menu.Item>
+            <Menu.Item
+              as={Link}
+              to="/admin-categorias"
+              active={pathname === "/admin-categorias"}
+            >
+              <Icon name="list ul" /> Agregar Categoria
             </Menu.Item>
           </>
         )}

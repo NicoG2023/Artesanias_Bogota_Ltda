@@ -6,7 +6,7 @@ import { CartaProducto } from "../CartaProducto/CartaProducto";
 import "./CuadriculaProductos.scss";
 
 
-export function CuadriculaProductos({ productosHook, puntoVentaId }) {
+export function CuadriculaProductos({ productosHook, puntoVentaId, esAdmin }) {
   const {
     productos = [],
     loading,
@@ -41,6 +41,7 @@ export function CuadriculaProductos({ productosHook, puntoVentaId }) {
     setOpen(false);
     setSelectedProduct(null);
   };
+  console.log("Productos cuadriculaProductos:", productos);
 
   return (
     <div className="product-grid">
@@ -67,12 +68,20 @@ export function CuadriculaProductos({ productosHook, puntoVentaId }) {
           />
         )}
       </div>
-      <ModalProducto
+      {esAdmin && (
+        <ModalProductoAdmin 
         open={open}
         onClose={handleCloseModal}
         producto={selectedProduct}
-        puntoVentaId={puntoVentaId}
-      />
+        />
+      )}
+      {!esAdmin && (
+        <ModalProducto
+        open={open}
+        onClose={handleCloseModal}
+        producto={selectedProduct}
+        />
+      )}
     </div>
   );
 }

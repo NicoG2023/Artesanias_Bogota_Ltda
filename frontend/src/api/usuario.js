@@ -63,6 +63,32 @@ export async function registerApi(formValue) {
   }
 }
 
+export async function verifyCurrentPasswordApi(token, currentPassword) {
+  try {
+    const url = `${API_SERVICIO_USUARIOS}/api/auth/verify-password`;
+    const params = {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ currentPassword }),
+    };
+
+    const response = await fetch(url, params);
+    const result = await response.json();
+
+    if (response.status !== 200) {
+      throw new Error(result.message || "Error al verificar la contraseña");
+    }
+
+    return result;
+  } catch (error) {
+    throw error;
+  }
+}
+
+
 //usuarioRoutes Api
 
 export async function getUsuariosPagesApi(token, page = 1, limit = 10) {
@@ -135,7 +161,9 @@ export async function createUsuarioApi(token, formValue) {
     if (response.status !== 201) {
       const result = await response.json();
       throw new Error(
-        result.detail || `Error creando usuario. Código de estado: ${response.status}`);
+        result.detail ||
+          `Error creando usuario. Código de estado: ${response.status}`
+      );
     }
     return response.json();
   } catch (error) {
@@ -184,6 +212,83 @@ export async function deleteUsuarioApi(token, id) {
     }
     return { message: "Usuario eliminado exitosamente" };
   } catch (error) {
+    throw error;
+  }
+}
+
+export async function verificarUsuarioApi(token) {
+  try {
+    const url = `${API_SERVICIO_USUARIOS}/api/auth/verify?token=${token}`;
+    const params = { method: "GET" };
+    const response = await fetch(url, params);
+    const result = await response.json();
+
+    if (!response.ok)
+      throw new Error(result.message || "Error de verificación");
+
+    return result;
+  } catch (error) {
+    throw error;
+  }
+}
+
+export async function verify2faApi(data) {
+  try {
+    const url = `${API_SERVICIO_USUARIOS}/api/auth/verify2fa`; // Asegúrate que API_SERVICIO_USUARIOS esté configurado correctamente
+    const params = {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    };
+    const response = await fetch(url, params);
+    const result = await response.json();
+    if (!response.ok) {
+      throw new Error(result.message || "Error al verificar el código 2FA");
+    }
+    return result;
+  } catch (error) {
+    throw error;
+  }
+}
+
+export async function solicitarResetPasswordApi(email) {
+  const url = `${API_SERVICIO_USUARIOS}/api/auth/solicitar-reset-password`;
+  try {
+    const response = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email }),
+    });
+
+    if (!response.ok) {
+      throw new Error("Error al solicitar restablecimiento de contraseña");
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Error en solicitarResetPasswordApi", error);
+    throw error;
+  }
+}
+
+export async function resetPasswordApi(token, newPassword) {
+  const url = `${API_SERVICIO_USUARIOS}/api/auth/reset-password`;
+  try {
+    const response = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ token, newPassword }),
+    });
+
+    if (!response.ok) {
+      throw new Error("Error al restablecer contraseña");
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Error en resetPasswordApi", error);
     throw error;
   }
 }

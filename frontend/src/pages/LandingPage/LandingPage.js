@@ -30,26 +30,6 @@ export function LandingPage() {
     { id: 4, nombre: "Joyería", icono: "diamond" },
   ];
 
-  const bestSellers = [
-    {
-      id: 101,
-      nombre: "Jarrón Pintado a Mano",
-      precio: 45.0,
-      imagen: "",
-    },
-    {
-      id: 102,
-      nombre: "Bolso Tejido de Lana",
-      precio: 60.0,
-      imagen: "",
-    },
-    {
-      id: 103,
-      nombre: "Collar de Madera",
-      precio: 25.5,
-      imagen: "",
-    },
-  ];
   return (
     <div className="landing-page">
       {/* Sección Hero */}

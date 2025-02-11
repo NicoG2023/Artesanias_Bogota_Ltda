@@ -6,3 +6,5 @@ export * from "./useCarrito";
 export * from "./useInventario";
 export * from "./usePago";
 export * from "./useAnalitica";
+export * from "./useCategoria";
+export * from "./useUsuario";

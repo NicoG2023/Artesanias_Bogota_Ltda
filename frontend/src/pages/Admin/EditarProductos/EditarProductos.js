@@ -26,7 +26,7 @@ export function EditarProductos() {
 
       <div className="main-content">
         <main className="content">
-          <CuadriculaProductos productosHook={productosHook} context={"admin"}/>
+          <CuadriculaProductos productosHook={productosHook} esAdmin={true}/>
         </main>
       </div>
     </div>

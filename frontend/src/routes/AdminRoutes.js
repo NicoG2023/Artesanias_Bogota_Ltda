@@ -8,6 +8,7 @@ import {
   PuntosVenta,
   AgregarInfo,
   EditarProductos,
+  Categorias,
 } from "../pages";
 import { AdminLayout } from "../layouts";
 import PrivateRoutes from "./PrivateRoutes";
@@ -63,7 +64,7 @@ const adminRoutes = [
         path: "",
         element: (
           <AdminLayout>
-            <EditarProductos/>
+            <EditarProductos />
           </AdminLayout>
         ),
       },
@@ -120,6 +121,20 @@ const adminRoutes = [
         element: (
           <AdminLayout>
             <AgregarInfo />
+          </AdminLayout>
+        ),
+      },
+    ],
+  },
+  {
+    path: "/admin-categorias",
+    element: <PrivateRoutes allowedRoles={"admin"} />,
+    children: [
+      {
+        path: "",
+        element: (
+          <AdminLayout>
+            <Categorias />
           </AdminLayout>
         ),
       },

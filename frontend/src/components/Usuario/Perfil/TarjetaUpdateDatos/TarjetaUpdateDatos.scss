@@ -1,0 +1,38 @@
+.tarjeta-update-datos {
+    position: relative;
+    padding: 20px;
+    width: 450px;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+  
+    .modal-header {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+      font-size: 1.5rem;
+      font-weight: bold;
+      text-align: center;
+    }
+  
+    .close-button {
+      position: absolute;
+      top: 10px;
+      right: 15px;
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      cursor: pointer;
+    }
+  
+    .update-datos-contenido {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+}
+
+.icono-update-datos {
+  color: #FFCD00 !important;
+}
