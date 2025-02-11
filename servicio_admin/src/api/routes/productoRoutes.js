@@ -166,9 +166,11 @@ router.post("/productos", agregarProducto);
  *               es_activo:
  *                 type: boolean
  *                 example: true
- *               categoria_fk:
- *                 type: integer
- *                 example: 2
+ *               categorias:
+ *                 type: array
+ *                 items:
+ *                   type: integer
+ *                 example: [1, 2, 3]
  *               color:
  *                 type: string
  *                 example: Azul

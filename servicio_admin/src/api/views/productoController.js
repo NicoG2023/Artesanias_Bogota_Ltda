@@ -390,7 +390,7 @@ const editarProducto = async (req, res) => {
       precio,
       descripcion,
       es_activo,
-      categoria_fk,
+      categorias, // Array de IDs de categorías
       color,
       talla,
     } = req.body;
@@ -408,7 +408,6 @@ const editarProducto = async (req, res) => {
         precio,
         descripcion,
         es_activo,
-        categoria_fk,
         color,
         talla,
       });
@@ -432,6 +431,23 @@ const editarProducto = async (req, res) => {
         producto.imagen = blockBlobClient.url;
         await producto.save();
       }
+
+      // Actualizar las categorías del producto
+      if (Array.isArray(categorias)) {
+        // Eliminar las categorías existentes
+        await REL_ProductoCategoria.destroy({
+          where: { producto_fk: id },
+        });
+
+        // Agregar las nuevas categorías
+        for (const categoriaId of categorias) {
+          await REL_ProductoCategoria.create({
+            producto_fk: id,
+            categoria_fk: categoriaId,
+          });
+        }
+      }
+
       res.status(200).json(productoSerializer(producto));
     } catch (error) {
       console.error("Error al editar el producto:", error);

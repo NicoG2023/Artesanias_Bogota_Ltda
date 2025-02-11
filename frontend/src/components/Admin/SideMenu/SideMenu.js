@@ -37,6 +37,14 @@ export function SideMenu() {
 
             <Menu.Item
               as={Link}
+              to="/admin-editar-productos"
+              active={pathname === "/admin-editar-productos"}
+            >
+              <Icon name="cart plus" /> Gestionar Producto
+            </Menu.Item>
+
+            <Menu.Item
+              as={Link}
               to="/admin-inventario"
               active={pathname === "/admin-inventario"}
             >
@@ -51,13 +59,6 @@ export function SideMenu() {
               <Icon name="shop" /> Gestionar Puntos de Venta
             </Menu.Item>
 
-            <Menu.Item
-              as={Link}
-              to="/admin-analiticas"
-              active={pathname === "/admin-analiticas"}
-            >
-              <Icon name="chart line" /> Analíticas
-            </Menu.Item>
             <Menu.Item
               as={Link}
               to="/admin-agregar-info"

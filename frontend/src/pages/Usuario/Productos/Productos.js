@@ -63,7 +63,11 @@ export function Productos() {
           )}
 
           {/* Cuadrícula de Productos */}
-          <CuadriculaProductos productosHook={productosHook} puntoVentaId={1} />
+          <CuadriculaProductos
+            productosHook={productosHook}
+            puntoVentaId={1}
+            esAdmin={false}
+          />
         </main>
       </div>
     </div>
