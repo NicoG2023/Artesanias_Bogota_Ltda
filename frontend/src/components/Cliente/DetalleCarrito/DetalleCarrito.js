@@ -266,13 +266,13 @@ export function DetalleCarrito({
                     <p>¿Desea aplicar este descuento o seguir acumulando?</p>
                     <Button
                       onClick={() => setAplicarDescuento(true)}
-                      className="btn-discount"
+                      className="btn-discount btn-aplicar"
                     >
                       Aplicar descuento
                     </Button>
                     <Button
                       onClick={() => setAplicarDescuento(false)}
-                      className="btn-discount"
+                      className="btn-discount btn-seguir"
                     >
                       Seguir acumulando
                     </Button>
