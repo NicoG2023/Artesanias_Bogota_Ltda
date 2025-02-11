@@ -12,7 +12,7 @@ import {
   Tooltip,
   Legend,
 } from "chart.js";
-import "./ClientesConMasCompras.scss";
+import "./TotalVentas.scss";
 
 ChartJS.register(
   CategoryScale,
@@ -23,7 +23,7 @@ ChartJS.register(
   Legend
 );
 
-export function ClientesConMasCompras() {
+export function TotalVentas() {
   const currentDate = new Date();
   const currentMonth = currentDate.getMonth() + 1;
   const currentYear = currentDate.getFullYear();
@@ -33,12 +33,12 @@ export function ClientesConMasCompras() {
   const [isAnnual, setIsAnnual] = useState(false);
   const [queryTriggered, setQueryTriggered] = useState(false);
 
-  const { data, loading, error, getClientesConMasCompras } = useAnalitica();
+  const { data, loading, error, getTotalVentas } = useAnalitica();
   const { auth } = useAuth();
 
   const handleFetchData = () => {
     setQueryTriggered(true);
-    getClientesConMasCompras(isAnnual ? null : month, year);
+    getTotalVentas(isAnnual ? null : month, year);
   };
 
   const monthOptions = [
@@ -62,9 +62,9 @@ export function ClientesConMasCompras() {
   }
 
   return (
-    <div className="clientes-ventas-container">
+    <div className="total-ventas-container">
       <Header as="h2" textAlign="center">
-        Analítica de Clientes con Más Compras
+        Analítica de Ventas Totales
       </Header>
       <Segment className="selector-container">
         <Checkbox
@@ -105,32 +105,41 @@ export function ClientesConMasCompras() {
         </div>
       )}
 
-      {!loading && data.length > 0 && (
+      {!loading && data && (
         <div className="chart-container">
-          <Bar
-            data={{
-              labels: data.map((item) => item.nombre),
-              datasets: [
-                {
-                  label: "Cantidad Comprada",
-                  data: data.map((item) => parseInt(item.cantidad)),
-                  backgroundColor: "rgba(75, 192, 192, 0.6)",
-                },
-              ],
-            }}
-            options={{
-              responsive: true,
-              plugins: {
-                legend: { position: "top" },
-                title: {
-                  display: true,
-                  text: `Top 10 Clientes con Más Compras - ${
-                    isAnnual ? `Año ${year}` : `${month}/${year}`
-                  }`,
-                },
-              },
-            }}
-          />
+          {isAnnual ? (
+            <>
+              <Bar
+                data={{
+                  labels: data.map((item) => item.mes),
+                  datasets: [
+                    {
+                      label: "Ventas Mensuales",
+                      data: data.map((item) => parseFloat(item.total_ventas)),
+                      backgroundColor: "rgba(75, 192, 192, 0.6)",
+                    },
+                  ],
+                }}
+                options={{
+                  responsive: true,
+                  plugins: {
+                    legend: { position: "top" },
+                    title: {
+                      display: true,
+                      text: `Ventas Mensuales - Año ${year}`,
+                    },
+                  },
+                }}
+              />
+              <div className="total-ventas">
+                <strong>Total Anual:</strong> {data.reduce((acc, item) => acc + parseFloat(item.total_ventas), 0)}
+              </div>
+            </>
+          ) : (
+            <div className="total-ventas">
+              <strong>Total Ventas del Mes:</strong> {data.length > 0 ? data[0].total_ventas : 0}
+            </div>
+          )}
         </div>
       )}
     </div>

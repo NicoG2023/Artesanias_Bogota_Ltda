@@ -3,7 +3,8 @@ import {
   getEmpleadosConMasDineroGeneradoApi,
   getEmpleadosConMasVentasApi,
   getProductosMasVendidosApi,
-  getClientesConMasComprasApi
+  getClientesConMasComprasApi,
+  getTotalVentasApi
 } from "../api/analitica";
 import { useAuth } from "./useAuth";
 
@@ -89,6 +90,25 @@ export function useAnalitica() {
     [auth.token]
   );
 
+  const getTotalVentas = useCallback(
+    async (month, year) => {
+      try {
+        setLoading(true);
+        const result = await getTotalVentasApi(
+          auth.token,
+          month,
+          year
+        );
+        setData(result.data);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [auth.token]
+  );
+
   return {
     data,
     loading,
@@ -96,6 +116,7 @@ export function useAnalitica() {
     getEmpleadosConMasDineroGenerado,
     getEmpleadosConMasVentas,
     getProductosMasVendidos,
-    getClientesConMasCompras
+    getClientesConMasCompras,
+    getTotalVentas
   };
 }

@@ -1,7 +1,7 @@
 // controllers/analyticsController.js
 const { Pago, Orden, REL_Orden_Producto, sequelize } = require("../../models");
 const { Op } = require("sequelize");
-const { getUsersByVendedorFk } = require("../../grpc/userClientGrpc");
+const { getUsersByVendedorFk, getUsersByIds } = require("../../grpc/userClientGrpc");
 const stripe = require("../../config/stripe");
 const redisClient = require("../../config/redisClient");
 
@@ -78,8 +78,8 @@ async function getEmpleadosConMasDineroGenerado(req, res) {
       };
     });
 
-    // Almacenar los datos en caché con una expiración de 1 hora (3600 segundos)
-    await redisClient.setEx(cacheKey, 3600, JSON.stringify(ventasConNombres));
+    // Almacenar los datos en caché con una expiración de 10 minutos (600 segundos)
+    await redisClient.setEx(cacheKey, 600, JSON.stringify(ventasConNombres));
 
     return res.json({ data: ventasConNombres });
   } catch (error) {
@@ -292,8 +292,8 @@ async function getProductosMasVendidos(req, res) {
       };
     }));
 
-    // Almacenar los datos en caché con una expiración de 1 hora (3600 segundos)
-    await redisClient.setEx(cacheKey, 3600, JSON.stringify(productosConNombres));
+    // Almacenar los datos en caché con una expiración de 10 minutos (600 segundos)
+    await redisClient.setEx(cacheKey, 600, JSON.stringify(productosConNombres));
 
     return res.json({ data: productosConNombres });
   } catch (error) {
@@ -364,19 +364,22 @@ async function getClientesConMasCompras(req, res) {
       .slice(0, 10)
       .map(([clienteId, cantidad]) => ({ clienteId, cantidad }));
 
-    // Obtener los nombres de los clientes desde Stripe
-    const clientesConNombres = await Promise.all(clientesMasCompras.map(async (compra) => {
-      //const cliente = await stripe.customers.retrieve(compra.clienteId);
+    // Obtener los nombres de los clientes desde gRPC
+    const clienteIds = clientesMasCompras.map((compra) => compra.clienteId);
+    const clientes = await getUsersByIds(clienteIds);
+
+    // Mapear los nombres de los clientes en el resultado final
+    const clientesConNombres = clientesMasCompras.map((compra) => {
+      const cliente = clientes.find((c) => c.id === compra.clienteId);
       return {
         clienteId: compra.clienteId,
-        //nombre: cliente.name,
-        //email: cliente.email,
+        nombre: cliente.nombre,
         cantidad: compra.cantidad,
       };
-    }));
+    });
 
-    // Almacenar los datos en caché con una expiración de 1 hora (3600 segundos)
-    await redisClient.setEx(cacheKey, 3600, JSON.stringify(clientesConNombres));
+    // Almacenar los datos en caché con una expiración de 10 minutos (600 segundos)
+    await redisClient.setEx(cacheKey, 600, JSON.stringify(clientesConNombres));
 
     return res.json({ data: clientesConNombres });
   } catch (error) {
@@ -385,4 +388,68 @@ async function getClientesConMasCompras(req, res) {
   }
 }
 
-module.exports = { getEmpleadosConMasVentas, getEmpleadosConMasDineroGenerado, getProductosMasVendidos, getClientesConMasCompras };
+async function getTotalVentas(req, res) {
+  try {
+    const { month, year } = req.query;
+
+    if (!year) {
+      return res.status(400).json({ message: "Debe proporcionar el año" });
+    }
+
+    const y = parseInt(year);
+    const m = month ? parseInt(month) : null;
+
+    if (isNaN(y)) {
+      return res.status(400).json({ message: "Mes y año deben ser números válidos" });
+    }
+
+    // Definir el rango de fechas
+    const startDate = new Date(y, m ? m - 1 : 0, 1);
+    const endDate = new Date(y, m ? m : 12, 1);
+
+    // Generar una clave única para el caché
+    const cacheKey = `totalVentas:${y}:${m || "annual"}`;
+
+    // Intentar obtener los datos del caché
+    const cachedData = await redisClient.get(cacheKey);
+    if (cachedData) {
+      // Si los datos están en caché, devolverlos
+      return res.json({ data: JSON.parse(cachedData) });
+    }
+
+    // Obtener ventas agrupadas por mes
+    const ventas = await Pago.findAll({
+      attributes: [
+        [sequelize.fn("DATE_TRUNC", "month", sequelize.col("fecha_pago")), "mes"],
+        [sequelize.fn("SUM", sequelize.col("monto_transaccion")), "total_ventas"],
+      ],
+      where: {
+        fecha_pago: { [Op.gte]: startDate, [Op.lt]: endDate },
+      },
+      group: [sequelize.fn("DATE_TRUNC", "month", sequelize.col("fecha_pago"))],
+      order: [[sequelize.fn("DATE_TRUNC", "month", sequelize.col("fecha_pago")), "ASC"]],
+      raw: true,
+    });
+
+    const ventasPorMes = ventas.map((venta) => ({
+      mes: venta.mes,
+      total_ventas: parseFloat(venta.total_ventas),
+    }));
+
+    // Almacenar los datos en caché con una expiración de 10 minutos (600 segundos)
+    await redisClient.setEx(cacheKey, 600, JSON.stringify(ventasPorMes));
+
+    return res.json({ data: ventasPorMes });
+  } catch (error) {
+    console.error("Error al obtener el total de ventas:", error);
+    return res.status(500).json({ message: "Error interno", error: error.message });
+  }
+}
+
+module.exports = { 
+  getEmpleadosConMasVentas,
+  getEmpleadosConMasDineroGenerado,
+  getProductosMasVendidos,
+  getClientesConMasCompras,
+  getTotalVentas 
+};

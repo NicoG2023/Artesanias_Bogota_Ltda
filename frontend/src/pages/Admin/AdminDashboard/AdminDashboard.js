@@ -4,6 +4,7 @@ import {
   EmpleadosConMasVentas,
   ProductosMasVendidos,
   ClientesConMasCompras,
+  TotalVentas,
 } from "../../../components";
 import "./AdminDashboard.scss";
 
@@ -23,6 +24,9 @@ export function AdminDashboard() {
         </div>
         <div className="panel">
           <ClientesConMasCompras />
+        </div>
+        <div className="panel">
+          <TotalVentas />
         </div>
       </div>
     </div>

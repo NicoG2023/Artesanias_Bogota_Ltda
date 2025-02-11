@@ -4,7 +4,8 @@ const {
   getEmpleadosConMasVentas,
   getEmpleadosConMasDineroGenerado,
   getProductosMasVendidos,
-  getClientesConMasCompras
+  getClientesConMasCompras,
+  getTotalVentas
 } = require("../views/AnaliticaController");
 const { verifyToken, authorizeRoles } = require("../../middleware/auth");
 
@@ -34,6 +35,13 @@ router.get(
   verifyToken,  
   authorizeRoles("admin", "superadmin", "staff"),
   getClientesConMasCompras
+)
+
+router.get(
+  "/analiticas/total-ventas",
+  verifyToken,
+  authorizeRoles("admin", "superadmin", "staff"),
+  getTotalVentas
 )
 
 module.exports = router;

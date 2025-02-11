@@ -98,3 +98,27 @@ export async function getClientesConMasComprasApi(token, mes, year) {
     throw error;
   }
 }
+
+export async function getTotalVentasApi(token, mes, year) {
+  const baseUrl = `${API_SERVICIO_CLIENTES}/api/analiticas/total-ventas?month=${mes}&year=${year}`;
+  try{
+    const params = {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    };
+    const response = await fetch(baseUrl, params);
+    if (!response.ok) {
+      throw new Error(
+        `Error al obtener el total de ventas: ${response.statusText}`
+      );
+    }
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error en getTotalVentasApi", error.message);
+    throw error;
+  }
+}
