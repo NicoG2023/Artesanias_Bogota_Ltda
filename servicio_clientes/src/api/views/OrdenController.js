@@ -8,10 +8,11 @@ const {
 const {
   getUsersByIds,
   searchUsersByTerm,
+  getDireccionById,
 } = require("../../grpc/userClientGrpc");
 const { getProductsByIds } = require("../../grpc/productClientGrpc");
-const { getDireccionById } = require("../../grpc/userClientGrpc");
 const { getSignedUrl } = require("../../utils/cacheUtils");
+const { sendMessage } = require("../../kafka/kafkaProducer");
 
 //Controlador para crear Orden
 async function crearOrden(req, res) {
@@ -117,28 +118,28 @@ async function createOrderTransaction({
 //Funcion para simular los cambios de estado
 async function simularEnvioOrden(ordenId) {
   try {
-    // A los 5 seg => pasar a "procesando"
+    // A los 30 seg => pasar a "procesando"
     setTimeout(async () => {
       await actualizarEstadoOrdenInterno(ordenId, "procesando");
-    }, 8000);
+    }, 30000);
 
-    // A los 10 seg => pasar a "EN_RUTA"
+    // A los 30 seg => pasar a "EN_RUTA"
     setTimeout(async () => {
       await actualizarEstadoOrdenInterno(ordenId, "EN_RUTA");
-    }, 10000);
+    }, 30000);
 
-    // A los 15 seg => pasar a "ENTREGADA"
+    // A los 30 seg => pasar a "ENTREGADA"
     setTimeout(async () => {
       await actualizarEstadoOrdenInterno(ordenId, "ENTREGADA");
-    }, 15000);
+    }, 30000);
   } catch (error) {
     console.error("Error en simularEnvioOrden:", error);
   }
 }
 
-// Esta función interna es para no duplicar lógica
 async function actualizarEstadoOrdenInterno(id, nuevoEstado) {
   const orden = await Orden.findByPk(id);
+
   if (!orden) return;
 
   orden.estado = nuevoEstado;
@@ -147,11 +148,39 @@ async function actualizarEstadoOrdenInterno(id, nuevoEstado) {
   console.log(`Orden #${id} actualizada a estado: ${nuevoEstado}`);
 
   if (global.io) {
-    // Notificar a la sala 'orden-<id>'
     global.io.to(`orden-${id}`).emit("estadoActualizado", {
       ordenId: id,
       nuevoEstado,
     });
+  }
+
+  try {
+    // 🔹 Obtener usuario mediante gRPC
+    const usuarios = await getUsersByIds([orden.usuario_fk]);
+
+    if (!usuarios || usuarios.length === 0) {
+      console.error(
+        `No se encontró información del usuario con ID: ${orden.usuario_fk}`
+      );
+      return;
+    }
+
+    const usuario = usuarios[0]; // Solo un usuario en la respuesta
+
+    // 🔹 Enviar evento a Kafka para notificar al usuario por correo
+    await sendMessage("ordenes-events", "estadoOrdenActualizado", {
+      eventType: "ESTADO_ORDEN_ACTUALIZADO",
+      payload: {
+        ordenId: id,
+        nuevoEstado,
+        email: usuario.email,
+        nombre: usuario.nombre,
+      },
+    });
+
+    console.log(`📩 Evento enviado a Kafka para notificar a ${usuario.email}`);
+  } catch (error) {
+    console.error("Error obteniendo usuario vía gRPC:", error);
   }
 }
 

@@ -47,6 +47,7 @@ async function connectConsumer() {
     topic: "email-verification",
     fromBeginning: false,
   });
+  await consumer.subscribe({ topic: "ordenes-events", fromBeginning: false });
 
   // Escuchar mensajes
   await consumer.run({
@@ -66,6 +67,8 @@ async function connectConsumer() {
           await handleEnviarCodigo2FA(event.payload);
         } else if (event.eventType === "ENVIAR_RESET_PASSWORD") {
           await handleEnviarResetPassword(event.payload);
+        } else if (event.eventType === "ESTADO_ORDEN_ACTUALIZADO") {
+          await handleEstadoOrdenActualizado(event.payload);
         }
       } catch (error) {
         console.error("Error procesando mensaje en Usuarios:", error);
@@ -178,6 +181,41 @@ async function handleEnviarResetPassword({ email, token, nombre }) {
       "Error al enviar correo de restablecimiento de contraseña:",
       error
     );
+  }
+}
+
+async function handleEstadoOrdenActualizado({
+  ordenId,
+  nuevoEstado,
+  email,
+  nombre,
+}) {
+  console.log(
+    `📩 Enviando notificación por email para orden ${ordenId}, nuevo estado: ${nuevoEstado}`
+  );
+
+  const subject = `Estado de tu orden #${ordenId} ha cambiado`;
+  let htmlContent = `<p>Hola ${nombre},</p>
+                     <p>Tu orden #${ordenId} ahora está en estado: <strong>${nuevoEstado}</strong>.</p>`;
+
+  switch (nuevoEstado) {
+    case "procesando":
+      htmlContent += `<p>Estamos preparando tu pedido.</p>`;
+      break;
+    case "EN_RUTA":
+      htmlContent += `<p>Tu pedido está en camino. Pronto llegará a tu dirección.</p>`;
+      break;
+    case "ENTREGADA":
+      htmlContent += `<p>Tu pedido ha sido entregado. ¡Gracias por tu compra!</p>`;
+      break;
+    default:
+      htmlContent += `<p>Actualización en el estado de tu orden.</p>`;
+  }
+
+  try {
+    await enviarCorreoGmail(email, subject, htmlContent);
+  } catch (error) {
+    console.error("Error al enviar correo de actualización de orden:", error);
   }
 }
 

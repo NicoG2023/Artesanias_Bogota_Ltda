@@ -33,7 +33,7 @@ module.exports = {
     ];
 
     // Generamos una dirección para cada usuario (suponiendo IDs del 1 al 60)
-    for (let i = 1; i <= 60; i++) {
+    for (let i = 1; i <= 61; i++) {
       // Generar la dirección completa: "Calle" o "Carrera" con número y complemento
       const streetType = faker.helpers.arrayElement(["Calle", "Carrera"]);
       const streetNumber = faker.number.int({ min: 1, max: 200 });
