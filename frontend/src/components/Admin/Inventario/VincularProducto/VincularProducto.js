@@ -138,7 +138,7 @@ export function VincularProducto({
                 formErrors.cantidad ? { content: formErrors.cantidad } : null
               }
             />
-            <Button type="submit" primary>
+            <Button className="btn-vincular" type="submit" primary>
               <Icon name="save" /> Vincular Producto
             </Button>
             <Button type="button" onClick={onClose}>

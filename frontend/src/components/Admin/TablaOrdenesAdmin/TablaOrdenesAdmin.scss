@@ -1,0 +1,178 @@
+.tabla-ordenes {
+    position: relative;
+    max-height: calc(100vh - 200px);
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+  
+    .tabla-ordenes-admin {
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: auto;
+
+      th {
+        padding: 10px;
+        text-align: center !important;
+        vertical-align: middle;
+        font-weight: bold;
+        background-color: #003087 !important; // 📌 Azul oscuro para cabecera
+        color: white !important; // 📌 Texto blanco en cabecera
+      }
+  
+      td {
+        padding: 8px;
+        text-align: left;
+        white-space: nowrap;
+        color: #333 !important; // 📌 Color de texto para las celdas
+      }
+  
+      tbody {
+        tr {
+          &:nth-child(odd) {
+            background-color: #f9f9f9;
+          }
+  
+          &:nth-child(even) {
+            background-color: #ffffff;
+          }
+  
+          &:hover {
+            background-color: #e6f7ff;
+            cursor: pointer;
+          }
+        }
+  
+        td {
+          &:nth-child(4), &:nth-child(6) { // 📌 Columnas de Total y Fecha de Pago
+            text-align: center;
+            font-weight: bold;
+            color: #C8102E; // 📌 Rojo oscuro para destacar
+          }
+
+          &:nth-child(7) { // 📌 Columna de Acciones
+            text-align: center;
+            min-width: 180px;
+
+            .action-buttons {
+              display: flex;
+              justify-content: center;
+              gap: 10px;
+            }
+          }
+        }
+      }
+    }
+
+    /* 📌 Estilos para botones de acciones */
+    .btn-ver {
+        background-color: white !important;
+        color: #003087 !important;
+        font-size: 1rem ;
+        padding: 0.5rem 1rem;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+
+        i.icon {
+            color: #003087 !important;
+          }
+
+        &:hover {
+          background-color: #f7f2e7 !important;
+          transform: scale(1.05);
+          i.icon {
+            color: #002060 !important;
+            margin-right: 1px;
+          }
+        }
+
+        &:disabled {
+          background-color: #b0b0b0 !important;
+          cursor: not-allowed;
+
+          i.icon {
+            color: #808080 !important;
+          }
+        }
+    }
+    
+    .btn-estado {
+      background-color: #003087 !important; // 📌 Amarillo
+      color: #fff !important;
+      font-size: 1rem;
+      padding: 0.5rem 1rem;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+
+      &:hover {
+        background-color: #002060 !important;
+        transform: scale(1.05);
+        i.icon {
+          color: #fff !important;
+          margin-right: 1px;
+        }
+      }
+
+      &:disabled {
+        background-color: #b0b0b0 !important;
+        cursor: not-allowed;
+        i.icon {
+          color: #808080 !important;
+        }
+      }
+    }
+
+    /* 📌 Estilos para la paginación */
+    .tabla-ordenes-admin__paginacion {
+        display: flex;
+        justify-content: center;
+        margin-top: 1.5rem;
+
+        .ui.pagination.menu {
+          justify-content: center;
+          flex-wrap: wrap;
+          margin: 0;
+          color: #003087 !important;
+      
+          .item {
+            color: #003087 !important;
+            font-weight: bold;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            transition: background-color 0.3s ease;
+      
+            &:hover {
+              background-color: #e3f2fd !important;
+            }
+      
+            &.active {
+              background-color: #003087 !important;
+              color: #fff !important;
+            }
+          }
+      
+          .ellipsis {
+            color: #666 !important;
+          }
+      
+          .disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+          }
+        }
+    }
+}
+
+/* 📌 Estilos Responsivos */
+@media (max-width: 768px) {
+    .tabla-ordenes {
+        overflow-x: auto;
+
+        table {
+            font-size: 12px;
+            white-space: nowrap; /* Evita que el texto se corte en móviles */
+        }
+    }
+}

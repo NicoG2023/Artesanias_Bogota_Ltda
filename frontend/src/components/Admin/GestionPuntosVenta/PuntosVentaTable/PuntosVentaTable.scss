@@ -32,13 +32,16 @@
         padding: 10px;
         text-align: center !important;
         vertical-align: middle;
+        background-color: #003087 !important; // 📌 Azul oscuro para cabecera
+        color: white !important; // 📌 Texto blanco en cabecera
 
       }
 
-      th, td {
+      td {
         padding: 8px;
         text-align: left;
         white-space: nowrap;
+        color: #333 !important;
       }
 
       tbody {
@@ -85,10 +88,10 @@
   }
 
   .btn-actualizar {
-    //background-color: #003087 !important;
-    background-color: #ffcd00b3 !important; 
-    //color: #fff !important;
-    color: #003087 !important;
+    background-color: #003087 !important;
+    //background-color: #ffcd00b3 !important; 
+    color: #fff !important;
+    //color: #003087 !important;
     font-size: 1rem;
     padding: 0.5rem 1rem;
     border-radius: 5px;
@@ -96,8 +99,8 @@
     transition: background-color 0.3s ease;
   
     &:hover {
-      //background-color: #002060 !important;
-      background-color: #edc114b3 !important;
+      background-color: #002060 !important;
+      //background-color: #edc114b3 !important;
     }
   
     &:disabled {

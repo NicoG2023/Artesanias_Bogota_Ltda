@@ -136,8 +136,8 @@
   }
   
   .summary-card {
-    background: #f8f8f8;
-    //background: rgba(255, 205, 0, 0.7);
+    //background: #f8f8f8;
+    background: rgba(255, 205, 0, 0.7);
     border: #C8102E;
     border-radius: 12px;
   
@@ -170,15 +170,48 @@
       font-weight: 500;
       color: #003087;
     }
-  }
+    .discount-info {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-top: 0.5rem;
   
-  .shipping-dropdown {
-    width: 100%;
-    background: white;
+      span {
+        color: #C8102E !important; // 📌 Rojo para el porcentaje de descuento
+        font-size: 1.2rem;
+        font-weight: bold;
+      }
   
-    .p-dropdown-label {
-      padding: 0.75rem;
-      color: #003087;
+      .discount-options {
+        margin-top: 1rem;
+        text-align: center;
+  
+        p {
+          color: #003087 !important; // 📌 Azul (igual que label)
+          font-size: 1rem;
+          font-weight: bold;
+        }
+      }
+    }
+
+    .shipping-dropdown {
+      width: 100%;
+      background: white !important;
+      border: 1px solid #003087 !important; /* Borde azul oscuro */
+      border-radius: 4px;
+      padding: 0.5rem;
+      font-size: 1rem;
+      color: #003087 !important;
+  
+      .p-dropdown-label {
+        padding: 0.75rem;
+        color: #003087;
+      }
+  
+      &:focus {
+        outline: none;
+        border-color: #C8102E; /* Rojo oscuro cuando está en foco */
+      }
     }
   }
   
@@ -191,44 +224,42 @@
     color: #003087;
   }
 
-  /*.discount-info {
-    display: flex;
-    font-weight: bold;
-    color: #c8102e; // Rojo oscuro
-  }
-
-  /*.discount-options {
-    display: flex;
-    margin-top: 1rem;
-  
-    .p {
-      margin-bottom: 1rem;
-      color: #003087;
-    }
-  }
-
   .btn-discount {
-    width: 100%;
-    background-color: #003087; // Azul oscuro
-    color: white;
-    border: none;
-    padding: 0.75rem;
-    border-radius: 4px;
     font-size: 1rem;
     font-weight: bold;
+    padding: 0.75rem 1rem;
+    border-radius: 4px;
     cursor: pointer;
+    border: none;
     transition: background-color 0.3s ease;
-    
-    //background: #C8102E;
-  
-    &:hover {
-      background-color: #002060; // Azul más oscuro
-    }
   
     &:not(:last-child) {
       margin-right: 1rem;
     }
-  }*/
+  }
+  
+  // Botón "Aplicar descuento" (Rojo)
+  .btn-aplicar {
+    background-color: #C8102E !important; 
+    color: white !important;
+  
+    &:hover {
+      background-color: #9D2C15 !important; 
+      transform: scale(1.05);
+    }
+  }
+  
+  // Botón "Seguir acumulando" (Azul)
+  .btn-seguir {
+    background-color: #003087 !important; 
+    color: white !important;
+  
+    &:hover {
+      background-color: #002060 !important; 
+      transform: scale(1.05);
+    }
+  }
+  
   
   
   .summary-total {
@@ -241,8 +272,8 @@
   
   .register-button {
     width: 100%;
-    background: #C8102E;
-    color: white;
+    background: #C8102E !important;
+    color: white !important;
     border: none;
     padding: 0.75rem;
     border-radius: 4px;
@@ -250,14 +281,15 @@
     font-weight: 500;
     //#003087 #043a9f
     &:hover {
-      background: #9d2c15;
+      background: #9d2c15 !important;
+      transform: scale(1.05);
     }
   }
 
   .discount-summary {
     span {
       display: flex;
-      align-items: center;
+      align-items: right;
     }
     .original-price {
       text-decoration: line-through;

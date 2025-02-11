@@ -1,5 +1,6 @@
 .products-page {
     // Clase contenedora para la página de productos
+    background-color: #FFFFFF !important;
   
     .buscador-container {
       display: flex;
@@ -11,6 +12,7 @@
   .main-content {
       display: flex;
       gap: 2rem;
+      background-color: #FFFFFF !important;
     
       .sidebar {
         flex: 0 0 250px;

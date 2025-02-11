@@ -1,0 +1,11 @@
+.detalle-orden-page {
+    max-width: 1024px;
+    margin: 0 auto;
+    padding: 2rem;
+    background: #f9f9f9; /* Fondo suave */
+    border-radius: 8px;
+  
+    @media (max-width: 768px) {
+      padding: 1rem;
+    }
+  }

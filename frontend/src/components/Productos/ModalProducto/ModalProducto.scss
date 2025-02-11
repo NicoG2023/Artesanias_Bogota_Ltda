@@ -1,6 +1,10 @@
 /* ModalProducto.scss */
 
 .ui.modal.modal-product {
+    //max-width: 600px !important; /* Reduce el ancho del modal */
+    //min-width: 400px; /* Evita que sea demasiado pequeño */
+    //max-height: 80vh !important; /* Limita la altura */
+    //overflow: hidden; /* Evita que el contenido desborde */
     border-radius: 10px !important;   /* esquinas redondeadas en el modal */
     .content {
       padding: 0 !important;         /* removemos padding default */
@@ -52,30 +56,50 @@
     font-size: 1.25rem;
     font-weight: bold;
     margin-bottom: 1rem;
-    color: #003087;
+    color: #003087 !important;
   }
   
   .modal-product__description {
     margin-bottom: 1rem;
-    color: #003087;
+    color: #003087 !important;
   }
 
   .modal-product__color {
     margin-bottom: 1rem;
-    color: #003087;
+    color: #003087 !important;
   }
   
   .modal-product__rating {
     margin-bottom: 1rem;
-    color: #003087;
+    color: #003087 !important;
+  }
+
+  .modal-product__stock {
+    margin-bottom: 1rem;
+    border-radius: 8px;
+  }
+  
+  /* 📌 Sin stock */
+  .modal-product__stock--no {
+    background-color: #f8d7da !important; /* Rojo claro */
+    color: #c8102e !important; /* Rojo oscuro */
+    border: 1px solid #c8102e !important;
+  }
+  
+  /* 📌 Con stock */
+  .modal-product__stock--yes {
+    color: #003087 !important; /* Azul oscuro */
   }
   
   .modal-product__footer {
     margin-top: auto; /* empuja el footer al final */
     display: flex;
-    justify-content: center; /* centra horizontalmente */
+    //justify-content: center;
+    align-items: center; /* centra horizontalmente */
     padding-top: 1rem;       /* espacio arriba del botón */
     border-top: 1px solid #eee; /* si quieres una separación horizontal */
+    //position: sticky;
+    bottom: 0;
   }
 
   .modal-product__categorias {
@@ -87,7 +111,7 @@
   
   .categoria-tag {
     background-color: #f0f0f0;
-    color: #333;
+    color: #003087 !important;
     padding: 5px 10px;
     border-radius: 15px;
     font-size: 0.9rem;
@@ -95,4 +119,43 @@
     display: inline-flex;
     align-items: center;
   }
+
+  /* 📌 Botón Agregar al carrito */
+.btn-add-cart {
+  background-color: #003087 !important;
+  //justify-content: center;
+  //color: white !important;
+  color:rgb(255, 205, 0) !important;
+  font-size: 1rem;
+  padding: 0.75rem 1rem;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  //display: block;
+  //margin: 0 auto;
+  align-items: center;
+  gap: 8px;
+
+  &:hover {
+    background-color: #002060 !important;
+    transform: scale(1.05);
+  }
+
+  &:disabled {
+    background-color: #b0b0b0 !important;
+    cursor: not-allowed;
+  }
+}
+
+/* 📌 Estilos Responsivos */
+@media (max-width: 768px) {
+  .detalle-carrito__content {
+    grid-template-columns: 1fr; /* ✅ Se ajusta la grilla en pantallas pequeñas */
+  }
+
+  .modal-product__stock {
+    font-size: 0.9rem; /* 📌 Reduce el tamaño de la fuente */
+    padding: 0.5rem; /* 📌 Reduce el padding */
+  }
+}
   

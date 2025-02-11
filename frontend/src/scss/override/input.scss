@@ -4,12 +4,33 @@
       color: #003087 !important;
       border-color: #f1f1f1 !important;
       border-radius: 10px !important;
+
+      &::placeholder {
+        color: #6E85B2 !important;  /* Azul grisáceo */
+        font-style: italic;  /* Diferencia visual */
+      }
+
+      &:hover {
+        background-color: #e0e0e0 !important; /* Color más oscuro al pasar el mouse */
+        border-color: #003087 !important; /* Resalta el borde */
+      }
   
       &:focus {
         background-color: #fff !important;
         box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.2) !important;
         -webkit-box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.2) !important;
         -moz-box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.2) !important;
+      }
+    }
+    .ui.input .icon {
+      color: #003087 !important;
+      font-size: 1.2rem !important;
+      transition: transform 0.2s ease, color 0.2s ease;
+    
+      &:hover {
+        color: #002060 !important;
+        transform: scale(1.2) translateY(-2px);
+        opacity: 0.9;
       }
     }
   }

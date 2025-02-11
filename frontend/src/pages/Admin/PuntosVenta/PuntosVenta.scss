@@ -29,12 +29,23 @@
           //background-color: rgb(28, 112, 28);
           background-color: rgb(0, 38, 110);
           //background-color: rgb(204, 164, 0);
+          transform: scale(1.05);
         }
+
+        &:disabled {
+          background-color: #b0b0b0 !important;
+          cursor: not-allowed;
+        }
+    
+        i.icon {
+          margin-right: 5px;
+        }
+        
       }
     }
   
     .puntosVenta__title {
-      font-size: 40px;
+      font-size: 2rem;
       margin-top: 10px;
       margin-bottom: 10px;
     }

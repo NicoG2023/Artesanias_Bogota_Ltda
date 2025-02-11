@@ -48,7 +48,7 @@ export function Inventario() {
       </div>
       <div className="tabla-inventario">
         <div className="acciones-superiores">
-          <Button primary onClick={handleOpenVincular}>
+          <Button className="btn-vincular" onClick={handleOpenVincular}>
             <Icon name="linkify" /> Vincular Producto
           </Button>
         </div>

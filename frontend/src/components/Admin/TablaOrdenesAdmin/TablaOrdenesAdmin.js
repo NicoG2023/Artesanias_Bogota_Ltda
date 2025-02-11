@@ -104,13 +104,13 @@ export function TablaOrdenesAdmin({ ordenesHook }) {
 
               {/* Botón para ver detalles */}
               <Table.Cell textAlign="right">
-                <Button icon onClick={() => mostrarInfoOrden(orden)}>
+                <Button className="btn-ver" icon onClick={() => mostrarInfoOrden(orden)}>
                   <Icon name="address card" />
                 </Button>
                 {/* Botón para cambiar estado */}
                 <Button
+                className="btn-estado"
                   icon
-                  color="blue"
                   onClick={() => {
                     setOrdenParaCambioEstado(orden);
                     setOpenCambioEstadoModal(true);

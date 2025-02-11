@@ -1,39 +1,46 @@
 .ui.modal.modal-product {
-  border-radius: 10px !important;   /* esquinas redondeadas en el modal */
+  border-radius: 10px !important; /* esquinas redondeadas en el modal */
+  width: 60vw; /* Ajusta el tamaño según la pantalla */
+  max-width: 900px; /* Evita que el modal sea demasiado grande */
+  min-width: 350px; /* Evita que sea demasiado pequeño */
+  max-height: 90vh; /* Altura máxima */
+  overflow: hidden; /* Evita que el contenido desborde */
+
   .content {
-    padding: 0 !important;         /* removemos padding default */
+    padding: 0 !important;
     border-radius: 10px !important;
-    max-height: 90vh;              /* altura máxima del modal */
-    overflow-y: auto;              /* agregar scrollbar vertical */
-    scrollbar-width: thin;         /* ancho del scrollbar */
-    scrollbar-color: #888 #f1f1f1; /* color del thumb y del track */
-    padding-right: 10px;           /* espacio para ver el borde redondeado */
+    max-height: 90vh; /* altura máxima del modal */
+    overflow-y: auto; /* agregar scrollbar vertical */
+    scrollbar-width: thin;
+    scrollbar-color: #888 #f1f1f1;
+    padding-right: 10px; /* espacio para ver el borde redondeado */
   }
 }
 
 .modal-product__content {
   display: flex;
   flex-direction: row;
-  max-height: 90vh;                /* más altura */
-  overflow: hidden;                /* oculta overflow que exceda */
+  max-height: 90vh; /* más altura */
+  overflow: auto; /* permite que el contenido haga scroll */
 }
 
 .modal-product__image-container {
-  flex: 0 0 15%;                   /* hacer la imagen más pequeña */
+  flex: 0 0 25%; /* Aumenta el tamaño de la imagen */
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color: #f7f2e7;       /* un color de fondo, si deseas */
+  background-color: #f7f2e7;
   border-top-left-radius: 10px;
   border-bottom-left-radius: 10px;
-  border-right: 1px solid #ddd;    /* linea vertical divisoria */
+  border-right: 1px solid #ddd;
 }
 
 .modal-product__image {
-  width: 300px;                    /* ancho fijo para la imagen */
-  height: 300px;                   /* altura fija para la imagen */
-  object-fit: cover;               /* mantener la proporción de la imagen */
-  border-radius: 4px;              /* si deseas redondear la imagen */
+  width: 100%; /* Ajusta la imagen al contenedor */
+  height: auto;
+  max-height: 300px;
+  object-fit: cover;
+  border-radius: 4px;
 }
 
 .modal-product__details {
@@ -41,36 +48,41 @@
   display: flex;
   flex-direction: column;
   padding: 1.5rem;
+  overflow-y: auto; /* ✅ Permite scroll dentro del contenido */
+  max-height: 90vh; /* ✅ Asegura que el contenido no se desborde */
 }
 
 .modal-product__title {
   font-size: 1.5rem;
   margin-bottom: 0.5rem;
-  color: #c64d34;  /* color principal */
+  color: #c8102e !important;
 }
 
-.modal-product__price {
-  font-size: 1.25rem;
+.ui.form .field > label {
+  color: #003087 !important; /* ✅ Azul oscuro */
   font-weight: bold;
-  margin-bottom: 1rem;
-  color: #6e6159;
 }
 
-.modal-product__description {
-  margin-bottom: 1rem;
-  color: #6e6159;
+.ui.form textarea {
+  color: #003087 !important;
+  border-radius: 5px;
+  padding: 10px;
+  font-size: 1rem;
 }
 
+.modal-product__price,
+.modal-product__description,
 .modal-product__rating {
   margin-bottom: 1rem;
+  color: #003087 !important;
 }
 
 .modal-product__footer {
-  margin-top: auto; /* empuja el footer al final */
+  margin-top: auto;
   display: flex;
-  justify-content: space-between; /* espacio entre los botones */
-  padding-top: 1rem;       /* espacio arriba del botón */
-  border-top: 1px solid #eee; /* si quieres una separación horizontal */
+  justify-content: space-between;
+  padding-top: 1rem;
+  border-top: 1px solid #eee;
 }
 
 .modal-product__close-button {
@@ -84,10 +96,66 @@
   color: #888;
 
   &:hover {
-    color: #555;
+    color: #002060 !important;
   }
 }
 
-.save-button {
-  margin-left: auto; /* Empuja el botón de guardar cambios hacia la derecha */
+/* 📌 Botones de "Eliminar" y "Guardar" */
+.ui.button {
+  font-size: 1rem;
+  padding: 0.75rem 1rem;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background-color 0.3s ease;
+}
+
+.ui.button.red {
+  background-color: #c8102e !important;
+  color: white !important;
+
+  &:hover {
+    background-color: #9d2c15 !important;
+    transform: scale(1.05);
+  }
+}
+
+.ui.button.green {
+  background-color: #003087 !important;
+  color: white !important;
+
+  &:hover {
+    background-color: #002060 !important;
+    transform: scale(1.05);
+  }
+
+  &:disabled {
+    background-color: #b0b0b0 !important;
+    cursor: not-allowed;
+  }
+}
+
+/* 📌 Estilos Responsivos */
+@media (max-width: 768px) {
+  .ui.modal.modal-product {
+    width: 95vw; /* ✅ Ocupar casi toda la pantalla en móviles */
+    min-width: 300px;
+  }
+
+  .modal-product__content {
+    flex-direction: column; /* ✅ Poner imagen arriba en pantallas pequeñas */
+    overflow: visible;
+  }
+
+  .modal-product__image-container {
+    flex: none;
+    border-bottom: 1px solid #ddd;
+    border-right: none;
+    padding: 10px;
+  }
+
+  .modal-product__details {
+    max-height: unset; /* ✅ Permitir que el contenido se ajuste */
+    padding: 1rem;
+  }
 }

@@ -23,12 +23,21 @@
 
       &:hover {
         background-color: rgb(0, 38, 110);
+        transform: scale(1.05);
+      }
+      &:disabled {
+        background-color: #b0b0b0 !important;
+        cursor: not-allowed;
+      }
+  
+      i.icon {
+        margin-right: 5px;
       }
     }
   }
 
   .usuarios__title {
-    font-size: 40px;
+    font-size: 2rem;
     margin-top: 10px;
     margin-bottom: 10px;
   }

@@ -32,13 +32,16 @@
         padding: 10px;
         text-align: center !important;
         vertical-align: middle;
+        background-color: #003087!important; // 📌 Azul oscuro para cabecera
+        color: white !important;
 
       }
 
-      th, td {
+      td {
         padding: 8px;
         text-align: left;
         white-space: nowrap;
+        color: #333 !important;
       }
 
       tbody {
@@ -77,43 +80,6 @@
               display: flex;
               justify-content: center;
               gap: 10px;
-
-              /*& .btn-actualizar,
-              & .btn-eliminar {
-                padding: 0.5rem 1rem;
-                font-size: 1rem;
-                border-radius: 5px;
-                cursor: pointer;
-                transition: background-color 0.3s ease;
-              }
-
-              & .btn-actualizar {
-                background-color: #003087 !important;
-                color: #fff !important;
-
-                &:hover {
-                  background-color: #002060 !important;
-                }
-
-                &:disabled {
-                  background-color: #b0b0b0 !important;
-                  cursor: not-allowed;
-                }
-              }
-
-              & .btn-eliminar {
-                background-color: #c8102e !important;
-                color: #fff !important;
-
-                &:hover {
-                  background-color: #a00d26 !important;
-                }
-
-                &:disabled {
-                  background-color: #b0b0b0 !important;
-                  cursor: not-allowed;
-                }
-              }*/
             }
           }
         }
@@ -122,10 +88,10 @@
   }
 
   .btn-actualizar {
-    //background-color: #003087 !important;
-    background-color: #ffcd00b3 !important; 
-    //color: #fff !important;
-    color: #003087 !important;
+    background-color: #003087 !important;
+    //background-color: #ffcd00b3 !important; 
+    color: #fff !important;
+    //color: #003087 !important;
     font-size: 1rem;
     padding: 0.5rem 1rem;
     border-radius: 5px;
@@ -133,8 +99,8 @@
     transition: background-color 0.3s ease;
   
     &:hover {
-      //background-color: #002060 !important;
-      background-color: #edc114b3 !important;
+      background-color: #002060 !important;
+      //background-color: #edc114b3 !important;
     }
   
     &:disabled {
@@ -223,6 +189,9 @@
     }
   }
 }
+
+
+
 
 
 

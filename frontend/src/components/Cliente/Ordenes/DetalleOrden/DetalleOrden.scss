@@ -2,6 +2,8 @@
     max-width: 1024px;
     margin: 0 auto;
     font-family: Arial, sans-serif;
+    padding: 1.5rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   
     .p-card-body {
       padding: 1.5rem;
@@ -31,8 +33,11 @@
     }
   
     &__info {
-      color: #666;
+      color: #003087 !important;
       margin-bottom: 1rem;
+      p{
+        color: #003087;
+      }
     }
   
     &__header {
@@ -46,6 +51,11 @@
       display: flex;
       align-items: center;
       gap: 0.5rem;
+
+      span {
+        font-weight: 600;
+        color: #003087 !important;
+      }
   
       .order-number {
         color: #3b82f6;
@@ -93,16 +103,18 @@
         h3 {
           font-weight: 600;
           margin-bottom: 0.25rem;
+          color: #003087 !important;
         }
   
         p {
-          color: #666;
+          color: #003087 !important;
           margin: 0;
         }
       }
   
       &-price {
         font-weight: 600;
+        color: #003087 !important;
       }
     }
   
@@ -118,12 +130,13 @@
       h3 {
         font-weight: 600;
         margin-bottom: 0.5rem;
+        color: #003087 !important;
       }
     }
   
-    &__shipping, &__payment {
+    &__shipping, &__payment, &__place {
       p {
-        color: #666;
+        color: #003087 !important;
         margin: 0 0 0.25rem;
       }
     }
@@ -133,6 +146,7 @@
         display: flex;
         align-items: center;
         gap: 0.5rem;
+
       }
   
       .payment-logo {
@@ -142,6 +156,12 @@
         border-radius: 4px;
         font-size: 0.875rem;
       }
+
+      .payment-details{
+         p{
+          color: #003087 !important;
+        }
+      }
     }
   
     &__summary {
@@ -150,6 +170,12 @@
   
       .p-card-body {
         padding: 1rem;
+      }
+
+      h3{
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        color: #003087 !important;
       }
   
       .summary-details {
@@ -163,7 +189,11 @@
           }
   
           span:first-child {
-            color: #666;
+            color: #003087 !important;
+          }
+
+          span:last-child {
+            color: #C8102E !important;
           }
         }
   
@@ -173,6 +203,7 @@
   
         .total {
           font-weight: 600;
+          color: #003087 !important;
         }
       }
     }
@@ -185,6 +216,7 @@
   
     &:hover {
       background: #f8fafc;
+      color: #002060 !important;
       border-color: #cbd5e1;
     }
   }

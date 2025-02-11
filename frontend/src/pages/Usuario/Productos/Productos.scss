@@ -1,5 +1,12 @@
 .products-page {
   // Clase contenedora para la página de productos
+  background-color: #f7f7f7; 
+  min-height: 100vh; 
+  padding: 1rem; 
+  justify-content: flex-start;
+  width: fit-content; /*Evita que el contenido se extienda más de lo necesario */
+  margin-left: 1;
+  
 
   .buscador-container {
     display: flex;
@@ -11,7 +18,8 @@
 .main-content {
     display: flex;
     gap: 2rem;
-  
+    //align-items: flex-start;
+    
     .sidebar {
       flex: 0 0 250px;
     }

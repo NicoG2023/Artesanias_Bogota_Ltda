@@ -1,5 +1,8 @@
 .products-page {
     // Clase contenedora para la página de productos
+    background-color: #f7f7f7; 
+    min-height: 100vh; 
+    padding: 1rem; 
   
     .buscador-container {
       display: flex;
