@@ -65,6 +65,13 @@ export function SideMenu() {
             >
               <Icon name="upload" /> Agregar Información
             </Menu.Item>
+            <Menu.Item
+              as={Link}
+              to="/admin-categorias"
+              active={pathname === "/admin-categorias"}
+            >
+              <Icon name="list ul" /> Agregar Categoria
+            </Menu.Item>
           </>
         )}
         {/* Solo visible para usuarios con rol "staff" */}

@@ -165,3 +165,73 @@ export async function relacionarProductoCategoriaApi(
     throw error;
   }
 }
+
+export async function obtenerProductosNoRelacionadosApi(token, categoriaId) {
+  const url = `${API_SERVICIO_ADMIN}/api/categorias/productos-no-relacionados/${categoriaId}`;
+  try {
+    const response = await fetch(url, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`Error al obtener productos: ${response.statusText}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Error en obtenerProductosNoRelacionadosApi", error);
+    throw error;
+  }
+}
+
+export async function obtenerProductosPorCategoriaApi(token, categoriaId) {
+  const url = `${API_SERVICIO_ADMIN}/api/categorias/productos-por-categoria/${categoriaId}`;
+  try {
+    const response = await fetch(url, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`Error al obtener productos: ${response.statusText}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Error en obtenerProductosPorCategoriaApi", error);
+    throw error;
+  }
+}
+
+export async function desvincularProductoCategoriaApi(
+  token,
+  productoId,
+  categoriaId
+) {
+  const url = `${API_SERVICIO_ADMIN}/api/categorias/desvincular-producto/${categoriaId}/${productoId}`;
+  try {
+    const response = await fetch(url, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`Error al desvincular producto: ${response.statusText}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Error en desvincularProductoCategoriaApi", error);
+    throw error;
+  }
+}

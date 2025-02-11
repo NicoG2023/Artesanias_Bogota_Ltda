@@ -64,6 +64,8 @@ async function connectConsumer() {
           await handleEnviarCorreoVerificacion(event.payload);
         } else if (event.eventType === "ENVIAR_CODIGO_2FA") {
           await handleEnviarCodigo2FA(event.payload);
+        } else if (event.eventType === "ENVIAR_RESET_PASSWORD") {
+          await handleEnviarResetPassword(event.payload);
         }
       } catch (error) {
         console.error("Error procesando mensaje en Usuarios:", error);
@@ -152,6 +154,30 @@ async function handleEnviarCodigo2FA({ email, code, nombre }) {
     await enviarCorreoGmail(email, subject, htmlContent);
   } catch (error) {
     console.error("Error al enviar código 2FA con Gmail:", error);
+  }
+}
+
+async function handleEnviarResetPassword({ email, token, nombre }) {
+  console.log("Entra a handleEnviarResetPassword con Gmail");
+
+  const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:3000";
+  const resetUrl = `${FRONTEND_URL}/reset-password?token=${token}`;
+
+  const subject = "Restablece tu contraseña";
+  const htmlContent = `
+    <p>Hola ${nombre},</p>
+    <p>Hemos recibido una solicitud para restablecer tu contraseña. Haz clic en el siguiente enlace para cambiar tu contraseña:</p>
+    <a href="${resetUrl}">Restablecer contraseña</a>
+    <p>Si no solicitaste este cambio, ignora este correo.</p>
+  `;
+
+  try {
+    await enviarCorreoGmail(email, subject, htmlContent);
+  } catch (error) {
+    console.error(
+      "Error al enviar correo de restablecimiento de contraseña:",
+      error
+    );
   }
 }
 

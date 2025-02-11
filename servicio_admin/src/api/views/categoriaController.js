@@ -174,6 +174,127 @@ const relacionarProductoCategoria = async (req, res) => {
   }
 };
 
+const obtenerProductosNoRelacionados = async (req, res) => {
+  try {
+    const { categoriaId } = req.params;
+
+    // Verificar si la categoría existe
+    const categoria = await Categoria.findByPk(categoriaId);
+    if (!categoria) {
+      return res.status(404).json({ error: "Categoría no encontrada" });
+    }
+
+    // Obtener productos ya relacionados con la categoría
+    const productosRelacionados = await REL_ProductoCategoria.findAll({
+      attributes: ["producto_fk"],
+      where: { categoria_fk: categoriaId },
+      raw: true,
+    });
+
+    // Extraer los IDs de los productos relacionados
+    const productosRelacionadosIds = productosRelacionados.map(
+      (rel) => rel.producto_fk
+    );
+
+    // Buscar productos que NO estén en la lista de productos relacionados y que sean activos
+    const productosNoRelacionados = await Producto.findAll({
+      where: {
+        id: {
+          [Op.notIn]: productosRelacionadosIds.length
+            ? productosRelacionadosIds
+            : [-1],
+        },
+        es_activo: true, // Filtrar solo productos activos
+      },
+      attributes: ["id", "nombre", "sku", "precio", "es_activo"],
+    });
+
+    return res.status(200).json({
+      data: productosNoRelacionados,
+    });
+  } catch (error) {
+    console.error("Error al obtener productos no relacionados:", error);
+    return res.status(500).json({
+      error: "Error al obtener productos no relacionados con la categoría",
+    });
+  }
+};
+
+const obtenerProductosPorCategoria = async (req, res) => {
+  try {
+    const { categoriaId } = req.params;
+
+    // Verificar si la categoría existe
+    const categoria = await Categoria.findByPk(categoriaId);
+    if (!categoria) {
+      return res.status(404).json({ error: "Categoría no encontrada" });
+    }
+
+    // Obtener productos relacionados con la categoría
+    const productosRelacionados = await REL_ProductoCategoria.findAll({
+      attributes: ["producto_fk"],
+      where: { categoria_fk: categoriaId },
+      raw: true,
+    });
+
+    // Extraer los IDs de los productos relacionados
+    const productosRelacionadosIds = productosRelacionados.map(
+      (rel) => rel.producto_fk
+    );
+
+    // Buscar productos que están en la lista de productos relacionados
+    const productos = await Producto.findAll({
+      where: {
+        id: {
+          [Op.in]: productosRelacionadosIds.length
+            ? productosRelacionadosIds
+            : [-1], // Si no hay productos, devolver una lista vacía
+        },
+        es_activo: true, // Solo productos activos
+      },
+      attributes: ["id", "nombre", "sku", "precio", "es_activo"],
+    });
+
+    return res.status(200).json({
+      data: productos,
+    });
+  } catch (error) {
+    console.error("Error al obtener productos por categoría:", error);
+    return res.status(500).json({
+      error: "Error al obtener productos relacionados con la categoría",
+    });
+  }
+};
+
+const desvincularProductoCategoria = async (req, res) => {
+  try {
+    const { productoId, categoriaId } = req.params;
+
+    // Verificar si la relación existe
+    const relacion = await REL_ProductoCategoria.findOne({
+      where: { producto_fk: productoId, categoria_fk: categoriaId },
+    });
+
+    if (!relacion) {
+      return res
+        .status(404)
+        .json({ error: "La relación producto-categoría no existe" });
+    }
+
+    // Eliminar la relación
+    await relacion.destroy();
+
+    return res
+      .status(200)
+      .json({ message: "Producto desvinculado correctamente" });
+  } catch (error) {
+    console.error("Error al desvincular producto de la categoría:", error);
+    return res
+      .status(500)
+      .json({ error: "Error al desvincular producto de la categoría" });
+  }
+};
+
 module.exports = {
   obtenerFiltros,
   agregarCategorias,
@@ -182,4 +303,7 @@ module.exports = {
   actualizarCategoria,
   eliminarCategoria,
   relacionarProductoCategoria,
+  obtenerProductosNoRelacionados,
+  obtenerProductosPorCategoria,
+  desvincularProductoCategoria,
 };

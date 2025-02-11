@@ -6,6 +6,9 @@ const {
   actualizarCategoria,
   eliminarCategoria,
   relacionarProductoCategoria,
+  obtenerProductosNoRelacionados,
+  obtenerProductosPorCategoria,
+  desvincularProductoCategoria,
 } = require("../views/categoriaController");
 const router = express.Router();
 const { verifyToken, authorizeRoles } = require("../../middleware/auth");
@@ -153,6 +156,27 @@ router.post(
   verifyToken,
   authorizeRoles("admin", "superadmin"),
   relacionarProductoCategoria
+);
+
+router.get(
+  "/categorias/productos-no-relacionados/:categoriaId",
+  verifyToken,
+  authorizeRoles("admin", "superadmin"),
+  obtenerProductosNoRelacionados
+);
+
+router.get(
+  "/categorias/productos-por-categoria/:categoriaId",
+  verifyToken,
+  authorizeRoles("admin", "superadmin"),
+  obtenerProductosPorCategoria
+);
+
+router.delete(
+  "/categorias/desvincular-producto/:categoriaId/:productoId",
+  verifyToken,
+  authorizeRoles("admin", "superadmin"),
+  desvincularProductoCategoria
 );
 
 module.exports = router;

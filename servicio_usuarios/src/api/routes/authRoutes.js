@@ -5,6 +5,8 @@ const {
   getMe,
   verifyUser,
   verify2fa,
+  solicitarResetPassword,
+  resetPassword,
 } = require("../views/authController");
 const { verifyToken } = require("../../middleware/auth");
 const router = express.Router();
@@ -136,5 +138,9 @@ router.get("/auth/me", verifyToken, getMe);
 router.get("/auth/verify", verifyUser);
 
 router.post("/auth/verify2fa", verify2fa);
+
+router.post("/auth/solicitar-reset-password", solicitarResetPassword);
+
+router.post("/auth/reset-password", resetPassword);
 
 module.exports = router;

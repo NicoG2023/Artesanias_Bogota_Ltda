@@ -206,4 +206,69 @@ const verifyUser = async (req, res) => {
   }
 };
 
-module.exports = { login, verify2fa, register, getMe, verifyUser };
+const solicitarResetPassword = async (req, res) => {
+  const { email } = req.body;
+
+  try {
+    // Buscar usuario por email
+    const usuario = await Usuario.findOne({ where: { email } });
+    if (!usuario) {
+      return res.status(404).json({ message: "Usuario no encontrado" });
+    }
+
+    // Generar token único para restablecimiento de contraseña (expira en 1 hora)
+    const resetToken = jwt.sign(
+      { userId: usuario.id },
+      process.env.JWT_SECRET_KEY,
+      { expiresIn: "1h" }
+    );
+
+    // Enviar evento a Kafka para que se envíe el email con el link de restablecimiento
+    await enviarEventoKafka("email-verification", "ENVIAR_RESET_PASSWORD", {
+      email: usuario.email,
+      token: resetToken,
+      nombre: usuario.nombre,
+    });
+
+    res.status(200).json({
+      message:
+        "Se ha enviado un correo con instrucciones para restablecer tu contraseña.",
+    });
+  } catch (error) {
+    console.error("Error en solicitarResetPassword:", error);
+    res.status(500).json({ message: "Error al procesar la solicitud" });
+  }
+};
+
+const resetPassword = async (req, res) => {
+  const { token, newPassword } = req.body;
+
+  try {
+    // Verificar el token
+    const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
+    const usuario = await Usuario.findByPk(decoded.userId);
+
+    if (!usuario) {
+      return res.status(404).json({ message: "Usuario no encontrado" });
+    }
+
+    // Asignar la nueva contraseña directamente (Sequelize la encriptará en `beforeSave`)
+    usuario.password = newPassword;
+    await usuario.save();
+
+    res.status(200).json({ message: "Contraseña restablecida con éxito" });
+  } catch (error) {
+    console.error("Error en resetPassword:", error);
+    res.status(400).json({ message: "Token inválido o expirado" });
+  }
+};
+
+module.exports = {
+  login,
+  verify2fa,
+  register,
+  getMe,
+  verifyUser,
+  solicitarResetPassword,
+  resetPassword,
+};

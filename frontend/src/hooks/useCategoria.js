@@ -5,14 +5,27 @@ import {
   actualizarCategoriaApi,
   eliminarCategoriaApi,
   relacionarProductoCategoriaApi,
+  obtenerProductosNoRelacionadosApi,
+  obtenerProductosPorCategoriaApi,
+  desvincularProductoCategoriaApi,
 } from "../api/categorias";
 import { useAuth } from "./useAuth";
 
 export function useCategoria() {
   const { auth } = useAuth();
   const [categorias, setCategorias] = useState([]);
+  const [productosNoRelacionados, setProductosNoRelacionados] = useState([]);
+  const [loadingProductosNoRelacionados, setLoadingProductosNoRelacionados] =
+    useState(false);
+  const [errorProductosNoRelacionados, setErrorProductosNoRelacionados] =
+    useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [productosPorCategoria, setProductosPorCategoria] = useState([]);
+  const [loadingProductosPorCategoria, setLoadingProductosPorCategoria] =
+    useState(false);
+  const [errorProductosPorCategoria, setErrorProductosPorCategoria] =
+    useState(null);
 
   /**
    * Obtener todas las categorías
@@ -104,6 +117,61 @@ export function useCategoria() {
     [auth.token]
   );
 
+  const obtenerProductosNoRelacionados = useCallback(
+    async (categoriaId) => {
+      try {
+        setLoadingProductosNoRelacionados(true);
+        const result = await obtenerProductosNoRelacionadosApi(
+          auth.token,
+          categoriaId
+        );
+        setProductosNoRelacionados(result.data);
+      } catch (err) {
+        setErrorProductosNoRelacionados(err.message);
+      } finally {
+        setLoadingProductosNoRelacionados(false);
+      }
+    },
+    [auth.token]
+  );
+
+  const obtenerProductosPorCategoria = useCallback(
+    async (categoriaId) => {
+      try {
+        setLoadingProductosPorCategoria(true);
+        const result = await obtenerProductosPorCategoriaApi(
+          auth.token,
+          categoriaId
+        );
+        setProductosPorCategoria(result.data);
+      } catch (err) {
+        setErrorProductosPorCategoria(err.message);
+      } finally {
+        setLoadingProductosPorCategoria(false);
+      }
+    },
+    [auth.token]
+  );
+
+  const desvincularProductoCategoria = useCallback(
+    async (productoId, categoriaId) => {
+      try {
+        setLoading(true);
+        await desvincularProductoCategoriaApi(
+          auth.token,
+          productoId,
+          categoriaId
+        );
+        await obtenerProductosPorCategoria(categoriaId); // Refrescar lista
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [auth.token, obtenerProductosPorCategoria]
+  );
+
   return {
     categorias,
     loading,
@@ -113,5 +181,14 @@ export function useCategoria() {
     actualizarCategoria,
     eliminarCategoria,
     relacionarProductoCategoria,
+    productosPorCategoria,
+    loadingProductosPorCategoria,
+    errorProductosPorCategoria,
+    obtenerProductosPorCategoria,
+    productosNoRelacionados,
+    loadingProductosNoRelacionados,
+    errorProductosNoRelacionados,
+    obtenerProductosNoRelacionados,
+    desvincularProductoCategoria,
   };
 }

@@ -7,6 +7,7 @@ import {
   LandingPage,
   Verificacion,
   ConfirmarCodigoPage,
+  ResetPassword,
 } from "../pages";
 import { DynamicLayout } from "../layouts/DynamicLayout";
 
@@ -36,10 +37,18 @@ const usuariosRoutes = [
     ),
   },
   {
-    path: "/OlvidoContraseña",
+    path: "/olvide-password",
     element: (
       <BasicLayout>
         <OlvidarPassword />
+      </BasicLayout>
+    ),
+  },
+  {
+    path: "/reset-password",
+    element: (
+      <BasicLayout>
+        <ResetPassword />
       </BasicLayout>
     ),
   },

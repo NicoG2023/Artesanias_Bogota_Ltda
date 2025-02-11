@@ -226,3 +226,43 @@ export async function verify2faApi(data) {
     throw error;
   }
 }
+
+export async function solicitarResetPasswordApi(email) {
+  const url = `${API_SERVICIO_USUARIOS}/api/auth/solicitar-reset-password`;
+  try {
+    const response = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email }),
+    });
+
+    if (!response.ok) {
+      throw new Error("Error al solicitar restablecimiento de contraseña");
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Error en solicitarResetPasswordApi", error);
+    throw error;
+  }
+}
+
+export async function resetPasswordApi(token, newPassword) {
+  const url = `${API_SERVICIO_USUARIOS}/api/auth/reset-password`;
+  try {
+    const response = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ token, newPassword }),
+    });
+
+    if (!response.ok) {
+      throw new Error("Error al restablecer contraseña");
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Error en resetPasswordApi", error);
+    throw error;
+  }
+}
