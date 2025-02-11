@@ -373,7 +373,7 @@ async function getClientesConMasCompras(req, res) {
       const cliente = clientes.find((c) => c.id === compra.clienteId);
       return {
         clienteId: compra.clienteId,
-        nombre: cliente.nombre,
+        //nombre: cliente.nombre || "Desconocido",
         cantidad: compra.cantidad,
       };
     });

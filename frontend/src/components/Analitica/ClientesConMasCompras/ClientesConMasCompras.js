@@ -109,7 +109,7 @@ export function ClientesConMasCompras() {
         <div className="chart-container">
           <Bar
             data={{
-              labels: data.map((item) => item.nombre),
+              labels: data.map((item) => item.clienteId), 
               datasets: [
                 {
                   label: "Cantidad Comprada",
